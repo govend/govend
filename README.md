@@ -6,11 +6,11 @@ The command `govend` takes yet another stab at easily integrating dependency man
 
 ### How It Works
 
-In my (limited) experience, `go get` has been very effective for downloading and adding golang packages into a local development `$GOPATH`. Yet, when using `go get` for deploying to production boxes, it has not been as nearly effective. In my (again limited) experience, depending on the OS build, network environment, and hosting provider `go get` might fail.
+In my (limited) experience, `go get` has been very effective for downloading and adding golang packages into a local development `$GOPATH`. Yet, when using `go get` as a step in production deployments it has not been as nearly effective. In my (again limited) experience, depending on the OS build, network environment, and hosting provider `go get` might fail.
 
-`govend` solves this by pulling golang dependencies into your project repo. By creating a `deps.json` file indicate your `vendor` directory and list your `go get` dependencies, running `govend` will copy your third party packages into your repository.
+`govend` solves this problem by pulling golang dependencies into your project repo. By creating a `deps.json` file indicate your `vendor` directory and list your `go get` dependencies, running `govend` will copy your third party packages into your repository.
 
-`govend` achives this by being a very simple wrapper around `go get`.
+`govend` achieve this by being a very simple wrapper around `go get`.
 
 ### Example
 
