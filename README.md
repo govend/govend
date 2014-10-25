@@ -1,2 +1,2 @@
-govendor
+govend
 ========
