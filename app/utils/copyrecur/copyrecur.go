@@ -54,18 +54,20 @@ func CopyDir(source string, dest string) (err error) {
 	}
 	entries, err := ioutil.ReadDir(source)
 	for _, entry := range entries {
-		sfp := source + "/" + entry.Name()
-		dfp := dest + "/" + entry.Name()
-		if entry.IsDir() {
-			err = CopyDir(sfp, dfp)
-			if err != nil {
-				log.Println(err)
-			}
-		} else {
-			// perform copy
-			err = CopyFile(sfp, dfp)
-			if err != nil {
-				log.Println(err)
+		if entry.Name() != ".git" {
+			sfp := source + "/" + entry.Name()
+			dfp := dest + "/" + entry.Name()
+			if entry.IsDir() {
+				err = CopyDir(sfp, dfp)
+				if err != nil {
+					log.Println(err)
+				}
+			} else {
+				// perform copy
+				err = CopyFile(sfp, dfp)
+				if err != nil {
+					log.Println(err)
+				}
 			}
 		}
 
