@@ -10,7 +10,7 @@ In my (limited) experience, `go get` has been very effective for downloading and
 
 `govend` solves this problem by pulling golang dependencies into your project repo. By creating a `deps.json` file that lists your `go get` dependencies, running `govend` will copy those packages into your desired repository directory.
 
-This is achieved by wrapping `go get` and only managing the movement of dependency files and packages. It is true that pulling files and packages from the $GOPATH into repos is not a difficult task, but if used correctly this simple feature can **go** a long way... :)
+This is achieved by wrapping `go get` and only managing the movement of dependency files and packages. It is true that pulling files and packages from the `$GOPATH` into repos is not a difficult task, but if used correctly this simple feature can **go** a long way... :)
 
 ### Example
 
