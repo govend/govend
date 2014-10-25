@@ -89,9 +89,7 @@ Known Issues
 >
 > Because `govend` wraps around `go get` it should work with all `go get` supported versioning control software... in theory.
 
-### Why will some packages like `github.com/someone/someproject`
-
-not get pushed up when I commit?
+### Why will some packages in `_vendor` not get pushed up when I commit?
 
 > Take a look at your `.gitignore` and `.gitignore_global` files. I had an issue where one of these files ignored `*.com` which would include most third party golang packages.
 >
