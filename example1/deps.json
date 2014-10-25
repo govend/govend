@@ -1,6 +1,5 @@
 {
     "deps": [
-        "github.com/gorilla/mux",
-        "gopkg.in/mgo.v2"
+        "github.com/gorilla/mux"
     ]
 }
