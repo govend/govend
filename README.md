@@ -1,4 +1,4 @@
-![Golang Gopher](./images/gopher.png) ![GoVend](./images/govend.png)
+![Golang Gopher](./images/small-gopher.png) ![GoVend](./images/govend.png)
 
 ### What It Is
 
