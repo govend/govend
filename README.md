@@ -8,13 +8,13 @@ The command `govend` takes yet another stab at easily integrating dependency man
 
 In my (limited) experience, `go get` has been very effective for downloading and adding golang packages into a local development `$GOPATH`. Yet, when using `go get` as a step in production deployments it has not been as nearly effective. In my (again limited) experience, depending on the OS build, network environment, and hosting provider `go get` might fail.
 
-`govend` solves this problem by pulling golang dependencies into your project repo. By creating a `deps.json` file indicate your `vendor` directory and list your `go get` dependencies, running `govend` will copy your third party packages into your repository.
+`govend` solves this problem by pulling golang dependencies into your project repo. By creating a `deps.json` file that lists your `go get` dependencies, running `govend` will copy those packages into your desired repository directory.
 
-`govend` achieve this by being a very simple wrapper around `go get`.
+This is achieved by wrapping `go get` and only managing the movement of dependency files and packages. It is true that pulling files and packages from the $GOPATH into repos is not a difficult task, but if used correctly this simple feature can **go** a long way... :)
 
 ### Example
 
-> First create a `deps.json` file at the root of your repository.
+> First create a `deps.json` file at the root of your project/repo, much like a README.md.
 
 ```javascript
 {
@@ -25,7 +25,7 @@ In my (limited) experience, `go get` has been very effective for downloading and
 }
 ```
 
-> Next run the command `govend`.
+> Next run the command `govend` from your project/repo root.
 
 ```bash
 $ govend
@@ -51,3 +51,7 @@ import (
 	"_vendor/gopkg.in/mgo.v2"
 )
 ```
+
+> Now `go build`!
+
+### Changing the default `_vendor` directory.
