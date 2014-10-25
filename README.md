@@ -2,7 +2,7 @@
 
 ### What It Is
 
-The command `govend` takes yet another stab at fixing dependency management for golang. While many different solutions already exist to manage third party golang packages, `govend` tries a more simple approach.
+The command `govend` takes yet another stab at easily integrating dependency management with golang projects. While many different solutions already exist to manage third party golang packages, `govend` tries a more simple approach.
 
 ### How It Works
 
