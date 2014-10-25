@@ -54,7 +54,13 @@ func CopyDir(source string, dest string) (err error) {
 	}
 	entries, err := ioutil.ReadDir(source)
 	for _, entry := range entries {
+
+		//
+		// This statement was added by Jack Spirou to strip out git issues.
+		// Hopefully this will be refactored to be an optional input.
+		//
 		if entry.Name() != ".git" && entry.Name() != ".gitignore" {
+
 			sfp := source + "/" + entry.Name()
 			dfp := dest + "/" + entry.Name()
 			if entry.IsDir() {
@@ -69,6 +75,7 @@ func CopyDir(source string, dest string) (err error) {
 					log.Println(err)
 				}
 			}
+
 		}
 	}
 	return
