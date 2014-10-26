@@ -14,6 +14,14 @@ In my (limited) experience, `go get` has been very effective for downloading and
 
 This is achieved by wrapping `go get` and only managing the movement of dependency files and packages. It is true that pulling files and packages from the `$GOPATH` into repos is not a difficult task, but if used correctly this simple feature can **go** a long way... :)
 
+As [Brad Fitzpatrick](https://github.com/bradfitz) (a member of the golang team) said...
+
+> "go get is nice for playing around, but if you your going to do something serious like deploy binarys to production, your deploy to production script should shouldn't involve fetching some random dude's stuff on github."
+
+That inspirational quote can be heard here:
+
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/p9VUCp98ay4/0.jpg)](http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s) http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s
+
 Example
 =======
 
@@ -73,6 +81,19 @@ So you might have your own golang file structure you really like... and maybe th
     ]
 }
 ```
+
+Why This Project
+================
+
+I like to think that project was directly inspired by some talks at **GopherCon14** (I was too poor to attend) and the **GoTeam Google I/O Golang Fireside Chat 2013** (also to poor to attend).
+
+You can watch them online just like I did at these links below! (yay internets)
+
+-	Fireside Chat (part 1) http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=4m30s
+
+-	Fireside Chat (part 2) http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s
+
+-	GopherCon14 SoundCloud Best Practices for Production Environments http://www.youtube.com/watch?v=Y1-RLAl7iOI&feature=youtu.be&t=20m5s
 
 Known Issues
 ============
