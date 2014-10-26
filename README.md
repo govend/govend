@@ -104,11 +104,17 @@ I like to think that this project was inspired by talks at **GopherCon14** (I wa
 
 You can watch them online just like I do at these links below! (yay internets)
 
--	Fireside Chat (part 1) http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=4m30s
+-	Fireside Chat (part 1)
 
--	Fireside Chat (part 2) http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s
+	http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=4m30s
 
--	GopherCon14 SoundCloud Best Practices for Production Environments http://www.youtube.com/watch?v=Y1-RLAl7iOI&feature=youtu.be&t=20m5s
+-	Fireside Chat (part 2)
+
+	http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s
+
+-	GopherCon14 SoundCloud Best Practices for Production Environments
+
+	http://www.youtube.com/watch?v=Y1-RLAl7iOI&feature=youtu.be&t=20m5s
 
 Other Solutions
 ===============
