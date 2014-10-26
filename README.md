@@ -21,7 +21,7 @@ Create a `deps.json` file that lists your `go get` dependencies and `govend` wil
 
 > The very long answer:
 
-In my (limited) experience, `go get` has been very effective for downloading and adding golang packages into a local development `$GOPATH`. Yet, when using `go get` as a step in a script for production deployments it is not as effective. In my (again limited) experience, depending on the OS build, network environment, and hosting provider `go get` might fail.
+In my experience, `go get` has been very effective for downloading and adding golang packages into a local development `$GOPATH`. Yet, when using `go get` as a step in a script for production deployments it has not been as effective. Again, my experience has made me fear depending on the OS build, network environment, and hosting provider to ensure `go get` will not fail.
 
 `govend` solves this problem by pulling golang dependencies into your project repo. By creating a `deps.json` file that lists your `go get` dependencies, running `govend` will copy those packages into your desired repository directory.
 
