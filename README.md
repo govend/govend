@@ -17,7 +17,7 @@ How It Works
 
 > The very short answer:
 
-By creating a `deps.json` file that lists your `go get` dependencies `govend` will copy those packages into your project repository.
+Create a `deps.json` file that lists your `go get` dependencies and `govend` will copy those packages into your project repository.
 
 > The very long answer:
 
