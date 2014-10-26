@@ -62,7 +62,9 @@ $ govend
 Vending complete
 ```
 
-> Lastly change your imports to use the `_vendor` directory. Checkout [goimports](https://github.com/bradfitz/goimports) for this.
+> Lastly change your imports to use the `_vendor` directory. Relative paths may be handy for this.
+>
+> Also checkout [goimports](https://github.com/bradfitz/goimports).
 
 ```go
 package example
@@ -73,8 +75,8 @@ import (
 	"log"
 	"os"
 
+	"./_vendor/gopkg.in/mgo.v2"
 	"projectpath/_vendor/github.com/gorilla/mux"
-	"projectpath/_vendor/gopkg.in/mgo.v2"
 )
 ```
 
