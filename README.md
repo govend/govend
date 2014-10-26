@@ -29,7 +29,7 @@ This is achieved by wrapping `go get` and only managing the movement of dependen
 
 As [Brad Fitzpatrick](https://github.com/bradfitz) (a member of the golang team) said...
 
-> "go get is nice for playing around, but if your going to do something serious like deploy binaries to production, your deploy to production script should shouldn't involve fetching some random dude's stuff on github."
+> "go get is nice for playing around, but if your going to do something serious like deploy binaries to production, your deploy to production script shouldn't involve fetching some random dude's stuff on github."
 
 That inspirational quote can be heard here:
 
