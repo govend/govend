@@ -33,7 +33,9 @@ As [Brad Fitzpatrick](https://github.com/bradfitz) (a member of the golang team)
 
 That inspirational quote can be heard here:
 
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/p9VUCp98ay4/0.jpg)](http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s) http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/p9VUCp98ay4/0.jpg)](http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s)
+
+http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s
 
 Example
 =======
