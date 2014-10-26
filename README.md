@@ -100,9 +100,9 @@ So you might have your own golang file structure you really like... and maybe th
 Why This Project
 ================
 
-I like to think that project was directly inspired by some talks at **GopherCon14** (I was too poor to attend) and the **GoTeam Google I/O Golang Fireside Chat 2013** (also to poor to attend).
+I like to think that this project was directly inspired by talks at **GopherCon14** (I was too poor to attend) and the **GoTeam Google I/O Golang Fireside Chat 2013** (also to poor to attend).
 
-You can watch them online just like I did at these links below! (yay internets)
+You can watch them online just like I do at these links below! (yay internets)
 
 -	Fireside Chat (part 1) http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=4m30s
 
