@@ -16,7 +16,7 @@ func Govend() {
 	// Run "$ go get" for all deps.
 	for _, dep := range deps.List {
 		// Command to go get {dep/repo}
-		err := exec.Command("go", "get", dep).Run()
+		err := exec.Command("go", "get", "-d", dep).Run()
 		helpers.Check(err)
 	}
 

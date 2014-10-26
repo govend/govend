@@ -110,6 +110,16 @@ You can watch them online just like I did at these links below! (yay internets)
 
 -	GopherCon14 SoundCloud Best Practices for Production Environments http://www.youtube.com/watch?v=Y1-RLAl7iOI&feature=youtu.be&t=20m5s
 
+Other Solutions
+===============
+
+There are other great but more complex solutions for golang dependency mangement. `govend` is a solid simple solution tailored to most needs, but maybe thats not be the best for your company or project. If your looking for more complexity that will provide robust options and feel constrained by the simplistic method of this project, please take a look at the following solutions below:
+
+-	https://github.com/tools/godep
+-	https://github.com/mattn/gom
+-	https://github.com/pote/gpm
+-	https://github.com/nitrous-io/goop
+
 Known Issues
 ============
 
