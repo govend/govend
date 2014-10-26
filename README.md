@@ -73,8 +73,8 @@ import (
 	"log"
 	"os"
 
-	"_vendor/github.com/gorilla/mux"
-	"_vendor/gopkg.in/mgo.v2"
+	"projectpath/_vendor/github.com/gorilla/mux"
+	"projectpath/_vendor/gopkg.in/mgo.v2"
 )
 ```
 
