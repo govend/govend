@@ -113,7 +113,7 @@ You can watch them online just like I did at these links below! (yay internets)
 Other Solutions
 ===============
 
-There are other great but more complex solutions for golang dependency mangement. `govend` is a solid simple solution tailored to most needs, but maybe thats not be the best for your company or project. If your looking for more complexity that will provide robust options and feel constrained by the simplistic method of this project, please take a look at the following solutions below:
+There are other great but more complex solutions for golang dependency mangement. `govend` is a solid simple solution tailored to most needs, but maybe that is not be the best for your company or project. If your looking for more complexity that will provide robust options and feel constrained by the simplistic method of this project, please take a look at the following solutions below:
 
 -	https://github.com/tools/godep
 -	https://github.com/mattn/gom
