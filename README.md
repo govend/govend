@@ -83,7 +83,7 @@ import (
 Using a different directory than `_vendor`
 ==========================================
 
-So you might have your own golang file structure you really like... and maybe that means `_vendor` being called "_vendor" or being located at the root of your project is a no go. Well just add an extra line to your `deps.json` file. An example is below:
+So you might have your own golang file structure you really like... and maybe that means `_vendor` being called "_vendor" or being located at the root of your project is a no **go**. If that is the case then just add an extra line to your `deps.json` file. An example is below:
 
 > A `deps.json` file specifying the vendor directory.
 
@@ -100,7 +100,7 @@ So you might have your own golang file structure you really like... and maybe th
 Why This Project
 ================
 
-I like to think that this project was inspired by talks at **GopherCon14** (I was too poor to attend) and the **GoTeam Google I/O Golang Fireside Chat 2013** (also to poor to attend).
+I like to think that this project was inspired by talks at **GopherCon14** (I was too poor to attend) and the **GoTeam Google I/O Golang Fireside Chat 2013** (was still to poor to attend).
 
 You can watch them online just like I do at these links below! (yay internets)
 
