@@ -1,9 +1,16 @@
 ![Golang Gopher](./images/small-gopher.png) ![GoVend](./images/govend.png)
 
-What Is GoVend
-==============
+GoVend
+======
 
 The command `govend` takes yet another stab at easily integrating dependency management with golang projects. While many different solutions already exist to manage third party golang packages, `govend` tries a more simple approach.
+
+Install
+=======
+
+```bash
+$ go get github.com/jackspirou/govend
+```
 
 How It Works
 ============
