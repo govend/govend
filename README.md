@@ -78,8 +78,8 @@ import (
 
 > Now `go build`!
 
-Using a different directory than `_vendor`.
-===========================================
+Using a different directory than `_vendor`
+==========================================
 
 So you might have your own golang file structure you really like... and maybe that means `_vendor` being called "_vendor" or being located at the root of your project is a no go. Well just add an extra line to your `deps.json` file. An example is below:
 
