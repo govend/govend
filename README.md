@@ -62,7 +62,7 @@ $ govend
 Vending complete
 ```
 
-> Lastly change your imports to use the `_vendor` directory.
+> Lastly change your imports to use the `_vendor` directory. Checkout [goimports](https://github.com/bradfitz/goimports) for this.
 
 ```go
 package example
