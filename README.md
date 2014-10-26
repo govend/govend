@@ -188,6 +188,17 @@ ehthumbs.db
 Thumbs.db
 ```
 
+Drawbacks
+=========
+
+### Where are the package version control options?
+
+> Right now, other than using source control software (like GIT) to acomplish this `govend` does not support package version control.
+>
+> It would be great to implement this into the `deps.json` file... could you look into that??? :)
+>
+> NOTE: This project was created for my needs at work to check vedor files into our source control so that deploying to production and building binaries would be a more stable process. If you use `govend` in that way as well, it should get you by for now.
+
 Contributing
 ============
 
