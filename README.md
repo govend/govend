@@ -145,7 +145,7 @@ Known Issues
 
 > Take a look at your `.gitignore` and `.gitignore_global` files. I had an issue where one of these files ignored `*.com` which would include most third party golang packages.
 >
-> For your `.gitignore_global` I recommend the file below, but maybe changes should be made to that as well:
+> For your `.gitignore_global` I recommend the file below, but maybe changes to this will be needed as well:
 
 ```yml
 # Compiled source #
