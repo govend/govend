@@ -1,9 +1,20 @@
 package main
 
-import "github.com/jackspirou/govend/app"
+import (
+	"os"
+	"runtime"
+
+	"github.com/JackSpirou/govend/app"
+)
 
 // The go program starts here.
 func main() {
+
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	// Run the app.
-	app.Run()
+	exitCode := app.Run()
+
+	// Exit with the proper code.
+	os.Exit(exitCode)
 }
