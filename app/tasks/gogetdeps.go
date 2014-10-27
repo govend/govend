@@ -5,7 +5,7 @@ import (
 	"os/exec"
 
 	"github.com/JackSpirou/govend/app/deps"
-	"github.com/JackSpirou/pixelcrypt/helpers"
+	"github.com/JackSpirou/govend/helpers"
 )
 
 func goGetDeps(update bool) {

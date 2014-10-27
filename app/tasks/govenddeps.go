@@ -3,7 +3,7 @@ package tasks
 import (
 	"os/exec"
 
-	"github.com/JackSpirou/pixelcrypt/helpers"
+	"github.com/JackSpirou/govend/helpers"
 )
 
 func govendDeps() {
