@@ -62,7 +62,7 @@ $ govend
 Vending complete
 ```
 
-> Lastly change your imports to use the `_vendor` directory. Relative paths may be handy for this.
+> Lastly change your imports to use the `vendor` directory. Relative paths may be handy for this.
 >
 > Also checkout [goimports](https://github.com/bradfitz/goimports).
 
@@ -75,17 +75,17 @@ import (
 	"log"
 	"os"
 
-	"./_vendor/gopkg.in/mgo.v2"
-	"projectpath/_vendor/github.com/gorilla/mux"
+	"./vendor/gopkg.in/mgo.v2"
+	"projectpath/vendor/github.com/gorilla/mux"
 )
 ```
 
 > Now `go build`!
 
-Using a different directory than `_vendor`
-==========================================
+Using a different directory than `vendor`
+=========================================
 
-So you might have your own golang file structure you really like... and maybe that means `_vendor` being called "_vendor" or being located at the root of your project is a no **go**. If that is the case then just add an extra line to your `deps.json` file. An example is below:
+So you might have your own golang file structure you really like... and maybe that means `vendor` being called "vendor" or being located at the root of your project is a no **go**. If that is the case then just add an extra line to your `deps.json` file. An example is below:
 
 > A `deps.json` file specifying the vendor directory.
 
@@ -143,7 +143,7 @@ Known Issues
 >
 > Because `govend` wraps around `go get` it should work with all `go get` supported versioning control software... in theory.
 
-### Why will some packages in `_vendor` not get pushed up when I commit?
+### Why will some packages in `vendor` not get pushed up when I commit?
 
 > Take a look at your `.gitignore` and `.gitignore_global` files. I had an issue where one of these files ignored `*.com` which would include most third party golang packages.
 >
