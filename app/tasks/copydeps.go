@@ -5,7 +5,7 @@ import (
 
 	"github.com/JackSpirou/govend/app/deps"
 	"github.com/JackSpirou/govend/app/utils/copyrecur"
-	"github.com/JackSpirou/pixelcrypt/helpers"
+	"github.com/JackSpirou/govend/helpers"
 )
 
 func copyDeps(gopath string, list bool) {
