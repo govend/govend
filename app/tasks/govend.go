@@ -13,24 +13,17 @@ import (
 
 func Govend() {
 
-	fmt.Println("go get rmimports")
-
 	// deps for govend.
 	err := exec.Command("go", "get", "-d", "github.com/jackspirou/rmimports").Run()
 	helpers.Check(err)
-
-	fmt.Println("go get gormimports")
 
 	// deps for govend.
 	err = exec.Command("go", "get", "github.com/jackspirou/gormimports").Run()
 	helpers.Check(err)
 
-	fmt.Println("after gormimports")
-
 	// Run "$ go get" for all deps.
 	for _, dep := range deps.List {
 		// Command to go get {dep/repo}
-		fmt.Println(dep)
 		err := exec.Command("go", "get", "-d", dep).Run()
 		helpers.Check(err)
 	}
@@ -69,18 +62,14 @@ func Govend() {
 
 		src := gopath + "/src/" + dep
 
-		fmt.Println("Removing: " + src)
-
 		err := os.RemoveAll(src)
 		helpers.Check(err)
 	}
 
-	fmt.Println("running gormimports")
 	// Run gormimports
 	err = exec.Command("bash", "-c", "gormimports -w ./*").Run()
 	fmt.Println(err)
 
-	fmt.Println("running goimports")
 	// Run goimports
 	err = exec.Command("bash", "-c", "goimports -w ./*").Run()
 	fmt.Println(err)
