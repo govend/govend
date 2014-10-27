@@ -67,12 +67,10 @@ func Govend() {
 	}
 
 	// Run gormimports
-	err = exec.Command("bash", "-c", "gormimports -w ./*").Run()
-	fmt.Println(err)
+	exec.Command("bash", "-c", "gormimports -w ./*").Run()
 
 	// Run goimports
-	err = exec.Command("bash", "-c", "goimports -w ./*").Run()
-	fmt.Println(err)
+	exec.Command("bash", "-c", "goimports -w ./*").Run()
 
 	// Tell the user we are done vendoring!
 	fmt.Println("")
