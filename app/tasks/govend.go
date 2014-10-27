@@ -1,79 +1,54 @@
 package tasks
 
 import (
+	"errors"
 	"fmt"
-	"log"
 	"os"
-	"os/exec"
 
-	"github.com/jackspirou/govend/app/deps"
-	"github.com/jackspirou/govend/app/helpers"
-	"github.com/jackspirou/govend/app/utils/copyrecur"
+	"github.com/JackSpirou/govend/app/deps"
+	"github.com/JackSpirou/govend/app/helpers"
 )
 
-func Govend() {
-
-	// deps for govend.
-	err := exec.Command("go", "get", "-d", "github.com/jackspirou/rmimports").Run()
-	helpers.Check(err)
-
-	// deps for govend.
-	err = exec.Command("go", "get", "github.com/jackspirou/gormimports").Run()
-	helpers.Check(err)
-
-	// Run "$ go get" for all deps.
-	for _, dep := range deps.List {
-		// Command to go get {dep/repo}
-		err := exec.Command("go", "get", "-d", dep).Run()
-		helpers.Check(err)
-	}
+func Govend(list, save, update bool) {
 
 	// Read the $GOPATH env.
 	gopath := os.Getenv("GOPATH")
 	if len(gopath) < 1 {
-		log.Fatalln("Unable to read the $GOPATH environment variable.")
+		helpers.Check(errors.New("env var $GOPATH not found"))
 	}
+
+	// Check govend has all its own dependencies installed.
+	govendDeps()
+
+	// Pull all dependencies into the $GOPATH.
+	goGetDeps(update)
 
 	// Remove the vendor directory if it exists.
-	err = os.RemoveAll(deps.Dir)
+	err := os.RemoveAll(deps.Dir)
 	helpers.Check(err)
 
-	// Copy all dependency code into the vendor directory.
-	for _, dep := range deps.List {
+	// Copy the dependencies in the gopath.
+	copyDeps(gopath, list)
 
-		// Source and destination paths.
-		src := gopath + "/src/" + dep
-		dest := deps.Dir + "/" + dep
-
-		// Tell the user we are pulling this dependency into their project.
-		fmt.Println(" ↓ " + dep)
-
-		// Recursively copy the dependency into the vendors directory.
-		err := copyrecur.CopyDir(src, dest)
-		helpers.Check(err)
-	}
+	// Delete the dependencies in the gopath.
+	deleteDeps(gopath)
 
 	// Tell the user we are now attempting to fix imports.
 	fmt.Println("")
 	fmt.Println("Fixing imports...")
 
-	// Delete all files go get downloaded.
-	for _, dep := range deps.List {
-
-		src := gopath + "/src/" + dep
-
-		err := os.RemoveAll(src)
-		helpers.Check(err)
-	}
-
 	// Run gormimports
-	exec.Command("bash", "-c", "gormimports -w ./*").Run()
+	goRmImports()
 
 	// Run goimports
-	exec.Command("bash", "-c", "goimports -w ./*").Run()
+	goImports()
+
+	// If the user wants to save the dendencies in the gopath, go get them again.
+	if save {
+		goGetDeps(true)
+	}
 
 	// Tell the user we are done vendoring!
 	fmt.Println("")
 	fmt.Println("Vending complete!")
-
 }
