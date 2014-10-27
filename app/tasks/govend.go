@@ -55,7 +55,7 @@ func Govend() {
 
 	// Tell the user we are now attempting to fix imports.
 	fmt.Println("")
-	fmt.Println("Attempting to fix imports...")
+	fmt.Println("Fixing imports...")
 
 	// Delete all files go get downloaded.
 	for _, dep := range deps.List {
@@ -74,6 +74,6 @@ func Govend() {
 
 	// Tell the user we are done vendoring!
 	fmt.Println("")
-	fmt.Println("Vending complete")
+	fmt.Println("Vending complete!")
 
 }
