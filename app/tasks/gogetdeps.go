@@ -10,11 +10,11 @@ import (
 
 func goGetDeps(update bool) {
 
+	fmt.Println("")
+
 	if update {
-		fmt.Println("")
 		fmt.Println("Downloading and checking dependency updates...")
 	} else {
-		fmt.Println("")
 		fmt.Println("Downloading dependencies...")
 	}
 
