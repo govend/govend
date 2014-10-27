@@ -46,7 +46,7 @@ func init() {
 
 	// If no deps dir was provided, set the default.
 	if len(d.Dir) < 1 {
-		Dir = "./_vendor"
+		Dir = "./vendor"
 	}
 
 	// Assign the dependency list to List.
