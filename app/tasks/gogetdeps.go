@@ -5,7 +5,7 @@ import (
 	"os/exec"
 
 	"github.com/JackSpirou/govend/app/deps"
-	"github.com/JackSpirou/govend/helpers"
+	"github.com/JackSpirou/govend/app/helpers"
 )
 
 func goGetDeps(update bool) {

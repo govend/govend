@@ -3,7 +3,7 @@ package tasks
 import (
 	"os/exec"
 
-	"github.com/JackSpirou/govend/helpers"
+	"github.com/JackSpirou/govend/app/helpers"
 )
 
 func govendDeps() {
