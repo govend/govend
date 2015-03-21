@@ -3,9 +3,9 @@ package tasks
 import (
 	"fmt"
 
-	"github.com/JackSpirou/govend/app/deps"
-	"github.com/JackSpirou/govend/app/helpers"
-	"github.com/JackSpirou/govend/app/utils/copyrecur"
+	"github.com/jackspirou/govend/app/deps"
+	"github.com/jackspirou/govend/app/helpers"
+	"github.com/jackspirou/govend/app/utils/copyrecur"
 )
 
 func copyDeps(gopath string, list bool) {

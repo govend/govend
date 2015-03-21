@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/JackSpirou/govend/app/helpers"
+	"github.com/jackspirou/govend/app/helpers"
 )
 
 //

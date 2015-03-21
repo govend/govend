@@ -1,7 +1,5 @@
 package main
 
-//go:generate go run mkpkgs.go
-
 import (
 	"fmt"
 	"os"

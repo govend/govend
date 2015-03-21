@@ -3,8 +3,8 @@ package tasks
 import (
 	"os"
 
-	"github.com/JackSpirou/govend/app/deps"
-	"github.com/JackSpirou/govend/app/helpers"
+	"github.com/jackspirou/govend/app/deps"
+	"github.com/jackspirou/govend/app/helpers"
 )
 
 func deleteDeps(gopath string) {

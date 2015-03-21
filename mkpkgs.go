@@ -26,6 +26,12 @@ var pkgs = make(map[string][]pkg)
 // fset is a set of file tokens.
 var fset = token.NewFileSet()
 
+// pkg represents a package.
+type pkg struct {
+	path string // full pkg import path, e.g. "net/http"
+	dir  string // absolute file path to pkg directory e.g. "/usr/lib/go/src/fmt"
+}
+
 func main() {
 
 	// start with the default context.
@@ -97,8 +103,7 @@ func main() {
 	}
 
 	// write source bytes to file.
-	err = ioutil.WriteFile("stdpkgs.go", src, 0644)
-	if err != nil {
+	if err := ioutil.WriteFile("stdpkgs.go", src, 0644); err != nil {
 		log.Fatal(err)
 	}
 }

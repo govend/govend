@@ -1,5 +1,7 @@
 package main
 
+//go:generate go run mkpkgs.go
+
 import (
 	"go/parser"
 	"go/token"
@@ -56,7 +58,7 @@ func scan(dir string) ([]string, error) {
 				if stdpkg, ok := stdpkgs[name]; ok {
 					for _, pkg := range stdpkg {
 						if importpath == pkg.path {
-							continue
+							goto SKIP
 						}
 					}
 				}

@@ -32,12 +32,34 @@ func main() {
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  "verbose",
-			Usage: "Verbose Mode: Print things as they happen.",
+			Usage: "print things as they happen",
 		},
 	}
 
 	// define the list of commands.
-	app.Commands = []cli.Command{}
+	app.Commands = []cli.Command{
+		{
+			Name:        "scan",
+			Usage:       "Scans a go project for external package dependencies",
+			ShortName:   "s",
+			Description: "Use this command to find external package dependencies.",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "write, w",
+					Usage: "write the results to disk",
+				},
+				cli.StringFlag{
+					Name:  "fmt, f",
+					Usage: "format the results with values json, yaml, yml, or xml",
+				},
+			},
+			Action: func(c *cli.Context) {
+				if err := scancmd(c.Args().First(), c.String("write"), c.String("fmt")); err != nil {
+					panic(err)
+				}
+			},
+		},
+	}
 
 	// define the default action.
 	app.Action = func(c *cli.Context) {
