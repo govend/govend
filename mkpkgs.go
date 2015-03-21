@@ -26,12 +26,6 @@ var pkgs = make(map[string][]pkg)
 // fset is a set of file tokens.
 var fset = token.NewFileSet()
 
-// pkg represents a packages.
-type pkg struct {
-	importpath string // full pkg import path, e.g. "net/http"
-	dir        string // absolute file path to pkg directory e.g. "/usr/lib/go/src/fmt"
-}
-
 func main() {
 
 	// start with the default context.
@@ -123,8 +117,8 @@ func load(root, importpath string) {
 
 	// append the package values to the package map.
 	pkgs[name] = append(pkgs[name], pkg{
-		importpath: importpath,
-		dir:        dir,
+		path: importpath,
+		dir:  dir,
 	})
 
 	// get the package directory
