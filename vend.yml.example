@@ -1,0 +1,10 @@
+---
+-
+  path: github.com/gorilla/mux
+  rev: 8096f47503459bcc74d1f4c487b7e6e42e5746b5
+-
+  path: gopkg.in/yaml.v2
+  rev: 49c95bdc21843256fb6c4e0d370a05f24a0bf213
+-
+  path: gopkg.in/unrolled/render.v1
+  rev: 4af7c600639360d65cae54f24fbc3e1366489843
