@@ -1,21 +1,29 @@
 package main
 
+//go:generate go run mkpkgs.go
+
 import (
 	"fmt"
 	"os"
 )
 
+// vend vendors packages into the vendor directory.
 func vend(verbose bool) error {
 
-	file = "vendor/vend.yml"
-
-	// create vendors to work with.
-	vendors := NewVendors()
+	// default value for vendors yaml file.
+	vendFile = "vendor/vend.yml"
 
 	// check if vend file exists.
 	if _, err := os.Stat(file); err == nil {
-		fmt.Println("vend.yml found: processing...")
-		if err := vendors.Read("./vendor/vend.yml"); err != nil {
+
+		// check verbosity
+		if verbose {
+			fmt.Println("vend.yml found: processing...")
+		}
+
+		// read the vendors file.
+		err, vendors := readVendFile(vendFile)
+		if err != nil {
 			return err
 		}
 	}
