@@ -50,7 +50,7 @@ func main() {
 			continue
 		}
 
-		// grab all the child names from the directory in a single slice.
+		// gather all the child names from the directory in a single slice.
 		children, err := f.Readdir(-1)
 
 		// close the file and check for errors.
@@ -88,20 +88,21 @@ func main() {
 	// replace actual GOROOT with "/go".
 	src = bytes.Replace(src, []byte(ctx.GOROOT), []byte("/go"), -1)
 
-	// add line wrapping.
+	// add line wrapping and some better formatting.
 	src = bytes.Replace(src, []byte("[]pkg{"), []byte("[]pkg{\n"), -1)
 	src = bytes.Replace(src, []byte(", pkg"), []byte(",\npkg"), -1)
 	src = bytes.Replace(src, []byte("}}, "), []byte("},\n},\n"), -1)
 	src = bytes.Replace(src, []byte("true, "), []byte("true,\n"), -1)
 	src = bytes.Replace(src, []byte("}}}"), []byte("},\n},\n}"), -1)
 
+	// format the source bytes.
 	var err error
 	src, err = format.Source(src)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Write out source file.
+	// write source bytes to file.
 	err = ioutil.WriteFile("stdpkgs.go", src, 0644)
 	if err != nil {
 		log.Fatal(err)
@@ -110,35 +111,57 @@ func main() {
 
 // load takes a path root and import path
 func load(root, importpath string) {
-	shortName := path.Base(importpath)
-	if shortName == "testdata" {
+
+	// get the package name
+	name := path.Base(importpath)
+	if name == "testdata" {
 		return
 	}
 
+	// calculate the package source directory
 	dir := filepath.Join(root, importpath)
-	pkgs[shortName] = append(pkgs[shortName], pkg{
+
+	// append the package values to the package map.
+	pkgs[name] = append(pkgs[name], pkg{
 		importpath: importpath,
 		dir:        dir,
 	})
 
+	// get the package directory
 	pkgDir, err := os.Open(dir)
 	if err != nil {
 		return
 	}
+
+	// gather all the child names from the directory in a single slice.
 	children, err := pkgDir.Readdir(-1)
+
+	// close the file and check for errors.
 	pkgDir.Close()
 	if err != nil {
 		return
 	}
+
+	// iterate through each child name.
 	for _, child := range children {
+
+		// get the child's name.
 		name := child.Name()
+
+		// check that the childs names not blank
 		if name == "" {
 			continue
 		}
+
+		// handle special package name cases.
 		if c := name[0]; c == '.' || ('0' <= c && c <= '9') {
 			continue
 		}
+
+		// check if the child name is a directory.
 		if child.IsDir() {
+
+			// load the package path and name.
 			load(root, filepath.Join(importpath, name))
 		}
 	}
