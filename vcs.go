@@ -1,3 +1,6 @@
+// code from here:
+// https://raw.githubusercontent.com/tools/godep/master/vcs.go
+
 package main
 
 import (

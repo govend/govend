@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"golang.org/x/tools/go/vcs"
 )
 
 const defaultVendorFile = "vendor/vend.yml"
@@ -118,7 +120,30 @@ func vend(verbose bool) error {
 		// iterate over uvpkgs
 		for _, pkg := range uvpkgs {
 
-			fmt.Println(pkg)
+			r, err := vcs.RepoRootForImportDynamic(pkg, false)
+			if err != nil {
+				return err
+			}
+
+			fmt.Println("")
+			fmt.Println("---")
+			fmt.Println("INFO:")
+			fmt.Println("		package: " + pkg)
+			fmt.Print("		VCS: ")
+			fmt.Println(r.VCS)
+			fmt.Println("		Repo: " + r.Repo)
+			fmt.Println("		Root: " + r.Root)
+			fmt.Println("")
+			fmt.Println("CREATE:")
+			os.MkdirAll(filepath.Dir("vendor/"+pkg), 0777)
+			r.VCS.Create(filepath.Dir("vendor/"+pkg), r.Repo)
+			fmt.Println("---")
+			fmt.Println("")
+
+			// os.MkdirAll(filepath.Dir("vendor/"+pkg), 0777)
+
+			// fmt.Println(vcs.vcs.Download("vendor/" + pkg))
+			// fmt.Println(vcs.vcs)
 		}
 
 	}
