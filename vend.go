@@ -56,7 +56,7 @@ func vend(verbose bool) error {
 
 	// verbosity
 	if verbose {
-		fmt.Println(" 		" + strconv.Itoa(len(uvpkgs)) + " packages found")
+		fmt.Println(" 	" + strconv.Itoa(len(uvpkgs)) + " packages found")
 	}
 
 	// filter out vendored packages
@@ -117,22 +117,37 @@ func vend(verbose bool) error {
 	// check uvpkgs is not empty
 	if len(uvpkgs) > 0 {
 
+		// create a repo map of package paths to RepoRoots
+		rmap := make(map[string]*vcs.RepoRoot)
+
 		// iterate over uvpkgs
 		for _, pkg := range uvpkgs {
 
+			fmt.Println(pkg)
+
+			// determine import path dynamically by pinging repository
 			r, err := vcs.RepoRootForImportDynamic(pkg, false)
 			if err != nil {
 				return err
 			}
 
-			os.MkdirAll(filepath.Dir("_vendortemp/"+pkg), 0777)
-			r.VCS.Create(filepath.Dir("_vendortemp/"+pkg), r.Repo)
+			// check if package path is missing from repo map
+			if _, ok := rmap[r.Repo]; !ok {
 
-			// os.MkdirAll(filepath.Dir("vendor/"+pkg), 0777)
-
-			// fmt.Println(vcs.vcs.Download("vendor/" + pkg))
-			// fmt.Println(vcs.vcs)
+				// add the RepoRoot to the repo map
+				rmap[r.Repo] = r
+			}
 		}
+
+		log.Fatal(rmap)
+
+		// - os.MkdirAll(filepath.Dir("_vendortemp/"+pkg), 0777)
+		// - r.VCS.Create(filepath.Dir("_vendortemp/"+pkg), r.Repo)
+
+		// os.MkdirAll(filepath.Dir("vendor/"+pkg), 0777)
+
+		// fmt.Println(vcs.vcs.Download("vendor/" + pkg))
+		// fmt.Println(vcs.vcs)
 
 	}
 

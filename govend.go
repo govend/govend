@@ -9,6 +9,8 @@ import (
 
 // USAGE
 //
+// COMMANDS: govend (maybe vend?), scan, prune, update, remove
+//
 // govend [global options..]
 //        -v, -verbose
 //

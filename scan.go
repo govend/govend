@@ -24,6 +24,22 @@ func scan(dir string) ([]string, error) {
 	// start the walk down the directory tree.
 	for w.Step() {
 
+		// determine the file statistics once
+		fstat := w.Stat()
+
+		// check if we currently are at a directory
+		if fstat.IsDir() {
+
+			// check if that directory is "_vendor"
+			if fstat.Name() == "_vendor" {
+
+				// skip the directory
+				w.SkipDir()
+				continue
+			}
+			continue
+		}
+
 		// check for errors.
 		if w.Err() != nil {
 			log.Println("govend scan:", w.Err())
@@ -31,7 +47,7 @@ func scan(dir string) ([]string, error) {
 		}
 
 		// check the file is a .go file.
-		if !w.Stat().IsDir() && strings.HasSuffix(w.Path(), ".go") {
+		if strings.HasSuffix(w.Path(), ".go") {
 
 			// create an empty fileset.
 			fset := token.NewFileSet()
@@ -71,7 +87,7 @@ func scan(dir string) ([]string, error) {
 
 				// skip CGO and any relative import paths
 				if importpath == "C" || importpath[0] == '.' {
-					goto SKIP
+					continue
 				}
 
 				// if the package is part of the golang standard library, skip it.
