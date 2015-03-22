@@ -69,6 +69,11 @@ func scan(dir string) ([]string, error) {
 				// determine the name of the package.
 				name := path.Base(importpath)
 
+				// skip CGO and any relative import paths
+				if importpath == "C" || importpath[0] == '.' {
+					goto SKIP
+				}
+
 				// if the package is part of the golang standard library, skip it.
 				if stdpkg, ok := stdpkgs[name]; ok {
 					for _, pkg := range stdpkg {
