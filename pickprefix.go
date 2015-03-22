@@ -1,7 +1,7 @@
 package main
 
-// rmprefix removes any items from a string slice that start with that prefix
-func rmprefix(prefix string, items []string) []string {
+// pickprefix removes any items from a string slice that do not start with that prefix
+func pickprefix(prefix string, items []string) []string {
 
 	// determine the length of prefix, we only want to do this once
 	l := len(prefix)
@@ -18,12 +18,12 @@ func rmprefix(prefix string, items []string) []string {
 
 			// check if the prefix matchs the current item
 			if prefix == item[:l] {
-				continue
+
+				// append the item to the slice
+				results = append(results, item)
 			}
 		}
 
-		// append the item to the slice
-		results = append(results, item)
 	}
 
 	return results

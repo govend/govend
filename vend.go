@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 )
 
@@ -11,6 +12,15 @@ const defaultVendorFile = "vendor/vend.yml"
 
 // vend vendors packages into the vendor directory.
 func vend(verbose bool) error {
+
+	// determine the absolute file path for the provided directory
+	currentpath, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		return err
+	}
+
+	// set default value for vendors yaml file.
+	vendpath := defaultVendorFile
 
 	// verbosity
 	if verbose {
@@ -30,7 +40,7 @@ func vend(verbose bool) error {
 
 	// verbosity
 	if verbose {
-		fmt.Print("scanning for external packages...")
+		fmt.Print("scanning for external unvendored packages...")
 	}
 
 	// scan for external packages
@@ -39,50 +49,103 @@ func vend(verbose bool) error {
 		return err
 	}
 
-	// filter out packages internal to the project
-	pkgs = rmprefix(projectpath, pkgs)
+	// filter out unvendored packages
+	uvpkgs := rmprefix(projectpath, pkgs)
 
 	// verbosity
 	if verbose {
-		fmt.Println(" 		" + strconv.Itoa(len(pkgs)) + " packages found")
+		fmt.Println(" 		" + strconv.Itoa(len(uvpkgs)) + " packages found")
 	}
 
-	// set default value for vendors yaml file.
-	vendpath := defaultVendorFile
+	// filter out vendored packages
+	vpkgs := pickprefix(projectpath+"/vendor/", pkgs)
 
-	// verbosity
-	if verbose {
-		if vendpath == defaultVendorFile {
-			fmt.Println("setting default vend file...			" + vendpath)
-		} else {
-			fmt.Println("setting custom vend file... 			" + vendpath)
+	// check if no externally vendored or unvendored packages exist
+	if len(uvpkgs) < 1 && len(vpkgs) < 1 {
+
+		// get stats on the path
+		if _, err := os.Stat(filepath.Base(vendpath)); err != nil {
+
+			// check if the path does not exist
+			if os.IsNotExist(err) {
+				return nil
+			}
+
+			return err
+		}
+
+		// remove everthing in the vendor directory
+		os.RemoveAll(filepath.Base(vendpath))
+
+		return nil
+	}
+
+	// check vpkgs is not empty
+	if len(vpkgs) > 0 {
+
+		// iterate over vpkgs
+		for _, pkg := range vpkgs {
+
+			// remove project path to create a complete absolute filepath
+			vpath := pkg[len(projectpath):]
+
+			// get stats on the pkg
+			if _, err := os.Stat(filepath.Join(currentpath, vpath)); err != nil {
+
+				// check if the path does not exist
+				if os.IsNotExist(err) {
+
+					// verbosity
+					if verbose {
+						fmt.Println("missing vendored code for " + pkg)
+					}
+
+					// clean pkg path to be unvendored
+					pkg = pkg[len(projectpath+"/vendor/"):]
+
+					// append package into the unvendored package object
+					uvpkgs = append(uvpkgs, pkg)
+				}
+
+				return err
+			}
 		}
 	}
 
-	// create an empty slice of vendors to fill.
-	vf := new(vendors)
+	// check uvpkgs is not empty
+	if len(uvpkgs) > 0 {
 
-	// verbosity
-	if verbose {
-		fmt.Print("checking the vend file exist...")
+		// iterate over uvpkgs
+		for _, pkg := range uvpkgs {
+
+			fmt.Println(pkg)
+		}
+
 	}
+
+	log.Fatalln("done")
+
+	// create an empty slice of vendors to fill.
+	var vf vendors
 
 	// check if vend file path exists.
 	if _, err := os.Stat(vendpath); err == nil {
 
 		// verbosity
 		if verbose {
-			fmt.Println("			file exists")
-		}
-
-		// verbosity
-		if verbose {
-			fmt.Println("processing " + vendpath + "...")
+			fmt.Println("loading " + vendpath + "...")
 		}
 
 		// read the vendors file.
-		if err := load(vendpath, vf); err != nil {
+		if err := load(vendpath, &vf); err != nil {
 			return err
+		}
+
+		// check if the vend file is empty
+		if len(vf) < 1 {
+
+			// remove everthing in the vendor directory
+			os.RemoveAll(filepath.Base(vendpath))
 		}
 
 	} else {
@@ -94,8 +157,6 @@ func vend(verbose bool) error {
 	}
 
 	log.Fatal(pkgs)
-
-	// iterate through each .go file
 
 	//    check if package is in vendors file
 
