@@ -39,6 +39,14 @@ func scancmd(project, file, format string) error {
 		return err
 	}
 
+	projectpath, err := importpath(project)
+	if err != nil {
+		return err
+	}
+
+	// filter out packages internal to the project
+	pkgs = rmprefix(projectpath, pkgs)
+
 	// create an slice of bytes to print or write results
 	var b []byte
 
