@@ -125,20 +125,8 @@ func vend(verbose bool) error {
 				return err
 			}
 
-			fmt.Println("")
-			fmt.Println("---")
-			fmt.Println("INFO:")
-			fmt.Println("		package: " + pkg)
-			fmt.Print("		VCS: ")
-			fmt.Println(r.VCS)
-			fmt.Println("		Repo: " + r.Repo)
-			fmt.Println("		Root: " + r.Root)
-			fmt.Println("")
-			fmt.Println("CREATE:")
-			os.MkdirAll(filepath.Dir("vendor/"+pkg), 0777)
-			r.VCS.Create(filepath.Dir("vendor/"+pkg), r.Repo)
-			fmt.Println("---")
-			fmt.Println("")
+			os.MkdirAll(filepath.Dir("_vendortemp/"+pkg), 0777)
+			r.VCS.Create(filepath.Dir("_vendortemp/"+pkg), r.Repo)
 
 			// os.MkdirAll(filepath.Dir("vendor/"+pkg), 0777)
 
@@ -147,6 +135,10 @@ func vend(verbose bool) error {
 		}
 
 	}
+
+	os.RemoveAll("_vendor")
+	CopyDir("_vendortemp", "_vendor")
+	os.RemoveAll("_vendortemp")
 
 	log.Fatalln("done")
 
