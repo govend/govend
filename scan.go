@@ -39,6 +39,21 @@ func scan(dir string) ([]string, error) {
 			// parse only the import declarations in the .go file.
 			f, err := parser.ParseFile(fset, w.Path(), nil, parser.ImportsOnly)
 			if err != nil {
+
+				// define empty .go file message
+				msg := "expected 'package', found 'EOF'"
+
+				// get the error as a string
+				e := err.Error()
+
+				// ensure we don't run into memory length issues
+				if len(e) >= len(msg) {
+
+					// check for empty .go fiel message
+					if e[len(e)-len(msg):] == msg {
+						continue
+					}
+				}
 				return nil, err
 			}
 
