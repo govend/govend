@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 	"runtime"
 
 	"github.com/codegangsta/cli"
@@ -14,6 +15,13 @@ import (
 // govend [global options..]
 //        -v, -verbose
 //
+
+const (
+	vendorFile = "vendors.yml"
+	vendorDir  = "_vendor"
+)
+
+var vendorFilePath = filepath.Join(vendorDir, vendorFile)
 
 func main() {
 
@@ -65,7 +73,7 @@ func main() {
 
 	// define the default action.
 	app.Action = func(c *cli.Context) {
-		if err := vend(c.GlobalBool("verbose")); err != nil {
+		if err := vendcmd(c.GlobalBool("verbose")); err != nil {
 			panic(err)
 		}
 	}

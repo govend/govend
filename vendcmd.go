@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -10,24 +9,14 @@ import (
 	"golang.org/x/tools/go/vcs"
 )
 
-const defaultVendorFile = "_vendor/vend.yml"
-
-type person struct {
-	Name string `json:"name" yaml:"name"` // Supporting both JSON and YAML.
-	Age  int    `json:"age" yaml:"age"`
-}
-
 // vend vendors packages into the vendor directory.
-func vend(verbose bool) error {
+func vendcmd(verbose bool) error {
 
-	// determine the absolute file path for the provided directory
-	currentpath, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	// determine the absolute file path for the current local directory
+	localpath, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		return err
 	}
-
-	// set default value for vendors yaml file.
-	vendpath := defaultVendorFile
 
 	// verbosity
 	if verbose {
@@ -71,7 +60,7 @@ func vend(verbose bool) error {
 	if len(uvpkgs) < 1 && len(vpkgs) < 1 {
 
 		// get stats on the path
-		if _, err := os.Stat(filepath.Base(vendpath)); err != nil {
+		if _, err := os.Stat(vendorDir); err != nil {
 
 			// check if the error is not that the path does not exist
 			if !os.IsNotExist(err) {
@@ -80,7 +69,7 @@ func vend(verbose bool) error {
 		}
 
 		// remove everthing in the vendor directory
-		os.RemoveAll(filepath.Base(vendpath))
+		os.RemoveAll(vendorDir)
 
 		return nil
 	}
@@ -95,7 +84,7 @@ func vend(verbose bool) error {
 			vpath := pkg[len(projectpath):]
 
 			// get stats on the pkg
-			if _, err := os.Stat(filepath.Join(currentpath, vpath)); err != nil {
+			if _, err := os.Stat(filepath.Join(localpath, vpath)); err != nil {
 
 				// check if the path does not exist
 				if os.IsNotExist(err) {
@@ -121,15 +110,15 @@ func vend(verbose bool) error {
 	var vf []vendor
 
 	// check if vend file path exists.
-	if _, err := os.Stat(vendpath); err == nil {
+	if _, err := os.Stat(vendorFilePath); err == nil {
 
 		// verbosity
 		if verbose {
-			fmt.Println("loading " + vendpath + "...")
+			fmt.Println("loading " + vendorFilePath + "...")
 		}
 
 		// read the vendors file.
-		if err := load(vendpath, &vf); err != nil {
+		if err := load(vendorFilePath, &vf); err != nil {
 			return err
 		}
 
@@ -141,15 +130,14 @@ func vend(verbose bool) error {
 			}
 
 			// remove the vend file
-			os.Remove(vendpath)
+			os.Remove(vendorFilePath)
 		}
 
 	} else {
 
 		// verbosity
 		if verbose {
-			fmt.Println("			file missing")
-			fmt.Println(vendpath)
+			fmt.Println("			file missing: " + vendorFilePath)
 		}
 	}
 
@@ -212,20 +200,8 @@ func vend(verbose bool) error {
 			os.RemoveAll("_vendortemp")
 		}
 
-		log.Fatal(rmap)
 	}
 
-	// os.RemoveAll("_vendor")
-	// CopyDir("_vendortemp", "_vendor")
-	// os.RemoveAll("_vendortemp")
-
-	fmt.Println("")
-	log.Fatalln(pkgs)
-
-	//    check if package is in vendors file
-
-	//      check by tag versions if we should update
-
-	//    if not in vendor file then add it to vendors
+	// if not in vendor file then add it to vendors
 	return nil
 }
