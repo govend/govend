@@ -10,7 +10,12 @@ import (
 	"golang.org/x/tools/go/vcs"
 )
 
-const defaultVendorFile = "vendor/vend.yml"
+const defaultVendorFile = "_vendor/vend.yml"
+
+type person struct {
+	Name string `json:"name" yaml:"name"` // Supporting both JSON and YAML.
+	Age  int    `json:"age" yaml:"age"`
+}
 
 // vend vendors packages into the vendor directory.
 func vend(verbose bool) error {
@@ -60,7 +65,7 @@ func vend(verbose bool) error {
 	}
 
 	// filter out vendored packages
-	vpkgs := pickprefix(projectpath+"/vendor/", pkgs)
+	vpkgs := pickprefix(projectpath+"/_vendor/", pkgs)
 
 	// check if no externally vendored or unvendored packages exist
 	if len(uvpkgs) < 1 && len(vpkgs) < 1 {
@@ -68,12 +73,10 @@ func vend(verbose bool) error {
 		// get stats on the path
 		if _, err := os.Stat(filepath.Base(vendpath)); err != nil {
 
-			// check if the path does not exist
-			if os.IsNotExist(err) {
-				return nil
+			// check if the error is not that the path does not exist
+			if !os.IsNotExist(err) {
+				return err
 			}
-
-			return err
 		}
 
 		// remove everthing in the vendor directory
@@ -103,7 +106,7 @@ func vend(verbose bool) error {
 					}
 
 					// clean pkg path to be unvendored
-					pkg = pkg[len(projectpath+"/vendor/"):]
+					pkg = pkg[len(projectpath+"/_vendor/"):]
 
 					// append package into the unvendored package object
 					uvpkgs = append(uvpkgs, pkg)
@@ -114,51 +117,8 @@ func vend(verbose bool) error {
 		}
 	}
 
-	// check uvpkgs is not empty
-	if len(uvpkgs) > 0 {
-
-		// create a repo map of package paths to RepoRoots
-		rmap := make(map[string]*vcs.RepoRoot)
-
-		// iterate over uvpkgs
-		for _, pkg := range uvpkgs {
-
-			fmt.Println(pkg)
-
-			// determine import path dynamically by pinging repository
-			r, err := vcs.RepoRootForImportDynamic(pkg, false)
-			if err != nil {
-				return err
-			}
-
-			// check if package path is missing from repo map
-			if _, ok := rmap[r.Repo]; !ok {
-
-				// add the RepoRoot to the repo map
-				rmap[r.Repo] = r
-			}
-		}
-
-		log.Fatal(rmap)
-
-		// - os.MkdirAll(filepath.Dir("_vendortemp/"+pkg), 0777)
-		// - r.VCS.Create(filepath.Dir("_vendortemp/"+pkg), r.Repo)
-
-		// os.MkdirAll(filepath.Dir("vendor/"+pkg), 0777)
-
-		// fmt.Println(vcs.vcs.Download("vendor/" + pkg))
-		// fmt.Println(vcs.vcs)
-
-	}
-
-	os.RemoveAll("_vendor")
-	CopyDir("_vendortemp", "_vendor")
-	os.RemoveAll("_vendortemp")
-
-	log.Fatalln("done")
-
 	// create an empty slice of vendors to fill.
-	var vf vendors
+	var vf []vendor
 
 	// check if vend file path exists.
 	if _, err := os.Stat(vendpath); err == nil {
@@ -176,8 +136,12 @@ func vend(verbose bool) error {
 		// check if the vend file is empty
 		if len(vf) < 1 {
 
-			// remove everthing in the vendor directory
-			os.RemoveAll(filepath.Base(vendpath))
+			if verbose {
+				fmt.Println("			empty file")
+			}
+
+			// remove the vend file
+			os.Remove(vendpath)
 		}
 
 	} else {
@@ -185,10 +149,69 @@ func vend(verbose bool) error {
 		// verbosity
 		if verbose {
 			fmt.Println("			file missing")
+			fmt.Println(vendpath)
 		}
 	}
 
-	log.Fatal(pkgs)
+	// check uvpkgs is not empty
+	if len(uvpkgs) > 0 {
+
+		// create a repo map of package paths to RepoRoots
+		rmap := make(map[string]*vcs.RepoRoot)
+
+		// iterate over uvpkgs
+		// remove package imports that might already be included
+		// example: "gopkg.in/mgo.v2/bson" -> "gopkg.in/mgo.v2"
+		for _, pkg := range uvpkgs {
+
+			// determine import path dynamically by pinging repository
+			r, err := vcs.RepoRootForImportDynamic(pkg, false)
+			if err != nil {
+				return err
+			}
+
+			// check if package path is missing from repo map
+			if _, ok := rmap[pkg]; !ok {
+
+				// add the RepoRoot to the repo map
+				rmap[pkg] = r
+			}
+		}
+
+		// check that the repo map is not empty
+		if len(rmap) > 0 {
+
+			// iterate through the rmap
+			for _, r := range rmap {
+
+				// create a directory for the pkg
+				os.MkdirAll(filepath.Dir("_vendortemp/"+r.Root), 0777)
+
+				for _, v := range vf {
+
+					if r.Root == v.Path && len(v.Rev) > 0 {
+						// create the pkg
+						r.VCS.CreateAtRev("_vendortemp/"+r.Root, r.Repo, v.Rev)
+						fmt.Println("Root: " + r.Root + " | Repo " + r.Repo + " | " + v.Rev)
+						goto VendorMatch
+					}
+				}
+				fmt.Println("Root: " + r.Root + " | Repo " + r.Repo + " | no rev")
+				r.VCS.Create("_vendortemp/"+r.Root, r.Repo)
+
+			VendorMatch:
+			}
+		}
+
+		log.Fatal(rmap)
+	}
+
+	// os.RemoveAll("_vendor")
+	// CopyDir("_vendortemp", "_vendor")
+	// os.RemoveAll("_vendortemp")
+
+	fmt.Println("")
+	log.Fatalln(pkgs)
 
 	//    check if package is in vendors file
 

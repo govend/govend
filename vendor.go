@@ -3,9 +3,6 @@ package main
 // vendor describes a vendored dependecy.
 // vendor contains the import path and revision hash.
 type vendor struct {
-	path string `yaml:"path"`
-	rev  string `yaml:"rev"`
+	Path string `json:"path" yaml:"path"`
+	Rev  string `json:"rev" yaml:"rev"`
 }
-
-// vendors is a slice of vendor.
-type vendors []vendor

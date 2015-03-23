@@ -10,7 +10,7 @@ import (
 )
 
 // load reads a vend.yml file and returns an array of vendors.
-func load(file string, v *vendors) error {
+func load(file string, v *[]vendor) error {
 
 	// read the vend file into bytes.
 	bytes, err := ioutil.ReadFile(file)
