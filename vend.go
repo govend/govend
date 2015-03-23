@@ -201,6 +201,15 @@ func vend(verbose bool) error {
 
 			VendorMatch:
 			}
+
+			// iterate through the rmap
+			for _, r := range rmap {
+				os.RemoveAll("_vendor/" + r.Root)
+				os.MkdirAll(filepath.Dir("_vendor/"+r.Root), 0777)
+				CopyDir("_vendortemp/"+r.Root, "_vendor/"+r.Root)
+			}
+
+			os.RemoveAll("_vendortemp")
 		}
 
 		log.Fatal(rmap)
