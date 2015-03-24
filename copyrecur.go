@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 // Copies file source to destination dest.
@@ -62,8 +63,8 @@ func CopyDir(source string, dest string) (err error) {
 		//
 		if entry.Name() != ".git" && entry.Name() != ".gitignore" {
 
-			sfp := source + "/" + entry.Name()
-			dfp := dest + "/" + entry.Name()
+			sfp := filepath.Join(source, entry.Name())
+			dfp := filepath.Join(dest, entry.Name())
 			if entry.IsDir() {
 				err = CopyDir(sfp, dfp)
 				if err != nil {

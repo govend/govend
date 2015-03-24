@@ -43,7 +43,7 @@ func importcmd(d, e, l, w bool, p string, args []string) error {
 		return err
 	}
 
-	projectpath = projectpath + "/" + vendorDir
+	projectpath = filepath.Join(projectpath, vendorDir)
 
 	if len(priority) < 1 {
 		priority = projectpath

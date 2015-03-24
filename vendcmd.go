@@ -58,7 +58,7 @@ func vendcmd(verbose bool) error {
 	}
 
 	// filter out vendored packages
-	vpkgs := selectprefix(projectpath+"/_vendor/", pkgs)
+	vpkgs := selectprefix(filepath.Join(projectpath, vendorDir+string(filepath.Separator)), pkgs)
 
 	// check if no externally vendored or unvendored packages exist
 	if len(uvpkgs) < 1 && len(vpkgs) < 1 {
@@ -99,7 +99,7 @@ func vendcmd(verbose bool) error {
 					}
 
 					// clean pkg path to be unvendored
-					pkg = pkg[len(projectpath+"/"+vendorDir+"/"):]
+					pkg = pkg[len(filepath.Join(projectpath, vendorDir+string(filepath.Separator))):]
 
 					// append package into the unvendored package object
 					uvpkgs = append(uvpkgs, pkg)
@@ -177,28 +177,29 @@ func vendcmd(verbose bool) error {
 			for _, r := range rmap {
 
 				// create a directory for the pkg
-				os.MkdirAll(filepath.Dir(vendorTempDir+"/"+r.Root), 0777)
+				os.MkdirAll(filepath.Dir(filepath.Join(vendorTempDir, r.Root)), 0777)
 
+				// iterate over the vendors in the vendor file
 				for _, v := range vf {
 
+					// check if we have a match, and a given revision exists
 					if r.Root == v.Path && len(v.Rev) > 0 {
-						// create the pkg
-						r.VCS.CreateAtRev(vendorTempDir+"/"+r.Root, r.Repo, v.Rev)
-						fmt.Println("Root: " + r.Root + " | Repo " + r.Repo + " | " + v.Rev)
-						goto VendorMatch
+
+						// create the repository at that specific revision
+						r.VCS.CreateAtRev(filepath.Join(vendorTempDir, r.Root), r.Repo, v.Rev)
+						goto RevMatch
 					}
 				}
-				fmt.Println("Root: " + r.Root + " | Repo " + r.Repo + " | no rev")
-				r.VCS.Create(vendorTempDir+"/"+r.Root, r.Repo)
+				r.VCS.Create(filepath.Join(vendorTempDir, r.Root), r.Repo)
 
-			VendorMatch:
+			RevMatch:
 			}
 
 			// iterate through the rmap
 			for _, r := range rmap {
-				os.RemoveAll(vendorDir + "/" + r.Root)
-				os.MkdirAll(filepath.Dir(vendorDir+"/"+r.Root), 0777)
-				CopyDir(vendorTempDir+"/"+r.Root, vendorDir+"/"+r.Root)
+				os.RemoveAll(filepath.Join(vendorDir, r.Root))
+				os.MkdirAll(filepath.Dir(filepath.Join(vendorDir, r.Root)), 0777)
+				CopyDir(filepath.Join(vendorTempDir, r.Root), filepath.Join(vendorDir, r.Root))
 			}
 
 			os.RemoveAll(vendorTempDir)

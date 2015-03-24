@@ -242,7 +242,7 @@ func loadPkg(wg *sync.WaitGroup, root, pkgrelpath string) {
 		// Avoid .foo, _foo, and testdata directory trees.
 		name := child.Name()
 		if name == "" || name[0] == '.' || name[0] == '_' || name == "testdata" {
-			if name != "_vendor" {
+			if name != vendorDir {
 				continue
 			}
 		}

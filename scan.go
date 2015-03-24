@@ -31,7 +31,7 @@ func scan(dir string) ([]string, error) {
 		if fstat.IsDir() {
 
 			// check if that directory is "_vendor"
-			if fstat.Name() == "_vendor" {
+			if fstat.Name() == vendorDir {
 
 				// skip the directory
 				w.SkipDir()
