@@ -73,6 +73,40 @@ func main() {
 				}
 			},
 		},
+		{
+			Name:        "imports",
+			Usage:       "Rewrites imports prioritizing the projects vendor directory",
+			ShortName:   "i",
+			Description: "Use this command to for goimports functionality that prioritizes the projects vendor directory imports.",
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "d",
+					Usage: "display diffs instead of rewriting files",
+				},
+				cli.BoolFlag{
+					Name:  "e",
+					Usage: "report all errors (not just the first 10 on different lines)",
+				},
+				cli.BoolFlag{
+					Name:  "l",
+					Usage: "list files whose formatting differs from goimport's",
+				},
+				cli.StringFlag{
+					Name:  "p",
+					Usage: "comma seperated import path prefixes that if matched, take priority",
+					Value: "",
+				},
+				cli.BoolFlag{
+					Name:  "w",
+					Usage: "write result to (source) file instead of stdout",
+				},
+			},
+			Action: func(c *cli.Context) {
+				if err := importcmd(c.Bool("d"), c.Bool("e"), c.Bool("l"), c.Bool("w"), c.String("p"), c.Args()); err != nil {
+					panic(err)
+				}
+			},
+		},
 	}
 
 	// define the default action.

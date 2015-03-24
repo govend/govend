@@ -7,8 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jackspirou/govend/_vendor/gopkg.in/yaml.v2"
 	. "gopkg.in/check.v1"
-	"gopkg.in/yaml.v2"
+
 	"net"
 	"os"
 )
@@ -330,7 +331,7 @@ var marshalErrorTests = []struct {
 	panic: `Duplicated key 'b' in struct struct \{ B int; .*`,
 }, {
 	value: &struct {
-		A       int
+		A int
 		B map[string]int ",inline"
 	}{1, map[string]int{"a": 2}},
 	panic: `Can't have key "a" in inlined map; conflicts with struct field`,

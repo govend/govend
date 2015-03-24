@@ -2,13 +2,14 @@ package yaml_test
 
 import (
 	"errors"
-	. "gopkg.in/check.v1"
-	"gopkg.in/yaml.v2"
 	"math"
 	"net"
 	"reflect"
 	"strings"
 	"time"
+
+	. "gopkg.in/check.v1"
+	"gopkg.in/yaml.v2"
 )
 
 var unmarshalIntTest = 123
@@ -858,7 +859,7 @@ longTag:
   label: center/big
 
 inlineMap:
-  # Inlined map 
+  # Inlined map
   << : {"x": 1, "y": 2, "r": 10}
   label: center/big
 
