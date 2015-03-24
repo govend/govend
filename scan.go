@@ -6,7 +6,6 @@ import (
 	"go/parser"
 	"go/token"
 	"log"
-	"path"
 	"strconv"
 	"strings"
 
@@ -81,23 +80,6 @@ func scan(dir string) ([]string, error) {
 				importpath, err := strconv.Unquote(i.Path.Value)
 				if err != nil {
 					return nil, err
-				}
-
-				// determine the name of the package
-				name := path.Base(importpath)
-
-				// skip CGO and any relative import paths
-				if importpath == "C" || importpath[0] == '.' {
-					continue
-				}
-
-				// if the package is part of the golang standard library, skip it
-				if stdpkg, ok := stdpkgs[name]; ok {
-					for _, pkg := range stdpkg {
-						if importpath == pkg.path {
-							goto SKIP
-						}
-					}
 				}
 
 				// iterate through the known external packages

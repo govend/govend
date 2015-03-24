@@ -1,7 +1,8 @@
 package main
 
-// pickprefix removes any items from a string slice that do not start with that prefix
-func pickprefix(prefix string, items []string) []string {
+// selectprefix removes any items from a given slice of strings that do not
+// start with the supplied prefix
+func selectprefix(prefix string, items []string) []string {
 
 	// determine the length of prefix, we only want to do this once
 	l := len(prefix)

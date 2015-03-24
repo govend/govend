@@ -13,7 +13,7 @@ import (
 )
 
 // scancmd executes the scan command
-func scancmd(project, file, format string) error {
+func scancmd(project, file, format string, all bool) error {
 
 	// if no project directory is given, default to current directory
 	if len(project) == 0 {
@@ -39,13 +39,19 @@ func scancmd(project, file, format string) error {
 		return err
 	}
 
+	if !all {
+
+		// remove standard packages
+		pkgs = removestdpkgs(pkgs)
+	}
+
 	projectpath, err := importpath(project)
 	if err != nil {
 		return err
 	}
 
 	// filter out packages internal to the project
-	pkgs = rmprefix(projectpath, pkgs)
+	pkgs = removeprefix(projectpath, pkgs)
 
 	// create an slice of bytes to print or write results
 	var b []byte

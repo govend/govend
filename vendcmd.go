@@ -45,8 +45,12 @@ func vendcmd(verbose bool) error {
 		return err
 	}
 
-	// filter out unvendored packages
-	uvpkgs := rmprefix(projectpath, pkgs)
+	// remove standard packages
+	pkgs = removestdpkgs(pkgs)
+
+	// find the unvendored packages by removing packages that contain the
+	// projectpath as a prefix in the import path
+	uvpkgs := removeprefix(projectpath, pkgs)
 
 	// verbosity
 	if verbose {
@@ -54,7 +58,7 @@ func vendcmd(verbose bool) error {
 	}
 
 	// filter out vendored packages
-	vpkgs := pickprefix(projectpath+"/_vendor/", pkgs)
+	vpkgs := selectprefix(projectpath+"/_vendor/", pkgs)
 
 	// check if no externally vendored or unvendored packages exist
 	if len(uvpkgs) < 1 && len(vpkgs) < 1 {

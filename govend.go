@@ -25,13 +25,13 @@ var vendorFilePath = filepath.Join(vendorDir, vendorFile)
 
 func main() {
 
-	// do the max prox runtime CPU thang.
+	// Limit go procs to number of CPUs
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	// start a new cli application.
+	// start a new cli application
 	app := cli.NewApp()
 
-	// define the cli application metadata.
+	// define the cli application metadata
 	app.Name = "govend"
 	app.Usage = "A CLI tool for vendoring golang packages."
 	app.Version = "0.0.1"
@@ -62,9 +62,13 @@ func main() {
 					Name:  "fmt, f",
 					Usage: "format the results with values json, yaml, yml, or xml",
 				},
+				cli.BoolFlag{
+					Name:  "all, a",
+					Usage: "show all packages, even those in the standard library",
+				},
 			},
 			Action: func(c *cli.Context) {
-				if err := scancmd(c.Args().First(), c.String("write"), c.String("fmt")); err != nil {
+				if err := scancmd(c.Args().First(), c.String("write"), c.String("fmt"), c.Bool("all")); err != nil {
 					panic(err)
 				}
 			},

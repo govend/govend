@@ -2,8 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -18,11 +16,6 @@ func importpath(dir string) (string, error) {
 
 	// determine the absolute file path for the provided directory
 	path, err := filepath.Abs(filepath.Dir(dir))
-
-	tpath, err := (filepath.Abs(path))
-	fmt.Println(tpath)
-
-	log.Fatalln(path)
 
 	// Check for errors.
 	if err != nil {

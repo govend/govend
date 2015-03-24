@@ -1,7 +1,8 @@
 package main
 
-// rmprefix removes any items from a string slice that start with that prefix
-func rmprefix(prefix string, items []string) []string {
+// removeprefix removes any items from a given slice of strings that
+// start with the supplied prefix
+func removeprefix(prefix string, items []string) []string {
 
 	// determine the length of prefix, we only want to do this once
 	l := len(prefix)
