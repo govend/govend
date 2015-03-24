@@ -10,11 +10,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jackspirou/pimports"
+	"github.com/jackspirou/importsplus"
 )
 
 var (
-	options = &pimports.Options{
+	options = &importsplus.Options{
 		TabWidth:  8,
 		TabIndent: true,
 		Comments:  true,
@@ -107,7 +107,7 @@ func importProcessFile(filename string, in io.Reader, out io.Writer, stdin bool)
 		return err
 	}
 
-	res, err := pimports.Process(filename, src, opt)
+	res, err := importsplus.Process(filename, src, opt)
 	if err != nil {
 		return err
 	}

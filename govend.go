@@ -17,8 +17,9 @@ import (
 //
 
 const (
-	vendorFile = "vendors.yml"
-	vendorDir  = "_vendor"
+	vendorFile    = "vendors.yml"
+	vendorDir     = "_vendor"
+	vendorTempDir = "_tvendor"
 )
 
 var vendorFilePath = filepath.Join(vendorDir, vendorFile)

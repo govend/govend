@@ -99,7 +99,7 @@ func vendcmd(verbose bool) error {
 					}
 
 					// clean pkg path to be unvendored
-					pkg = pkg[len(projectpath+"/_vendor/"):]
+					pkg = pkg[len(projectpath+"/"+vendorDir+"/"):]
 
 					// append package into the unvendored package object
 					uvpkgs = append(uvpkgs, pkg)
@@ -177,33 +177,32 @@ func vendcmd(verbose bool) error {
 			for _, r := range rmap {
 
 				// create a directory for the pkg
-				os.MkdirAll(filepath.Dir("_vendortemp/"+r.Root), 0777)
+				os.MkdirAll(filepath.Dir(vendorTempDir+"/"+r.Root), 0777)
 
 				for _, v := range vf {
 
 					if r.Root == v.Path && len(v.Rev) > 0 {
 						// create the pkg
-						r.VCS.CreateAtRev("_vendortemp/"+r.Root, r.Repo, v.Rev)
+						r.VCS.CreateAtRev(vendorTempDir+"/"+r.Root, r.Repo, v.Rev)
 						fmt.Println("Root: " + r.Root + " | Repo " + r.Repo + " | " + v.Rev)
 						goto VendorMatch
 					}
 				}
 				fmt.Println("Root: " + r.Root + " | Repo " + r.Repo + " | no rev")
-				r.VCS.Create("_vendortemp/"+r.Root, r.Repo)
+				r.VCS.Create(vendorTempDir+"/"+r.Root, r.Repo)
 
 			VendorMatch:
 			}
 
 			// iterate through the rmap
 			for _, r := range rmap {
-				os.RemoveAll("_vendor/" + r.Root)
-				os.MkdirAll(filepath.Dir("_vendor/"+r.Root), 0777)
-				CopyDir("_vendortemp/"+r.Root, "_vendor/"+r.Root)
+				os.RemoveAll(vendorDir + "/" + r.Root)
+				os.MkdirAll(filepath.Dir(vendorDir+"/"+r.Root), 0777)
+				CopyDir(vendorTempDir+"/"+r.Root, vendorDir+"/"+r.Root)
 			}
 
-			os.RemoveAll("_vendortemp")
+			os.RemoveAll(vendorTempDir)
 		}
-
 	}
 
 	// if not in vendor file then add it to vendors
