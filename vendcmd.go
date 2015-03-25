@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -159,6 +160,11 @@ func vendcmd(verbose bool) error {
 			// determine import path dynamically by pinging repository
 			r, err := vcs.RepoRootForImportDynamic(pkg, false)
 			if err != nil {
+				e := err.Error()
+				msg := "no go-import meta tags"
+				if e[len(msg):] == msg {
+					return errors.New(e + "\nAre you behind a proxy?")
+				}
 				return err
 			}
 
