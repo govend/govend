@@ -17,12 +17,17 @@ import (
 //
 
 const (
+	vendorBase    = "internal"
+	vendorDir     = "_vendor"
 	vendorFile    = "vendors.yml"
-	vendorDir     = "internal"
 	vendorTempDir = "_temp_vendor"
 )
 
-var vendorFilePath = filepath.Join(vendorDir, vendorFile)
+var (
+	vendorPath     = filepath.Join(vendorBase, vendorDir)
+	vendorTempPath = filepath.Join(vendorBase, vendorTempDir)
+	vendorFilePath = filepath.Join(vendorPath, vendorFile)
+)
 
 func main() {
 

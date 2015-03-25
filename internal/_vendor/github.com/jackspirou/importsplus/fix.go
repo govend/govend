@@ -242,10 +242,17 @@ func loadPkg(wg *sync.WaitGroup, root, pkgrelpath string) {
 		// Avoid .foo, _foo, and testdata directory trees.
 		name := child.Name()
 		if name == "" || name[0] == '.' || name[0] == '_' || name == "testdata" {
-			if name != "_vendor" {
-				continue
+
+			// range through the allowed temp directories
+			for _, tempdir := range opt.TempDirs {
+				if name == tempdir {
+					goto OkTempDir
+				}
 			}
+			continue
+		OkTempDir:
 		}
+
 		if strings.HasSuffix(name, ".go") {
 			hasGo = true
 		}

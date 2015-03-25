@@ -23,6 +23,8 @@ import (
 	"golang.org/x/tools/go/ast/astutil"
 )
 
+var opt *Options
+
 // Options specifies options for processing files.
 type Options struct {
 	Fragment  bool // Accept fragment of a source file (no package statement)
@@ -32,14 +34,17 @@ type Options struct {
 	TabIndent bool // Use tabs for indent (true if nil *Options provided)
 	TabWidth  int  // Tab width (8 if nil *Options provided)
 
-	Priority []string // Set import path prefixes that if matched, take priority.
+	Priority []string // Import path prefixes that if matched, take priority
+	TempDirs []string // Exceptions for directories prefixed with "_" and "."
 }
 
 // Process formats and adjusts imports for the provided file.
 // If opt is nil the defaults are used.
-func Process(filename string, src []byte, opt *Options) ([]byte, error) {
-	if opt == nil {
+func Process(filename string, src []byte, o *Options) ([]byte, error) {
+	if o == nil {
 		opt = &Options{Comments: true, TabIndent: true, TabWidth: 8}
+	} else {
+		opt = o
 	}
 
 	fileSet := token.NewFileSet()

@@ -19,6 +19,7 @@ var (
 		TabIndent: true,
 		Comments:  true,
 		Fragment:  true,
+		TempDirs:  []string{vendorDir},
 	}
 
 	list   bool
@@ -43,12 +44,12 @@ func importcmd(d, e, l, w bool, p string, args []string) error {
 		return err
 	}
 
-	projectpath = filepath.Join(projectpath, vendorDir)
+	vendorRoot := filepath.Join(projectpath, vendorPath)
 
 	if len(priority) < 1 {
-		priority = projectpath
+		priority = vendorRoot
 	} else {
-		priority = projectpath + "," + priority
+		priority = vendorRoot + "," + priority
 	}
 
 	if len(priority) > 0 {
