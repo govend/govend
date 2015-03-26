@@ -61,9 +61,6 @@ func vendcmd(verbose bool) error {
 	// verbosity
 	if verbose {
 		fmt.Println(" 	" + strconv.Itoa(len(uvpkgs)) + " packages found")
-		for _, pkg := range uvpkgs {
-			fmt.Println("	" + pkg)
-		}
 	}
 
 	// filter out vendored packages
@@ -156,13 +153,18 @@ func vendcmd(verbose bool) error {
 		// create a repo map of package paths to RepoRoots
 		rmap := make(map[string]*vcs.RepoRoot)
 
+		// verbosity
+		if verbose {
+			fmt.Println("pinging... ")
+		}
+
 		// iterate over uvpkgs
 		// remove package imports that might already be included
 		// example: "gopkg.in/mgo.v2/bson" -> "gopkg.in/mgo.v2"
 		for _, pkg := range uvpkgs {
 
 			if verbose {
-				fmt.Print("pinging... ")
+				fmt.Println("	" + pkg)
 			}
 
 			// determine import path dynamically by pinging repository
@@ -183,14 +185,15 @@ func vendcmd(verbose bool) error {
 				// add the RepoRoot to the repo map
 				rmap[pkg] = r
 			}
-
-			if verbose {
-				fmt.Println("					" + pkg)
-			}
 		}
 
 		// check that the repo map is not empty
 		if len(rmap) > 0 {
+
+			// verbosity
+			if verbose {
+				fmt.Println("downloading...")
+			}
 
 			// iterate through the rmap
 			for _, r := range rmap {
@@ -206,8 +209,7 @@ func vendcmd(verbose bool) error {
 
 						// verbosity
 						if verbose {
-							fmt.Print("downloading...")
-							fmt.Println("					" + r.Repo + " " + v.Rev)
+							fmt.Println("	" + r.Repo + " " + v.Rev)
 						}
 
 						// create the repository at that specific revision
@@ -220,37 +222,27 @@ func vendcmd(verbose bool) error {
 
 				// verbosity
 				if verbose {
-					fmt.Print("downloading...")
-					fmt.Println("					" + r.Repo)
+					fmt.Println("	" + r.Repo)
 				}
 
 			RevMatch:
 			}
 
+			// verbosity
+			if verbose {
+				fmt.Println("cleaning, creating, and copying...")
+			}
+
 			// iterate through the rmap
 			for _, r := range rmap {
 
-				// verbosity
-				if verbose {
-					fmt.Print("cleaning, ")
-				}
 				os.RemoveAll(filepath.Join(vendorPath, r.Root))
-
-				// verbosity
-				if verbose {
-					fmt.Print("creating, ")
-				}
 				os.MkdirAll(filepath.Dir(filepath.Join(vendorPath, r.Root)), 0777)
-
-				// verbosity
-				if verbose {
-					fmt.Print("and copying...")
-				}
 				CopyDir(filepath.Join(vendorTempPath, r.Root), filepath.Join(vendorPath, r.Root))
 
 				// verbosity
 				if verbose {
-					fmt.Println("		" + r.Root)
+					fmt.Println("	" + r.Root)
 				}
 			}
 
