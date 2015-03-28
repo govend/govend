@@ -19,6 +19,8 @@ How It Works
 
 Create a `deps.json` file that lists your `go get` dependencies and `govend` will copy those packages into your project repository.
 
+![alt text](https://raw.githubusercontent.com/jackspirou/govend/ft-rewrite/images/govend_flow.png "govend flow")
+
 > The very long answer:
 
 In my experience, `go get` has been very effective for downloading and adding golang packages into a local development `$GOPATH`. Yet, when using `go get` as a step in a script for production deployments it has not been as effective. Again, my experience has made me fear depending on the OS build, network environment, and hosting provider to ensure `go get` will not fail.
