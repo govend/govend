@@ -226,17 +226,6 @@ func vendcmd(verbose bool) error {
 				}
 
 			RevMatch:
-
-				tags, err := r.VCS.Tags(filepath.Join(vendorTempPath, r.Root))
-				if err != nil {
-					panic(err)
-				}
-
-				for i, v := range tags {
-					fmt.Print(i)
-					fmt.Print(" = ")
-					fmt.Println(v)
-				}
 			}
 
 			// verbosity
