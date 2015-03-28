@@ -1,6 +1,3 @@
-// code from here:
-// https://raw.githubusercontent.com/tools/godep/master/vcs.go
-
 package main
 
 import (
@@ -14,6 +11,7 @@ import (
 	"golang.org/x/tools/go/vcs"
 )
 
+// VCS
 type VCS struct {
 	*vcs.Cmd
 
@@ -25,74 +23,98 @@ type VCS struct {
 	ExistsCmd string
 }
 
-var vcsBzr = &VCS{
-	Cmd: vcs.ByCmd("bzr"),
+// RepoRoot
+type RepoRoot struct {
+	VCS *VCS
 
-	IdentifyCmd: "version-info --custom --template {revision_id}",
-	DescribeCmd: "revno", // TODO(kr): find tag names if possible
-	DiffCmd:     "diff -r {rev}",
+	// repo is the repository URL, including scheme
+	Repo string
+
+	// root is the import path corresponding to the root of the
+	// repository
+	Root string
 }
 
-var vcsGit = &VCS{
-	Cmd: vcs.ByCmd("git"),
-
-	IdentifyCmd: "rev-parse HEAD",
-	DescribeCmd: "describe --tags",
-	DiffCmd:     "diff {rev}",
-
-	ExistsCmd: "cat-file -e {rev}",
+// NewVCS
+func NewVCS(v *vcs.Cmd) (*VCS, error) {
+	switch v.Cmd {
+	case "git":
+		return &VCS{
+			Cmd:         v,
+			IdentifyCmd: "rev-parse HEAD",
+			DescribeCmd: "describe --tags",
+			DiffCmd:     "diff {rev}",
+			ExistsCmd:   "cat-file -e {rev}",
+		}, nil
+	case "hg":
+		return &VCS{
+			Cmd:         v,
+			IdentifyCmd: "identify --id --debug",
+			DescribeCmd: "log -r . --template {latesttag}-{latesttagdistance}",
+			DiffCmd:     "diff -r {rev}",
+			ExistsCmd:   "cat -r {rev} .",
+		}, nil
+	case "bzr":
+		return &VCS{
+			Cmd:         v,
+			IdentifyCmd: "version-info --custom --template {revision_id}",
+			DescribeCmd: "revno", // TODO(kr): find tag names if possible
+			DiffCmd:     "diff -r {rev}",
+		}, nil
+	default:
+		return nil, fmt.Errorf("%s is unsupported", v.Name)
+	}
 }
 
-var vcsHg = &VCS{
-	Cmd: vcs.ByCmd("hg"),
-
-	IdentifyCmd: "identify --id --debug",
-	DescribeCmd: "log -r . --template {latesttag}-{latesttagdistance}",
-	DiffCmd:     "diff -r {rev}",
-
-	ExistsCmd: "cat -r {rev} .",
+// NewRepoRoot
+func NewRepoRoot(v *VCS, repo, root string) *RepoRoot {
+	return &RepoRoot{
+		VCS:  v,
+		Repo: repo,
+		Root: root,
+	}
 }
 
-var cmd = map[string]*VCS{
-	vcsBzr.Name: vcsBzr,
-	vcsGit.Name: vcsGit,
-	vcsHg.Name:  vcsHg,
-}
-
+// VCSFromDir inspects dir and its parents to determine the version control
+// system and code repository to use. On return, root is the import path
+// corresponding to the root of the repository
+// (thus root is a prefix of importPath).
 func VCSFromDir(dir, srcRoot string) (*VCS, string, error) {
 	vcscmd, reporoot, err := vcs.FromDir(dir, srcRoot)
 	if err != nil {
 		return nil, "", err
 	}
-	vcsext := cmd[vcscmd.Name]
-	if vcsext == nil {
-		return nil, "", fmt.Errorf("%s is unsupported: %s", vcscmd.Name, dir)
+	vcsext, err := NewVCS(vcscmd)
+	if err != nil {
+		return nil, "", err
 	}
 	return vcsext, reporoot, nil
 }
 
-func VCSForImportPath(importPath string, verbose bool) (*VCS, error) {
+// RepoRootForImportPath
+func RepoRootForImportPath(importPath string, verbose bool) (*RepoRoot, error) {
 	rr, err := vcs.RepoRootForImportPath(importPath, verbose)
 	if err != nil {
 		return nil, err
 	}
-	vcs := cmd[rr.VCS.Name]
-	if vcs == nil {
-		return nil, fmt.Errorf("%s is unsupported: %s", rr.VCS.Name, importPath)
+	vcs, err := NewVCS(rr.VCS)
+	if err != nil {
+		return nil, err
 	}
-	return vcs, nil
+	return NewRepoRoot(vcs, rr.Repo, rr.Root), nil
 }
 
-func VCSForImportDynamic(importPath string, verbose bool) (*VCS, error) {
+// RepoRootForImportDynamic
+func RepoRootForImportDynamic(importPath string, verbose bool) (*RepoRoot, error) {
 	rr, err := vcs.RepoRootForImportDynamic(importPath, verbose)
 	if err != nil {
 		return nil, err
 	}
-	vcs := cmd[rr.VCS.Name]
-	if vcs == nil {
-		return nil, fmt.Errorf("%s is unsupported: %s", rr.VCS.Name, importPath)
+	vcs, err := NewVCS(rr.VCS)
+	if err != nil {
+		return nil, err
 	}
-	return vcs, nil
+	return NewRepoRoot(vcs, rr.Repo, rr.Root), nil
 }
 
 func (v *VCS) identify(dir string) (string, error) {

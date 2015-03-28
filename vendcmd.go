@@ -6,8 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-
-	"golang.org/x/tools/go/vcs"
 )
 
 // vend vendors packages into the vendor directory.
@@ -151,11 +149,11 @@ func vendcmd(verbose bool) error {
 	if len(uvpkgs) > 0 {
 
 		// create a repo map of package paths to RepoRoots
-		rmap := make(map[string]*vcs.RepoRoot)
+		rmap := make(map[string]*RepoRoot)
 
 		// verbosity
 		if verbose {
-			fmt.Println("pinging... ")
+			fmt.Print("pinging repositories... ")
 		}
 
 		// iterate over uvpkgs
@@ -163,12 +161,8 @@ func vendcmd(verbose bool) error {
 		// example: "gopkg.in/mgo.v2/bson" -> "gopkg.in/mgo.v2"
 		for _, pkg := range uvpkgs {
 
-			if verbose {
-				fmt.Println("	" + pkg)
-			}
-
 			// determine import path dynamically by pinging repository
-			r, err := vcs.RepoRootForImportDynamic(pkg, false)
+			r, err := RepoRootForImportDynamic(pkg, false)
 			if err != nil {
 				e := err.Error()
 				fmt.Println(e)
@@ -185,6 +179,11 @@ func vendcmd(verbose bool) error {
 				// add the RepoRoot to the repo map
 				rmap[pkg] = r
 			}
+		}
+
+		// verbosity
+		if verbose {
+			fmt.Println("			complete")
 		}
 
 		// check that the repo map is not empty
@@ -209,7 +208,7 @@ func vendcmd(verbose bool) error {
 
 						// verbosity
 						if verbose {
-							fmt.Println("	" + r.Repo + " " + v.Rev)
+							fmt.Println("						↓ " + r.Repo + " " + v.Rev)
 						}
 
 						// create the repository at that specific revision
@@ -222,7 +221,7 @@ func vendcmd(verbose bool) error {
 
 				// verbosity
 				if verbose {
-					fmt.Println("	" + r.Repo)
+					fmt.Println("						↓ " + r.Repo)
 				}
 
 			RevMatch:
@@ -230,7 +229,7 @@ func vendcmd(verbose bool) error {
 
 			// verbosity
 			if verbose {
-				fmt.Println("cleaning, creating, and copying...")
+				fmt.Print("cleaning, creating, and copying files...")
 			}
 
 			// iterate through the rmap
@@ -240,21 +239,13 @@ func vendcmd(verbose bool) error {
 				os.MkdirAll(filepath.Dir(filepath.Join(vendorPath, r.Root)), 0777)
 				CopyDir(filepath.Join(vendorTempPath, r.Root), filepath.Join(vendorPath, r.Root))
 
-				// verbosity
-				if verbose {
-					fmt.Println("	" + r.Root)
-				}
 			}
 
-			// verbosity
-			if verbose {
-				fmt.Print("removing all temporary directories...")
-			}
 			os.RemoveAll(vendorTempPath)
 
 			// verbosity
 			if verbose {
-				fmt.Println("		complete")
+				fmt.Println("	complete")
 			}
 		}
 	}
