@@ -15,7 +15,7 @@ import (
 )
 
 type VCS struct {
-	vcs *vcs.Cmd
+	*vcs.Cmd
 
 	IdentifyCmd string
 	DescribeCmd string
@@ -26,7 +26,7 @@ type VCS struct {
 }
 
 var vcsBzr = &VCS{
-	vcs: vcs.ByCmd("bzr"),
+	Cmd: vcs.ByCmd("bzr"),
 
 	IdentifyCmd: "version-info --custom --template {revision_id}",
 	DescribeCmd: "revno", // TODO(kr): find tag names if possible
@@ -34,7 +34,7 @@ var vcsBzr = &VCS{
 }
 
 var vcsGit = &VCS{
-	vcs: vcs.ByCmd("git"),
+	Cmd: vcs.ByCmd("git"),
 
 	IdentifyCmd: "rev-parse HEAD",
 	DescribeCmd: "describe --tags",
@@ -44,7 +44,7 @@ var vcsGit = &VCS{
 }
 
 var vcsHg = &VCS{
-	vcs: vcs.ByCmd("hg"),
+	Cmd: vcs.ByCmd("hg"),
 
 	IdentifyCmd: "identify --id --debug",
 	DescribeCmd: "log -r . --template {latesttag}-{latesttagdistance}",
@@ -53,10 +53,10 @@ var vcsHg = &VCS{
 	ExistsCmd: "cat -r {rev} .",
 }
 
-var cmd = map[*vcs.Cmd]*VCS{
-	vcsBzr.vcs: vcsBzr,
-	vcsGit.vcs: vcsGit,
-	vcsHg.vcs:  vcsHg,
+var cmd = map[string]*VCS{
+	vcsBzr.Name: vcsBzr,
+	vcsGit.Name: vcsGit,
+	vcsHg.Name:  vcsHg,
 }
 
 func VCSFromDir(dir, srcRoot string) (*VCS, string, error) {
@@ -64,19 +64,31 @@ func VCSFromDir(dir, srcRoot string) (*VCS, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	vcsext := cmd[vcscmd]
+	vcsext := cmd[vcscmd.Name]
 	if vcsext == nil {
 		return nil, "", fmt.Errorf("%s is unsupported: %s", vcscmd.Name, dir)
 	}
 	return vcsext, reporoot, nil
 }
 
-func VCSForImportPath(importPath string) (*VCS, error) {
-	rr, err := vcs.RepoRootForImportPath(importPath, false)
+func VCSForImportPath(importPath string, verbose bool) (*VCS, error) {
+	rr, err := vcs.RepoRootForImportPath(importPath, verbose)
 	if err != nil {
 		return nil, err
 	}
-	vcs := cmd[rr.VCS]
+	vcs := cmd[rr.VCS.Name]
+	if vcs == nil {
+		return nil, fmt.Errorf("%s is unsupported: %s", rr.VCS.Name, importPath)
+	}
+	return vcs, nil
+}
+
+func VCSForImportDynamic(importPath string, verbose bool) (*VCS, error) {
+	rr, err := vcs.RepoRootForImportDynamic(importPath, verbose)
+	if err != nil {
+		return nil, err
+	}
+	vcs := cmd[rr.VCS.Name]
 	if vcs == nil {
 		return nil, fmt.Errorf("%s is unsupported: %s", rr.VCS.Name, importPath)
 	}
@@ -109,7 +121,7 @@ func (v *VCS) exists(dir, rev string) bool {
 // RevSync checks out the revision given by rev in dir.
 // The dir must exist and rev must be a valid revision.
 func (v *VCS) RevSync(dir, rev string) error {
-	return v.run(dir, v.vcs.TagSyncCmd, "tag", rev)
+	return v.run(dir, v.TagSyncCmd, "tag", rev)
 }
 
 // run runs the command line cmd in the given directory.
@@ -151,13 +163,13 @@ func (v *VCS) run1(dir string, cmdline string, kv []string, verbose bool) ([]byt
 		args[i] = expand(m, arg)
 	}
 
-	_, err := exec.LookPath(v.vcs.Cmd)
+	_, err := exec.LookPath(v.Cmd.Cmd)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "godep: missing %s command.\n", v.vcs.Name)
+		fmt.Fprintf(os.Stderr, "godep: missing %s command.\n", v.Name)
 		return nil, err
 	}
 
-	cmd := exec.Command(v.vcs.Cmd, args...)
+	cmd := exec.Command(v.Cmd.Cmd, args...)
 	cmd.Dir = dir
 	var buf bytes.Buffer
 	cmd.Stdout = &buf
@@ -166,7 +178,7 @@ func (v *VCS) run1(dir string, cmdline string, kv []string, verbose bool) ([]byt
 	out := buf.Bytes()
 	if err != nil {
 		if verbose {
-			fmt.Fprintf(os.Stderr, "# cd %s; %s %s\n", dir, v.vcs.Cmd, strings.Join(args, " "))
+			fmt.Fprintf(os.Stderr, "# cd %s; %s %s\n", dir, v.Cmd.Cmd, strings.Join(args, " "))
 			os.Stderr.Write(out)
 		}
 		return nil, err
