@@ -11,7 +11,7 @@ import (
 	"go/printer"
 	"go/token"
 
-	"github.com/kr/fs"
+	"github.com/jackspirou/govend/internal/_vendor/github.com/kr/fs"
 )
 
 // rewriteImports takes a directory path and a map of key value strings and
@@ -65,6 +65,11 @@ func rewriteFile(name string, replace map[string]string) error {
 	// if we need to write it back out.
 	f, err := parser.ParseFile(fset, name, nil, parser.ParseComments)
 	if err != nil {
+		e := err.Error()
+		msg := "expected 'package', found 'EOF'"
+		if e[len(e)-len(msg):] == msg {
+			return nil
+		}
 		return err
 	}
 
@@ -82,6 +87,30 @@ func rewriteFile(name string, replace map[string]string) error {
 		if path, ok := match(path, replace); ok {
 			i.Path.Value = strconv.Quote(path)
 			change = true
+		}
+	}
+
+	for _, cg := range f.Comments {
+		for _, c := range cg.List {
+			if strings.HasPrefix(c.Text, "// import \"") {
+
+				// trim off extra comment stuff
+				ctext := c.Text
+				ctext = strings.TrimPrefix(ctext, "// import")
+				ctext = strings.TrimSpace(ctext)
+
+				// unquote the comment import path value
+				ctext, err := strconv.Unquote(ctext)
+				if err != nil {
+					return err
+				}
+
+				// match the comment import path with the given replacement map
+				if ctext, ok := match(ctext, replace); ok {
+					c.Text = "// import " + strconv.Quote(ctext)
+					change = true
+				}
+			}
 		}
 	}
 

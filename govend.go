@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/codegangsta/cli"
+	"github.com/jackspirou/govend/internal/_vendor/github.com/codegangsta/cli"
 )
 
 // USAGE

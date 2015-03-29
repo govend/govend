@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"golang.org/x/tools/go/vcs"
+	"github.com/jackspirou/govend/internal/_vendor/golang.org/x/tools/go/vcs"
 )
 
 // VCS

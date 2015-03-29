@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"path"
 
-	"gopkg.in/yaml.v2"
+	"github.com/jackspirou/govend/internal/_vendor/gopkg.in/yaml.v2"
 )
 
 // scancmd executes the scan command

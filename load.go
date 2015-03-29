@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"gopkg.in/yaml.v2"
+	"github.com/jackspirou/govend/internal/_vendor/gopkg.in/yaml.v2"
 )
 
 // load reads a vend.yml file and returns an array of vendors.

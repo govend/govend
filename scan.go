@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/kr/fs"
+	"github.com/jackspirou/govend/internal/_vendor/github.com/kr/fs"
 )
 
 // scan walks a golang project directory, collecting external package imports.

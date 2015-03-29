@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kr/fs"
+	"github.com/jackspirou/govend/internal/_vendor/github.com/kr/fs"
 )
 
 func ExampleWalker() {

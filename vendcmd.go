@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"gopkg.in/yaml.v2"
+	"github.com/jackspirou/govend/internal/_vendor/gopkg.in/yaml.v2"
 )
 
 // Vend vendors packages into the vendor directory.
@@ -130,7 +130,7 @@ func vendcmd(verbose bool) error {
 
 		// verbosity
 		if verbose {
-			fmt.Println("			file missing: " + vendorFilePath)
+			fmt.Println("will generate manifest... 			" + vendorFilePath)
 		}
 	}
 
@@ -186,7 +186,7 @@ func vendcmd(verbose bool) error {
 
 		// verbosity
 		if verbose {
-			fmt.Println("	complete")
+			fmt.Println("			complete")
 		}
 	}
 
@@ -373,35 +373,58 @@ func vendcmd(verbose bool) error {
 				fmt.Println("				complete")
 			}
 		}
+	}
 
-		//
-		// Step 7. Write the vendors.yml manifest file.
-		//
-		////
+	//
+	// Step 7. Write the vendors.yml manifest file.
+	//
+	////
 
-		// verbosity
-		if verbose {
-			fmt.Print("writing vendors.yml manifest...")
-		}
+	// verbosity
+	if verbose {
+		fmt.Print("writing vendors.yml manifest...")
+	}
 
-		// marshal to yml
-		bytes, err := yaml.Marshal(&manifest)
-		if err != nil {
-			return err
-		}
+	// marshal to yml
+	bytes, err := yaml.Marshal(&manifest)
+	if err != nil {
+		return err
+	}
 
-		// write file
-		ioutil.WriteFile(vendorFilePath, bytes, 0777)
+	// write file
+	ioutil.WriteFile(vendorFilePath, bytes, 0777)
 
-		// verbosity
-		if verbose {
-			fmt.Println("			complete")
-		}
+	// verbosity
+	if verbose {
+		fmt.Println("			complete")
+	}
 
-		//
-		// Step 8. Rewrite import paths.
-		//
-		////
+	//
+	// Step 8. Rewrite import paths.
+	//
+	////
+
+	// verbosity
+	if verbose {
+		fmt.Print("rewriting import paths...")
+	}
+
+	// create an import replacement map to work with
+	replacement := make(map[string]string)
+
+	// fill the import replacement map
+	for _, pkg := range uvpkgs {
+		replacement[pkg] = filepath.Join(projectImportPath, vendorPath, pkg)
+	}
+
+	// rewrite import paths
+	if err := rewrite(".", replacement); err != nil {
+		return err
+	}
+
+	// verbosity
+	if verbose {
+		fmt.Println("			complete")
 	}
 
 	// if not in vendor file then add it to vendors
