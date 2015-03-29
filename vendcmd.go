@@ -48,7 +48,7 @@ func vendcmd(verbose bool) error {
 
 	// verbosity
 	if verbose {
-		fmt.Print("identifying project paths... 			complete")
+		fmt.Println("identifying project paths... 			complete")
 		fmt.Print("scanning for external unvendored packages...")
 	}
 
@@ -264,7 +264,7 @@ func vendcmd(verbose bool) error {
 			}
 
 			// iterate through the rmap
-			for _, r := range rmap {
+			for key, r := range rmap {
 
 				// create a directory for the pkg
 				os.MkdirAll(filepath.Dir(filepath.Join(vendorTempPath, r.Root)), 0777)
@@ -275,8 +275,21 @@ func vendcmd(verbose bool) error {
 					// check if we have a match
 					if r.Root == v.Path {
 
+						if _, err := os.Stat(filepath.Join(vendorPath, v.Path)); err == nil {
+
+							// verbosity
+							if verbose {
+								fmt.Println(" - " + r.Root + " (vendored)")
+							}
+
+							delete(rmap, key)
+
+							goto UnvendoredManifestMatch
+						}
+
 						// check if a revision exists
 						if len(v.Rev) > 0 {
+
 							// verbosity
 							if verbose {
 								fmt.Println(" ↓ " + r.Repo + " (" + v.Rev + ")")
