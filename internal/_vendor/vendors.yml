@@ -4,3 +4,11 @@
   rev: d0fefed9b627fbe0c1597ac29ed5f48ff2eb9064
 - path: gopkg.in/unrolled/render.v1
   rev: 4af7c600639360d65cae54f24fbc3e1366489843
+- path: github.com/codegangsta/cli
+  rev: 9b2bd2b3489748d4d0a204fa4eb2ee9e89e0ebc6
+- path: github.com/jackspirou/importsplus
+  rev: 7f84f4286a52ec63260adeb8398ca7814ae19422
+- path: github.com/kr/fs
+  rev: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
+- path: golang.org/x/tools
+  rev: 0c09ff325ac41535a3d5fb6d539c32aca981bada

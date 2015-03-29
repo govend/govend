@@ -3,9 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"gopkg.in/yaml.v2"
 )
 
 // Vend vendors packages into the vendor directory.
@@ -92,7 +95,7 @@ func vendcmd(verbose bool) error {
 	////
 
 	// create an empty slice of vendors to fill.
-	var vf []vendor
+	var manifest []vendor
 
 	// check if vend file path exists.
 	if _, err := os.Stat(vendorFilePath); err == nil {
@@ -103,12 +106,12 @@ func vendcmd(verbose bool) error {
 		}
 
 		// read the vendors file.
-		if err := load(vendorFilePath, &vf); err != nil {
+		if err := load(vendorFilePath, &manifest); err != nil {
 			return err
 		}
 
 		// check if the vend file is empty
-		if len(vf) < 1 {
+		if len(manifest) < 1 {
 
 			if verbose {
 				fmt.Println("			empty file")
@@ -139,37 +142,51 @@ func vendcmd(verbose bool) error {
 	// check vpkgs is not empty
 	if len(vpkgs) > 0 {
 
+		// verbosity
+		if verbose {
+			fmt.Print("verifying vendored package...")
+		}
+
 		// iterate over vpkgs
-		for _, pkg := range vpkgs {
+		for _, vpkg := range vpkgs {
 
 			// remove project path to create a complete absolute filepath
-			vpath := pkg[len(vendorPath):]
+			vpkgpath := vpkg[len(vendorProjectPathSlashed):]
 
 			// get stats on the pkg
-			if _, err := os.Stat(pkg); err != nil {
+			if _, err := os.Stat(filepath.Join(vendorPath, vpkgpath)); err != nil {
 
 				// check if the path does not exist
 				if os.IsNotExist(err) {
 
 					// verbosity
 					if verbose {
-						fmt.Println("missing vendored code for " + vpath)
+						fmt.Println("\n 	missing vendored code for " + vpkgpath + "...")
 					}
 
-					// clean pkg path to be unvendored
-					pkg = pkg[len(vendorProjectPathSlashed):]
-
 					// append package into the unvendored package object
-					uvpkgs = append(uvpkgs, pkg)
+					uvpkgs = append(uvpkgs, vpkgpath)
 				}
 
 				return err
 			}
 
-			// iterate through file
-			for _, v := range vf {
-				fmt.Println("vendored pkgs: " + pkg + " vs " + v.Path)
+			// iterate through the manifest file
+			for _, v := range manifest {
+				if vpkgpath == v.Path {
+					goto VendoredPackageMatch
+				}
 			}
+
+			// add the missing vpkgpath to the new vendors manifest file
+			manifest = append(manifest, vendor{Path: vpkgpath})
+
+		VendoredPackageMatch:
+		}
+
+		// verbosity
+		if verbose {
+			fmt.Println("	complete")
 		}
 	}
 
@@ -194,21 +211,21 @@ func vendcmd(verbose bool) error {
 		// example: "gopkg.in/mgo.v2/bson" -> "gopkg.in/mgo.v2"
 		for _, pkg := range uvpkgs {
 
-			// iterate through file
-			for _, v := range vf {
-
-				if pkg == v.Path && len(v.Rev) > 0 {
-
+			// iterate through the manifest vendors.yml file looking for matches
+			// and check if we already have vendored code and a revision number
+			for _, v := range manifest {
+				if pkg == v.Path {
 					if _, err := os.Stat(filepath.Join(localpath, vendorProjectPath, pkg)); err == nil {
-						goto UnvendoredMatch
+						goto UnvendoredPackageMatch
 					}
 				}
 			}
 
-			// check if package path is missing from repo map
+			// check if the package is missing from RepoRoot map
 			if _, ok := rmap[pkg]; !ok {
 
-				// determine import path dynamically by pinging repository
+				// determine import path and repository type by asking the server
+				// hosting the repository and package
 				r, err := RepoRootForImportPath(pkg, false)
 				if err != nil {
 					e := err.Error()
@@ -219,10 +236,13 @@ func vendcmd(verbose bool) error {
 					return err
 				}
 
-				// add the RepoRoot to the RepoRoot map
-				rmap[r.Root] = r
+				// if the project package root is ont in the RepoRoot map, add it
+				if _, ok := rmap[r.Root]; !ok {
+					rmap[r.Root] = r
+				}
 			}
-		UnvendoredMatch:
+
+		UnvendoredPackageMatch:
 		}
 
 		// verbosity
@@ -240,7 +260,7 @@ func vendcmd(verbose bool) error {
 
 			// verbosity
 			if verbose {
-				fmt.Println("downloading...")
+				fmt.Println("downloading packages...")
 			}
 
 			// iterate through the rmap
@@ -250,34 +270,62 @@ func vendcmd(verbose bool) error {
 				os.MkdirAll(filepath.Dir(filepath.Join(vendorTempPath, r.Root)), 0777)
 
 				// iterate over the vendors in the vendor file
-				for _, v := range vf {
+				for i, v := range manifest {
 
-					// check if we have a match, and a given revision exists
-					if r.Root == v.Path && len(v.Rev) > 0 {
+					// check if we have a match
+					if r.Root == v.Path {
 
-						// verbosity
-						if verbose {
-							fmt.Println(" ↓ " + r.Repo + " (" + v.Rev + ")")
+						// check if a revision exists
+						if len(v.Rev) > 0 {
+							// verbosity
+							if verbose {
+								fmt.Println(" ↓ " + r.Repo + " (" + v.Rev + ")")
+							}
+
+							// create the repository at that specific revision
+							if err := r.VCS.CreateAtRev(filepath.Join(vendorTempPath, r.Root), r.Repo, v.Rev); err != nil {
+								return err
+							}
+						} else {
+
+							// Create the repository from the default repository revision.
+							if err := r.VCS.Create(filepath.Join(vendorTempPath, r.Root), r.Repo); err != nil {
+								return err
+							}
+
+							rev, err := r.VCS.identify(filepath.Join(vendorTempPath, r.Root))
+							if err != nil {
+								return err
+							}
+
+							manifest[i] = vendor{Path: v.Path, Rev: rev}
+
+							// verbosity
+							if verbose {
+								fmt.Println(" ↓ " + r.Repo + " (" + rev + ")")
+							}
 						}
-
-						// create the repository at that specific revision
-						r.VCS.CreateAtRev(filepath.Join(vendorTempPath, r.Root), r.Repo, v.Rev)
-						goto RevMatch
+						goto UnvendoredManifestMatch
 					}
 				}
-
-				r.VCS.Create(filepath.Join(vendorTempPath, r.Root), r.Repo)
 
 				// verbosity
 				if verbose {
-					rev, err := r.VCS.identify(filepath.Join(vendorTempPath, r.Root))
-					if err != nil {
-						return err
-					}
-					fmt.Println(" ↓ " + r.Repo + " (" + rev + ")")
+					fmt.Println(" ↓ " + r.Repo + " (latest)")
 				}
 
-			RevMatch:
+				// Create the repository from the default repository revision.
+				if err := r.VCS.Create(filepath.Join(vendorTempPath, r.Root), r.Repo); err != nil {
+					return err
+				}
+
+				if rev, err := r.VCS.identify(filepath.Join(vendorTempPath, r.Root)); err == nil {
+					manifest = append(manifest, vendor{Path: r.Root, Rev: rev})
+				} else {
+					return err
+				}
+
+			UnvendoredManifestMatch:
 			}
 
 			// verbosity
@@ -309,7 +357,7 @@ func vendcmd(verbose bool) error {
 
 			// verbosity
 			if verbose {
-				fmt.Println("	complete")
+				fmt.Println("				complete")
 			}
 		}
 
@@ -317,6 +365,25 @@ func vendcmd(verbose bool) error {
 		// Step 7. Write the vendors.yml manifest file.
 		//
 		////
+
+		// verbosity
+		if verbose {
+			fmt.Print("writing vendors.yml manifest...")
+		}
+
+		// marshal to yml
+		bytes, err := yaml.Marshal(&manifest)
+		if err != nil {
+			return err
+		}
+
+		// write file
+		ioutil.WriteFile(vendorFilePath, bytes, 0777)
+
+		// verbosity
+		if verbose {
+			fmt.Println("			complete")
+		}
 
 		//
 		// Step 8. Rewrite import paths.
