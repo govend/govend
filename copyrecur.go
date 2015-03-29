@@ -57,20 +57,19 @@ func CopyDir(source string, dest string) (err error) {
 	entries, err := ioutil.ReadDir(source)
 	for _, entry := range entries {
 
-		//
-		// This statement was added by Jack Spirou to strip out git issues.
-		// Hopefully this will be refactored to be an optional input.
-		//
-		if entry.Name() != ".git" && entry.Name() != ".gitignore" {
-
-			sfp := filepath.Join(source, entry.Name())
-			dfp := filepath.Join(dest, entry.Name())
-			if entry.IsDir() {
+		sfp := filepath.Join(source, entry.Name())
+		dfp := filepath.Join(dest, entry.Name())
+		if entry.IsDir() {
+			// Don't copy directories that have a '.' or '_' preceding them
+			n := entry.Name()
+			if n[0] != '.' && n[0] != '_' {
 				err = CopyDir(sfp, dfp)
 				if err != nil {
 					log.Println(err)
 				}
-			} else {
+			}
+		} else {
+			if entry.Name() != ".gitignore" {
 				// perform copy
 				err = CopyFile(sfp, dfp)
 				if err != nil {

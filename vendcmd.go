@@ -17,24 +17,16 @@ func vendcmd(verbose bool) error {
 		return err
 	}
 
-	// verbosity
-	if verbose {
-		fmt.Print("determining project path...")
-	}
-
 	// determine the project import path
-	projectpath, err := importpath(".")
+	projectImportPath, err := importpath(".")
 	if err != nil {
 		return err
 	}
 
 	// verbosity
 	if verbose {
-		fmt.Println(" 			" + projectpath)
-	}
-
-	// verbosity
-	if verbose {
+		fmt.Print("identifying project path...")
+		fmt.Println(" 			" + projectImportPath)
 		fmt.Print("scanning for external unvendored packages...")
 	}
 
@@ -47,14 +39,15 @@ func vendcmd(verbose bool) error {
 	// remove standard packages
 	pkgs = removestdpkgs(pkgs)
 
-	vendorRoot := filepath.Join(projectpath, vendorPath)
-	vendorRootSlash := vendorRoot + string(filepath.Separator)
+	// define vendor directory paths
+	vendorProjectPath := filepath.Join(projectImportPath, vendorPath)
+	vendorProjectPathSlashed := vendorProjectPath + string(filepath.Separator)
 
 	// find the unvendored packages by removing packages that contain the
-	// projectpath as a prefix in the import path
+	// projectImportPath as a prefix in the import path
 	//
-	// by using projectpath we also remove internal packages
-	uvpkgs := removeprefix(projectpath, pkgs)
+	// by using projectImportPath we also remove internal packages
+	uvpkgs := removeprefix(projectImportPath, pkgs)
 
 	// verbosity
 	if verbose {
@@ -62,7 +55,7 @@ func vendcmd(verbose bool) error {
 	}
 
 	// filter out vendored packages
-	vpkgs := selectprefix(vendorRootSlash, pkgs)
+	vpkgs := selectprefix(vendorProjectPathSlashed, pkgs)
 
 	// check if no externally vendored or unvendored packages exist
 	if len(uvpkgs) < 1 && len(vpkgs) < 1 {
@@ -71,38 +64,6 @@ func vendcmd(verbose bool) error {
 		os.RemoveAll(vendorPath)
 
 		return nil
-	}
-
-	// check vpkgs is not empty
-	if len(vpkgs) > 0 {
-
-		// iterate over vpkgs
-		for _, pkg := range vpkgs {
-
-			// remove project path to create a complete absolute filepath
-			vpath := pkg[len(vendorPath):]
-
-			// get stats on the pkg
-			if _, err := os.Stat(filepath.Join(localpath, vpath)); err != nil {
-
-				// check if the path does not exist
-				if os.IsNotExist(err) {
-
-					// verbosity
-					if verbose {
-						fmt.Println("missing vendored code for " + vpath)
-					}
-
-					// clean pkg path to be unvendored
-					pkg = pkg[len(vendorRootSlash):]
-
-					// append package into the unvendored package object
-					uvpkgs = append(uvpkgs, pkg)
-				}
-
-				return err
-			}
-		}
 	}
 
 	// create an empty slice of vendors to fill.
@@ -145,6 +106,43 @@ func vendcmd(verbose bool) error {
 		}
 	}
 
+	// check vpkgs is not empty
+	if len(vpkgs) > 0 {
+
+		// iterate over vpkgs
+		for _, pkg := range vpkgs {
+
+			// remove project path to create a complete absolute filepath
+			vpath := pkg[len(vendorPath):]
+
+			// get stats on the pkg
+			if _, err := os.Stat(filepath.Join(localpath, vpath)); err != nil {
+
+				// check if the path does not exist
+				if os.IsNotExist(err) {
+
+					// verbosity
+					if verbose {
+						fmt.Println("missing vendored code for " + vpath)
+					}
+
+					// clean pkg path to be unvendored
+					pkg = pkg[len(vendorProjectPathSlashed):]
+
+					// append package into the unvendored package object
+					uvpkgs = append(uvpkgs, pkg)
+				}
+
+				return err
+			}
+
+			// iterate through file
+			for _, v := range vf {
+				fmt.Println("vendored pkgs: " + pkg + " vs " + v.Path)
+			}
+		}
+	}
+
 	// check uvpkgs is not empty
 	if len(uvpkgs) > 0 {
 
@@ -156,29 +154,40 @@ func vendcmd(verbose bool) error {
 			fmt.Print("pinging repositories... ")
 		}
 
-		// iterate over uvpkgs
 		// remove package imports that might already be included
+		//
 		// example: "gopkg.in/mgo.v2/bson" -> "gopkg.in/mgo.v2"
 		for _, pkg := range uvpkgs {
 
-			// determine import path dynamically by pinging repository
-			r, err := RepoRootForImportDynamic(pkg, false)
-			if err != nil {
-				e := err.Error()
-				fmt.Println(e)
-				msg := "no go-import meta tags"
-				if e[len(e)-len(msg):] == msg {
-					return errors.New("Are you behind a proxy?" + e + "\n")
+			// iterate through file
+			for _, v := range vf {
+
+				if pkg == v.Path && len(v.Rev) > 0 {
+
+					if _, err := os.Stat(filepath.Join(localpath, vendorProjectPath, pkg)); err == nil {
+						goto UnvendoredMatch
+					}
 				}
-				return err
 			}
 
 			// check if package path is missing from repo map
 			if _, ok := rmap[pkg]; !ok {
 
-				// add the RepoRoot to the repo map
-				rmap[pkg] = r
+				// determine import path dynamically by pinging repository
+				r, err := RepoRootForImportPath(pkg, false)
+				if err != nil {
+					e := err.Error()
+					msg := "no go-import meta tags"
+					if e[len(e)-len(msg):] == msg {
+						return errors.New("Are you behind a proxy?" + e + "\n")
+					}
+					return err
+				}
+
+				// add the RepoRoot to the RepoRoot map
+				rmap[r.Root] = r
 			}
+		UnvendoredMatch:
 		}
 
 		// verbosity
@@ -208,7 +217,7 @@ func vendcmd(verbose bool) error {
 
 						// verbosity
 						if verbose {
-							fmt.Println("						↓ " + r.Repo + " " + v.Rev)
+							fmt.Println(" ↓ " + r.Repo + " (" + v.Rev + ")")
 						}
 
 						// create the repository at that specific revision
@@ -221,7 +230,11 @@ func vendcmd(verbose bool) error {
 
 				// verbosity
 				if verbose {
-					fmt.Println("						↓ " + r.Repo)
+					rev, err := r.VCS.identify(filepath.Join(vendorTempPath, r.Root))
+					if err != nil {
+						return err
+					}
+					fmt.Println(" ↓ " + r.Repo + " (" + rev + ")")
 				}
 
 			RevMatch:
@@ -235,12 +248,23 @@ func vendcmd(verbose bool) error {
 			// iterate through the rmap
 			for _, r := range rmap {
 
-				os.RemoveAll(filepath.Join(vendorPath, r.Root))
-				os.MkdirAll(filepath.Dir(filepath.Join(vendorPath, r.Root)), 0777)
-				CopyDir(filepath.Join(vendorTempPath, r.Root), filepath.Join(vendorPath, r.Root))
+				// remove all
+				if err := os.RemoveAll(filepath.Join(vendorPath, r.Root)); err != nil {
+					return err
+				}
 
+				// mkdir
+				if err := os.MkdirAll(filepath.Dir(filepath.Join(vendorPath, r.Root)), 0777); err != nil {
+					return err
+				}
+
+				// copy
+				if err := CopyDir(filepath.Join(vendorTempPath, r.Root), filepath.Join(vendorPath, r.Root)); err != nil {
+					return err
+				}
 			}
 
+			// remove the temp
 			os.RemoveAll(vendorTempPath)
 
 			// verbosity

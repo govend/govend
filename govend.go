@@ -20,7 +20,7 @@ const (
 	vendorBase    = "internal"
 	vendorDir     = "_vendor"
 	vendorFile    = "vendors.yml"
-	vendorTempDir = "_temp_vendor"
+	vendorTempDir = "_tmp_vendor"
 )
 
 var (
