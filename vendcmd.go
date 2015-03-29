@@ -8,8 +8,24 @@ import (
 	"strconv"
 )
 
-// vend vendors packages into the vendor directory.
+// Vend vendors packages into the vendor directory.
+// It achieves this by following the following steps:
+//
+// Step 1. Identify all relative file paths necessary for the current project.
+// Step 2. Identify all types of packages currently present in the project.
+// Step 3. If the vendors.yml manifest file exists, load it in memory.
+// Step 4. Verify vendored packages and treat bad ones as unvendored packages.
+// Step 5. Identify package repositories and filter out repo subpackages.
+// Step 6. Download and vendor packages.
+// Step 7. Write the vendors.yml manifest file.
+// Step 8. Rewrite import paths.
+//
 func vendcmd(verbose bool) error {
+
+	//
+	// Step 1. Identify all relative file paths necessary for the current project.
+	//
+	////
 
 	// determine the absolute file path for the current local directory
 	localpath, err := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -23,12 +39,20 @@ func vendcmd(verbose bool) error {
 		return err
 	}
 
+	// define vendor directory paths
+	vendorProjectPath := filepath.Join(projectImportPath, vendorPath)
+	vendorProjectPathSlashed := vendorProjectPath + string(filepath.Separator)
+
 	// verbosity
 	if verbose {
-		fmt.Print("identifying project path...")
-		fmt.Println(" 			" + projectImportPath)
+		fmt.Print("identifying project paths... 			complete")
 		fmt.Print("scanning for external unvendored packages...")
 	}
+
+	//
+	// Step 2. Identify all types of packages currently present in the project.
+	//
+	////
 
 	// scan for external packages
 	pkgs, err := scan(".")
@@ -38,10 +62,6 @@ func vendcmd(verbose bool) error {
 
 	// remove standard packages
 	pkgs = removestdpkgs(pkgs)
-
-	// define vendor directory paths
-	vendorProjectPath := filepath.Join(projectImportPath, vendorPath)
-	vendorProjectPathSlashed := vendorProjectPath + string(filepath.Separator)
 
 	// find the unvendored packages by removing packages that contain the
 	// projectImportPath as a prefix in the import path
@@ -65,6 +85,11 @@ func vendcmd(verbose bool) error {
 
 		return nil
 	}
+
+	//
+	// Step 3. If the vendors.yml manifest file exists, load it in memory.
+	//
+	////
 
 	// create an empty slice of vendors to fill.
 	var vf []vendor
@@ -106,6 +131,11 @@ func vendcmd(verbose bool) error {
 		}
 	}
 
+	//
+	// Step 4. Verify vendored packages and treat bad ones as unvendored packages.
+	//
+	////
+
 	// check vpkgs is not empty
 	if len(vpkgs) > 0 {
 
@@ -116,7 +146,7 @@ func vendcmd(verbose bool) error {
 			vpath := pkg[len(vendorPath):]
 
 			// get stats on the pkg
-			if _, err := os.Stat(filepath.Join(localpath, vpath)); err != nil {
+			if _, err := os.Stat(pkg); err != nil {
 
 				// check if the path does not exist
 				if os.IsNotExist(err) {
@@ -143,6 +173,11 @@ func vendcmd(verbose bool) error {
 		}
 	}
 
+	//
+	// Step 5. Identify package repositories and filter out repo subpackages.
+	//
+	////
+
 	// check uvpkgs is not empty
 	if len(uvpkgs) > 0 {
 
@@ -151,7 +186,7 @@ func vendcmd(verbose bool) error {
 
 		// verbosity
 		if verbose {
-			fmt.Print("pinging repositories... ")
+			fmt.Print("identifying repositories... ")
 		}
 
 		// remove package imports that might already be included
@@ -194,6 +229,11 @@ func vendcmd(verbose bool) error {
 		if verbose {
 			fmt.Println("			complete")
 		}
+
+		//
+		// Step 6. Download and vendor packages.
+		//
+		////
 
 		// check that the repo map is not empty
 		if len(rmap) > 0 {
@@ -242,7 +282,7 @@ func vendcmd(verbose bool) error {
 
 			// verbosity
 			if verbose {
-				fmt.Print("cleaning, creating, and copying files...")
+				fmt.Print("vendoring packages...")
 			}
 
 			// iterate through the rmap
@@ -272,6 +312,16 @@ func vendcmd(verbose bool) error {
 				fmt.Println("	complete")
 			}
 		}
+
+		//
+		// Step 7. Write the vendors.yml manifest file.
+		//
+		////
+
+		//
+		// Step 8. Rewrite import paths.
+		//
+		////
 	}
 
 	// if not in vendor file then add it to vendors

@@ -19,6 +19,16 @@ How It Works
 
 Create a `deps.json` file that lists your `go get` dependencies and `govend` will copy those packages into your project repository.
 
+Govend works by following the steps below:
+ 1. Identify all relative file paths necessary for the current project.
+ 2. Identify all types of packages currently present in the project.
+ 3. If the vendors.yml manifest file exists, load it in memory.
+ 4. Verify vendored packages and treat bad ones as unvendored packages.
+ 5. Identify package repositories and filter out repo subpackages.
+ 6. Download and vendor packages.
+ 7. Write the vendors.yml manifest file.
+ 8. Rewrite import paths.
+
 ![alt text](https://raw.githubusercontent.com/jackspirou/govend/ft-rewrite/images/govend_flow.png "govend flow")
 
 > The very long answer:
