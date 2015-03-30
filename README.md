@@ -7,7 +7,7 @@ The command `govend` takes yet another stab at solving golang dependency managem
 
 **govend does not try to:**
 * change any enviorment variables, including `$GOPATH` your enviorment
-* create a new go project for you
+* create a new golang project for you
 * wrap the `go` command
 * make the user maintain the dependecy manifest file by hand or even show it to you
 
