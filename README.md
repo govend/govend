@@ -91,11 +91,11 @@ You can watch them online just like I do at these links below! (yay internets)
 Known Issues
 ============
 
-### Does `govend` work on Windows platforms?
+Does `govend` work on Windows platforms?
 
-> I have no idea.  I think so, but it should be tested.
+> I have no idea.  I think so, but it should be tested.  Let me know what you find.
 
-### Why will some packages in `vendor` not get pushed up when I commit?
+Why will some packages in `vendor` not get pushed up when I commit?
 
 > Take a look at your `.gitignore` and `.gitignore_global` files. I had an issue where one of these files ignored `*.com` which would include most third party golang packages.
 >
