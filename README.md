@@ -72,13 +72,6 @@ K - so how about `nut`?  `nut` is much closer to what I want.  `nut` felt the sa
 
 Fine then, what about project `X`?  K - I have officially exahusted all of my knowledge of different golang dependency managment tools.  I did this to create what I wanted - but if there is better tool out there let me know! 
 
-
-That inspirational quote can be heard here:
-
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/p9VUCp98ay4/0.jpg)](http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s)
-
-http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s
-
 Why Try To Solve This Problem?
 =============================
 
