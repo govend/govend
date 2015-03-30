@@ -1,9 +1,21 @@
-![Golang Gopher](./images/small-gopher.png) ![GoVend](./images/govend.png)
-
 GoVend [![Build Status](https://travis-ci.org/jackspirou/govend.svg?branch=master)](https://travis-ci.org/jackspirou/govend)
 ============================================================================================================================
 
-The command `govend` takes yet another stab at easily integrating dependency management with golang projects. While many different solutions already exist to manage third party golang packages, `govend` tries a more simple approach.
+The command `govend` takes yet another stab at solving golang dependency management. While many different solutions already exist to manage third party golang packages, `govend` tries a slightly different approach.
+
+`govend` tries to be good at one thing, vendoring dependecies.
+
+**govend does not try to:**
+* change any enviorment variables, including `$GOPATH` your enviorment
+* create a new go project for you
+* wrap the `go` command
+* make the user maintain the dependecy manifest file by hand or even show it to you
+
+**govend does try to:**
+* be compatible with any project
+* use the `internal` directory as specified in golang version 1.4
+* rewrite all import paths
+* rewrite golang import comments such as `// import "github.com/org/proj"`
 
 Install
 =======
@@ -200,16 +212,6 @@ ehthumbs.db
 Thumbs.db
 ```
 
-Drawbacks
-=========
-
-### Where are the package version control options?
-
-> Right now, other than using source control software (like GIT) to acomplish this `govend` does not support package version control.
->
-> It would be great to implement this into the `deps.json` file... could you look into that??? :)
->
-> NOTE: This project was created for my needs at work to check vedor files into our source control so that deploying to production and building binaries would be a more stable process. If you use `govend` in that way as well, it should get you by for now.
 
 Contributing
 ============
