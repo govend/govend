@@ -1,6 +1,6 @@
 ![Golang Gopher](./images/small-gopher.png) ![GoVend](./images/govend.png)
 
-GoVend [![Build Status](https://travis-ci.org/JackSpirou/govend.svg?branch=master)](https://travis-ci.org/JackSpirou/govend)
+GoVend [![Build Status](https://travis-ci.org/jackspirou/govend.svg?branch=master)](https://travis-ci.org/jackspirou/govend)
 ============================================================================================================================
 
 The command `govend` takes yet another stab at easily integrating dependency management with golang projects. While many different solutions already exist to manage third party golang packages, `govend` tries a more simple approach.
@@ -18,6 +18,18 @@ How It Works
 > The very short answer:
 
 Create a `deps.json` file that lists your `go get` dependencies and `govend` will copy those packages into your project repository.
+
+Govend works by following the steps below:
+ 1. Identify all relative file paths necessary for the current project.
+ 2. Identify all types of packages currently present in the project.
+ 3. If the vendors.yml manifest file exists, load it in memory.
+ 4. Verify vendored packages and treat bad ones as unvendored packages.
+ 5. Identify package repositories and filter out repo subpackages.
+ 6. Download and vendor packages.
+ 7. Write the vendors.yml manifest file.
+ 8. Rewrite import paths.
+
+![alt text](https://raw.githubusercontent.com/jackspirou/govend/ft-rewrite/images/govend_flow.png "govend flow")
 
 > The very long answer:
 
