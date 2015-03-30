@@ -50,9 +50,6 @@ USAGE:
 
 VERSION:
    0.0.1
-
-AUTHOR(S): 
-   Jack Spirou <jack.spirou@me.com> 
    
 COMMANDS:
    scan, s	Scans a go project for external package dependencies
