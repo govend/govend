@@ -65,6 +65,8 @@ GLOBAL OPTIONS:
 ## Vendor Code
 To vendor code run `govend -verbose` or simply `govend` while in the root directory of your project.  This command will vendor all your dependecies and create a simple `internal/_vendor/vendors.yml` file to maintain versions.
 
+`govend` can understand a wide range of senarios, so when in doubt run `govend`. 
+
 ```bash
 → govend -verbose
 identifying project paths...                    complete
@@ -80,6 +82,49 @@ downloading packages...
 vendoring packages...                           complete
 writing vendors.yml manifest...                 complete
 rewriting import paths...                       complete
+```
+
+## Scan Code
+If you want to scan your code to find out how many third party dependecies are present run `govend scan`.  You can even specify a path and output formats. 
+
+Here is an example of a path: `govend scan some/path/dir`
+```bash
+github.com/codegangsta/cli
+github.com/jackspirou/importsplus
+gopkg.in/yaml.v2
+github.com/kr/fs
+golang.org/x/tools/go/vcs
+```
+
+**JSON**
+`govend scan -fmt=json`
+```bash
+[
+  "github.com/codegangsta/cli",
+  "github.com/jackspirou/importsplus",
+  "gopkg.in/yaml.v2",
+  "github.com/kr/fs",
+  "golang.org/x/tools/go/vcs"
+]% 
+```
+
+**YAML**
+`govend scan -fmt=yml`
+```bash
+- github.com/codegangsta/cli
+- github.com/jackspirou/importsplus
+- gopkg.in/yaml.v2
+- github.com/kr/fs
+- golang.org/x/tools/go/vcs
+```
+**XML**
+`govend scan -fmt=xml`
+```bash
+<string>github.com/codegangsta/cli</string>
+<string>github.com/jackspirou/importsplus</string>
+<string>gopkg.in/yaml.v2</string>
+<string>github.com/kr/fs</string>
+<string>golang.org/x/tools/go/vcs</string>%  
 ```
 
 How It Works
