@@ -84,6 +84,25 @@ writing vendors.yml manifest...                 complete
 rewriting import paths...                       complete
 ```
 
+### `internal/_vendor/vendors.yml`
+
+The `vendors.yml` file simply contains an array of import paths and commit revisions.
+
+```yaml
+- path: github.com/codegangsta/cli
+  rev: 9b2bd2b3489748d4d0a204fa4eb2ee9e89e0ebc6
+- path: github.com/jackspirou/importsplus
+  rev: 7f84f4286a52ec63260adeb8398ca7814ae19422
+- path: gopkg.in/yaml.v2
+  rev: 49c95bdc21843256fb6c4e0d370a05f24a0bf213
+- path: github.com/kr/fs
+  rev: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
+- path: golang.org/x/tools
+  rev: 0c09ff325ac41535a3d5fb6d539c32aca981bada
+- path: golang.org/x/tools/go/vcs
+  rev: ""
+```
+
 ### Rewrite Imports
 `govend` will always rewrite imports, but `govend imports` comes in handy while writing code.  `govend imports` acts exactly like `goimports`, but will prioritize the `internal/_vendor` directory.  If you have ever vendored packages you have probably noticed that `goimports` first pulls from unvendored `$GOPATH` packages.  This can be annoying so give `govend imports -w` a shot. 
 
