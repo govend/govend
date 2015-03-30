@@ -9,7 +9,8 @@ The command `govend` takes yet another stab at solving golang dependency managem
 * change any enviorment variables, including `$GOPATH` your enviorment
 * create a new golang project for you
 * wrap the `go` command
-* make the user maintain the dependecy manifest file by hand or even show it to you
+* make you maintain the dependecy file `internal/_vendor/vendors.yml`
+* dump the dependecy file in the root of your project
 
 **govend does try to:**
 * be compatible with any project
