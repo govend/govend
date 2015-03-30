@@ -44,7 +44,7 @@ How It Works
  7. Write the `vendors.yml` manifest file.
  8. Rewrite import paths.
  
-I think its easier to visualize the highlevel flow:
+A highlevel visualize is below:
 
 ![alt text](https://raw.githubusercontent.com/jackspirou/govend/ft-rewrite/images/govend_flow.png "govend flow")
 
