@@ -61,7 +61,7 @@ If your looking for other dependency solutions, here is my list:
 **Many Others**
 * [PackageManagementTools](https://github.com/golang/go/wiki/PackageManagementTools)
 
-In my experience, `go get` has been very effective for downloading and adding golang packages into a local development `$GOPATH`. Yet, you should not be using `go get` as a step for production deployments.  If you are doing that, please stop and use `govend` or `godeps` or `nut` or any third party dependency manager.  I have had experiences that made me fear when  depending on the OS build, network environment, and hosting provider to ensure `go get` would not fail.
+In my experience, `go get` has been very effective for downloading and adding golang packages into a local development `$GOPATH`. Yet, you should not be using `go get` as a step for production deployments.  If you are doing that, please stop and use `govend` or `godeps` or `nut` or any third party dependency manager.  I had experiences that made me fear when  depending on the OS build, network environment, and hosting provider to ensure `go get` would not fail.
 
 > "go get is nice for playing around, but if your going to do something serious like deploy binaries to production, your deploy to production script shouldn't involve fetching some random dude's stuff on github. - Brad Fitzpatrick"
 http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s
