@@ -17,6 +17,7 @@ The command `govend` takes yet another stab at solving golang dependency managem
 * use the `internal` directory as specified in golang version 1.4
 * rewrite all import paths
 * rewrite golang import comments such as `// import "github.com/org/proj"`
+* make the long import paths easy to maintain with `govend imports`
 
 Install
 =======
