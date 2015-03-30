@@ -101,6 +101,7 @@ Why will some packages in `vendor` not get pushed up when I commit?
 >
 > For your `.gitignore_global` I recommend the file below, but maybe changes to this will be needed as well:
 
+[.gitignore_global](https://gist.github.com/jackspirou/eb8bcf296136056fa88d)
 ```yaml
 # Compiled source #
 ###################
