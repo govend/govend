@@ -1,4 +1,4 @@
-GoVend [![Build Status](https://travis-ci.org/jackspirou/govend.svg?branch=master)](https://travis-ci.org/jackspirou/govend)
+Govend [![Build Status](https://travis-ci.org/jackspirou/govend.svg?branch=master)](https://travis-ci.org/jackspirou/govend)
 ============================================================================================================================
 
 The command `govend` takes yet another stab at solving golang dependency management. While many different solutions already exist to manage third party golang packages, `govend` tries a slightly different approach.
