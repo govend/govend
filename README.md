@@ -51,25 +51,27 @@ A highlevel visualize is below:
 Another dependency solution?
 ============================
 
-If your looking for other dependency solutions here is my list:
+If your looking for other dependency solutions, here is my list: 
+
+**Leading Projects**
+* `go get`
 * [Godeps](https://github.com/tools/godep)
 * [nut](https://github.com/jingweno/nut)
-* [party](https://github.com/mjibson/party)
-* and many more here: [PackageManagementTools](https://github.com/golang/go/wiki/PackageManagementTools)
+
+**Many Others**
+* [PackageManagementTools](https://github.com/golang/go/wiki/PackageManagementTools)
 
 In my experience, `go get` has been very effective for downloading and adding golang packages into a local development `$GOPATH`. Yet, you should not be using `go get` as a step for production deployments.  If you are doing that, please stop and use `govend` or `godeps` or `nut` or any third party dependency manager.  I have had experiences that made me fear when  depending on the OS build, network environment, and hosting provider to ensure `go get` would not fail.
 
+> "go get is nice for playing around, but if your going to do something serious like deploy binaries to production, your deploy to production script shouldn't involve fetching some random dude's stuff on github. - Brad Fitzpatrick"
+http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s
+
 So we all agree that `go get` is a bad idea.  What about `godeps`?  `godeps` may be perfect for you.  Some really big projects use `godeps` and I admire the author of `godeps`, but it doesn't do quite what I want.  `godeps` edits your `$GOPATH` and also wraps the `go` command like so... `godeps go build` and I want to keep my tools seperate.  I don't want to rely on `godeps` not messing up `go`.  Just my opinion.
 
-K - so how about `nut`?  `nut` is much closer to what I want.  `nut` felt the same way about changing the `$GOPATH` and wrapping the `go` command so the project avoided that. 
+K - so how about `nut`?  `nut` is much closer to what I want.  `nut` felt the same way about changing the `$GOPATH` and wrapping the `go` command so the author avoided that.  Good job `nut`!  What I don't like, is that `nut` has options for creating a new golang project.  I think that is beyond the scope for what a dependency managment tool should do for you.  Also I think the `Nut.toml` file is odd, but im sure people think my choice of a `yaml` file is odd.  Finally the `Nut.toml` has options for keep track of your project name, version, authors, and email addresses.  Im not saying those are not nice features, I just think they should be some other tools problem. 
 
-`govend` solves this problem by pulling golang dependencies into your project repo. By creating a `deps.json` file that lists your `go get` dependencies, running `govend` will copy those packages into your desired repository directory.
+Fine then, what about project `X`?  K - I have officially exahusted all of my knowledge of different golang dependency managment tools.  I did this to create what I wanted - but if there is better tool out there let me know! 
 
-This is achieved by wrapping `go get` and only managing the movement of dependency files and packages. It is true that pulling files and packages from the `$GOPATH` into repos is not a difficult task, but if used correctly this simple feature can **go** a long way... :)
-
-As [Brad Fitzpatrick](https://github.com/bradfitz) (a member of the golang team) said...
-
-> "go get is nice for playing around, but if your going to do something serious like deploy binaries to production, your deploy to production script shouldn't involve fetching some random dude's stuff on github."
 
 That inspirational quote can be heard here:
 
