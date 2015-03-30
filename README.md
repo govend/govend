@@ -51,6 +51,12 @@ I think its easier to visualize the highlevel flow:
 Another dependency solution?
 ============================
 
+If your looking for other dependency solutions here is my list:
+* [Godeps](https://github.com/tools/godep)
+* [nut](https://github.com/jingweno/nut)
+* [party](https://github.com/mjibson/party)
+* and many more here: [PackageManagementTools](https://github.com/golang/go/wiki/PackageManagementTools)
+
 In my experience, `go get` has been very effective for downloading and adding golang packages into a local development `$GOPATH`. Yet, when using `go get` as a step in a script for production deployments it has not been as effective. Again, my experience has made me fear depending on the OS build, network environment, and hosting provider to ensure `go get` will not fail.
 
 `govend` solves this problem by pulling golang dependencies into your project repo. By creating a `deps.json` file that lists your `go get` dependencies, running `govend` will copy those packages into your desired repository directory.
@@ -66,68 +72,6 @@ That inspirational quote can be heard here:
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/p9VUCp98ay4/0.jpg)](http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s)
 
 http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s
-
-Example
-=======
-
-> First create a `deps.json` file at the root of your project/repo, much like a README.md.
-
-```javascript
-{
-    "deps": [
-        "github.com/gorilla/mux",
-        "gopkg.in/mgo.v2"
-    ]
-}
-```
-
-> Next run the command `govend` from your project/repo root.
-
-```bash
-$ govend
-
- ↓ github.com/gorilla/mux
- ↓ gopkg.in/mgo.v2
-
-Vending complete
-```
-
-> Lastly change your imports to use the `vendor` directory. Relative paths may be handy for this.
->
-> Also checkout [goimports](https://github.com/bradfitz/goimports).
-
-```go
-package example
-
-import (
-	"encoding/json"
-	"io/ioutil"
-	"log"
-	"os"
-
-	"./vendor/gopkg.in/mgo.v2"
-	"projectpath/vendor/github.com/gorilla/mux"
-)
-```
-
-> Now `go build`!
-
-Using a different directory than `vendor`
-=========================================
-
-So you might have your own golang file structure you really like... and maybe that means `vendor` being called "vendor" or being located at the root of your project is a no **go**. If that is the case then just add an extra line to your `deps.json` file. An example is below:
-
-> A `deps.json` file specifying the vendor directory.
-
-```javascript
-{
-    "dir": "./app/vendor",
-    "deps": [
-        "github.com/gorilla/mux",
-        "gopkg.in/mgo.v2"
-    ]
-}
-```
 
 Why This Project
 ================
