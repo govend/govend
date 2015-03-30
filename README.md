@@ -37,11 +37,11 @@ How It Works
 
  1. Identify all relative file paths necessary for the current project.
  2. Identify all types of packages currently present in the project.
- 3. If the vendors.yml manifest file exists, load it in memory.
+ 3. If the `vendors.yml` manifest file exists, load it in memory.
  4. Verify vendored packages and treat bad ones as unvendored packages.
  5. Identify package repositories and filter out repo subpackages.
  6. Download and vendor packages.
- 7. Write the vendors.yml manifest file.
+ 7. Write the `vendors.yml` manifest file.
  8. Rewrite import paths.
  
 Some of these steps can get complicated, so its easier to visualize the highlevel logic flow:
