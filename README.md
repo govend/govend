@@ -30,6 +30,35 @@ $ cd github.com/org/project-name
 $ govend -verbose
 ```
 
+Options
+=======
+
+```bash
+→ govend -h
+
+NAME:
+   govend - A CLI tool for vendoring golang packages.
+
+USAGE:
+   govend [global options] command [command options] [arguments...]
+
+VERSION:
+   0.0.1
+
+AUTHOR(S): 
+   Jack Spirou <jack.spirou@me.com> 
+   
+COMMANDS:
+   scan, s	Scans a go project for external package dependencies
+   imports, i	Rewrites imports prioritizing the projects vendor directory
+   help, h	Shows a list of commands or help for one command
+   
+GLOBAL OPTIONS:
+   --verbose		print things as they happen
+   --help, -h		show help
+   --version, -v	print the version
+```
+
 How It Works
 ============
 
