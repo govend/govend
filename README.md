@@ -92,30 +92,12 @@ You can watch them online just like I do at these links below! (yay internets)
 
 	http://www.youtube.com/watch?v=Y1-RLAl7iOI&feature=youtu.be&t=20m5s
 
-Other Solutions
-===============
-
-There are other great but more complex solutions for golang dependency mangement. `govend` is a solid simple solution tailored to most needs, but maybe that is not be the best for your company or project. If your looking for more complexity that will provide robust options and feel constrained by the simplistic method of this project, please take a look at the following solutions below:
-
--	https://github.com/tools/godep
--	https://github.com/mattn/gom
--	https://github.com/pote/gpm
--	https://github.com/nitrous-io/goop
-
 Known Issues
 ============
 
-### Does `govend` work on all OS platforms?
+### Does `govend` work on Windows platforms?
 
-> Honestly `govend` is very new and it was just created to work on Macs right now. I haven't tested it on windows or linux machines, but it should work in theory.
-
-### Does `govend` work for all version control platforms?
-
-> Honestly `govend` is focused on working with GIT because I use GIT.
->
-> Right now `govend` actually prunes out `.git` and `.gitignore` files from third party packages so that your project repo doesn't behave unexpectedly.
->
-> Because `govend` wraps around `go get` it should work with all `go get` supported versioning control software... in theory.
+> I have no idea.  I think so, but it should be tested.
 
 ### Why will some packages in `vendor` not get pushed up when I commit?
 
@@ -123,7 +105,7 @@ Known Issues
 >
 > For your `.gitignore_global` I recommend the file below, but maybe changes to this will be needed as well:
 
-```yml
+```yaml
 # Compiled source #
 ###################
 *.class
