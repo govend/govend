@@ -62,6 +62,26 @@ GLOBAL OPTIONS:
    --version, -v	print the version
 ```
 
+## Vendor Code
+To vendor code run `govend -verbose` or simply `govend` while in the root directory of your project.  This command will vendor all your dependecies and create a simple `internal/_vendor/vendors.yml` file to maintain versions.
+
+```bash
+→ govend -verbose
+identifying project paths...                    complete
+scanning for external unvendored packages...    5 packages found
+will generate manifest...                       internal/_vendor/vendors.yml
+identifying repositories...                     complete
+downloading packages...
+ ↓ https://github.com/codegangsta/cli (latest)
+ ↓ https://github.com/jackspirou/importsplus (latest)
+ ↓ https://gopkg.in/yaml.v2 (latest)
+ ↓ https://github.com/kr/fs (latest)
+ ↓ https://go.googlesource.com/tools (latest)
+vendoring packages...                           complete
+writing vendors.yml manifest...                 complete
+rewriting import paths...                       complete
+```
+
 How It Works
 ============
 
