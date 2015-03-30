@@ -79,23 +79,20 @@ That inspirational quote can be heard here:
 
 http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s
 
-Why This Project
-================
+Why Try To Solve This Problem?
+=============================
 
-I like to think that this project was inspired by talks at **GopherCon14** (I was too poor to attend) and the **GoTeam Google I/O Golang Fireside Chat 2013** (was still to poor to attend).
+I like to think that this project and others were inspired by talks at **GopherCon14** (I am too poor to attend) and the **GoTeam Google I/O Golang Fireside Chat 2013** (still to poor to attend).
 
 You can watch them online just like I do at these links below! (yay internets)
 
 -	Fireside Chat (part 1)
-
 	http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=4m30s
 
 -	Fireside Chat (part 2)
-
 	http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s
 
 -	GopherCon14 SoundCloud Best Practices for Production Environments
-
 	http://www.youtube.com/watch?v=Y1-RLAl7iOI&feature=youtu.be&t=20m5s
 
 Known Issues
