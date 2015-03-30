@@ -85,7 +85,7 @@ rewriting import paths...                       complete
 ```
 
 ### Rewrite Imports
-`govend` will always rewrite imports, but `govend imports` comes in handy while writing code.  `govend imports` acts exactly like `goimports`, but will prioritize the `internal/_vendor` directory.  If you have ever vendored packages and used `goimports` you probably have noticed that `goimports` pulls first from other unvendored `$GOPATH` packages.  This can be annoying so give `govend imports -w` a shot. 
+`govend` will always rewrite imports, but `govend imports` comes in handy while writing code.  `govend imports` acts exactly like `goimports`, but will prioritize the `internal/_vendor` directory.  If you have ever vendored packages you have probably noticed that `goimports` first pulls from unvendored `$GOPATH` packages.  This can be annoying so give `govend imports -w` a shot. 
 
 ### Scan Code
 If you want to scan your code to find out how many third party dependecies are present run `govend scan`.  You can even specify a path and output formats. 
