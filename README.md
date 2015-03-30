@@ -57,7 +57,11 @@ If your looking for other dependency solutions here is my list:
 * [party](https://github.com/mjibson/party)
 * and many more here: [PackageManagementTools](https://github.com/golang/go/wiki/PackageManagementTools)
 
-In my experience, `go get` has been very effective for downloading and adding golang packages into a local development `$GOPATH`. Yet, when using `go get` as a step in a script for production deployments it has not been as effective. Again, my experience has made me fear depending on the OS build, network environment, and hosting provider to ensure `go get` will not fail.
+In my experience, `go get` has been very effective for downloading and adding golang packages into a local development `$GOPATH`. Yet, you should not be using `go get` as a step for production deployments.  If you are doing that, please stop and use `govend` or `godeps` or `nut` or any third party dependency manager.  I have had experiences that made me fear when  depending on the OS build, network environment, and hosting provider to ensure `go get` would not fail.
+
+So we all agree that `go get` is a bad idea.  What about `godeps`?  `godeps` may be perfect for you.  Some really big projects use `godeps` and I admire the author of `godeps`, but it doesn't do quite what I want.  `godeps` edits your `$GOPATH` and also wraps the `go` command like so... `godeps go build` and I want to keep my tools seperate.  I don't want to rely on `godeps` not messing up `go`.  Just my opinion.
+
+K - so how about `nut`?  `nut` is much closer to what I want.  `nut` felt the same way about changing the `$GOPATH` and wrapping the `go` command so the project avoided that. 
 
 `govend` solves this problem by pulling golang dependencies into your project repo. By creating a `deps.json` file that lists your `go get` dependencies, running `govend` will copy those packages into your desired repository directory.
 
