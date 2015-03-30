@@ -19,6 +19,12 @@ The command `govend` takes yet another stab at solving golang dependency managem
 * rewrite golang import comments such as `// import "github.com/org/proj"`
 * make the long import paths easy to maintain with `govend imports`
 
+
+Demo
+====
+
+![govend demo](https://raw.githubusercontent.com/jackspirou/govend/master/images/govend_demo.gif)
+
 Install
 =======
 
