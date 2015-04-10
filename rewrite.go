@@ -11,7 +11,7 @@ import (
 	"go/printer"
 	"go/token"
 
-	"github.com/jackspirou/govend/internal/_vendor/github.com/kr/fs"
+	"github.com/gophersaurus/govend/internal/_vendor/github.com/kr/fs"
 )
 
 // rewriteImports takes a directory path and a map of key value strings and

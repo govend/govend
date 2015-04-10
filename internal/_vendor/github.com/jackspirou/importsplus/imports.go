@@ -4,7 +4,7 @@
 
 // Package imports implements a Go pretty-printer (like package "go/format")
 // that also adds or removes import statements as necessary.
-package importsplus // import "github.com/jackspirou/govend/internal/_vendor/github.com/jackspirou/importsplus"
+package importsplus // import "github.com/gophersaurus/govend/internal/_vendor/github.com/jackspirou/importsplus"
 
 import (
 	"bufio"

@@ -3,7 +3,7 @@ package cli_test
 import (
 	"os"
 
-	"github.com/jackspirou/govend/internal/_vendor/github.com/codegangsta/cli"
+	"github.com/gophersaurus/govend/internal/_vendor/github.com/codegangsta/cli"
 )
 
 func Example() {

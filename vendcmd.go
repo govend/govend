@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/jackspirou/govend/internal/_vendor/gopkg.in/yaml.v2"
+	"github.com/gophersaurus/govend/internal/_vendor/gopkg.in/yaml.v2"
 )
 
 // Vend vendors packages into the vendor directory.

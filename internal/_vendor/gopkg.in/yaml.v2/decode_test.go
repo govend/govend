@@ -2,7 +2,7 @@ package yaml_test
 
 import (
 	"errors"
-	"github.com/jackspirou/govend/internal/_vendor/gopkg.in/yaml.v2"
+	"github.com/gophersaurus/govend/internal/_vendor/gopkg.in/yaml.v2"
 	. "gopkg.in/check.v1"
 	"math"
 	"net"

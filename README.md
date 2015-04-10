@@ -29,7 +29,7 @@ Install
 =======
 
 ```bash
-$ go get github.com/jackspirou/govend
+$ go get github.com/gophersaurus/govend
 
 $ cd github.com/org/project-name
 

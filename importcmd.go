@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jackspirou/govend/internal/_vendor/github.com/jackspirou/importsplus"
+	"github.com/gophersaurus/govend/internal/_vendor/github.com/jackspirou/importsplus"
 )
 
 var (
