@@ -58,7 +58,7 @@ func vendcmd(verbose bool) error {
 	////
 
 	// scan for external packages
-	pkgs, err := scan(".")
+	pkgs, err := scan(".", false)
 	if err != nil {
 		return err
 	}
@@ -154,21 +154,15 @@ func vendcmd(verbose bool) error {
 			vpkgpath := vpkg[len(vendorProjectPathSlashed):]
 
 			// get stats on the pkg
-			if _, err := os.Stat(filepath.Join(vendorPath, vpkgpath)); err != nil {
+			if _, err := os.Stat(filepath.Join(vendorPath, vpkgpath)); os.IsNotExist(err) {
 
-				// check if the path does not exist
-				if os.IsNotExist(err) {
-
-					// verbosity
-					if verbose {
-						fmt.Println("\n 	missing vendored code for " + vpkgpath + "...")
-					}
-
-					// append package into the unvendored package object
-					uvpkgs = append(uvpkgs, vpkgpath)
+				// verbosity
+				if verbose {
+					fmt.Println("\n 	missing vendored code for " + vpkgpath + "...")
 				}
 
-				return err
+				// append package into the unvendored package object
+				uvpkgs = append(uvpkgs, vpkgpath)
 			}
 
 			// iterate through the manifest file
@@ -267,7 +261,9 @@ func vendcmd(verbose bool) error {
 			for key, r := range rmap {
 
 				// create a directory for the pkg
-				os.MkdirAll(filepath.Dir(filepath.Join(vendorTempPath, r.Root)), 0777)
+				if err := os.MkdirAll(filepath.Dir(filepath.Join(vendorTempPath, r.Root)), 0777); err != nil {
+					return err
+				}
 
 				// iterate over the vendors in the vendor file
 				for i, v := range manifest {

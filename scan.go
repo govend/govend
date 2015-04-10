@@ -13,7 +13,7 @@ import (
 )
 
 // scan walks a golang project directory, collecting external package imports.
-func scan(dir string) ([]string, error) {
+func scan(dir string, skipVendor bool) ([]string, error) {
 
 	// define an empty package list to fill
 	var pkglist []string
@@ -31,7 +31,7 @@ func scan(dir string) ([]string, error) {
 		if fstat.IsDir() {
 
 			// check if that directory is "_vendor"
-			if fstat.Name() == vendorDir {
+			if fstat.Name() == vendorDir && skipVendor {
 
 				// skip the directory
 				w.SkipDir()

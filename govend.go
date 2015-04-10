@@ -72,9 +72,13 @@ func main() {
 					Name:  "all, a",
 					Usage: "show all packages, even those in the standard library",
 				},
+				cli.BoolFlag {
+					Name: "vendor, v",
+					Usage: "show all vendor dependecy packages",
+				},
 			},
 			Action: func(c *cli.Context) {
-				if err := scancmd(c.Args().First(), c.String("write"), c.String("fmt"), c.Bool("all")); err != nil {
+				if err := scancmd(c.Args().First(), c.String("write"), c.String("fmt"), c.Bool("all"), c.Bool("vendor")); err != nil {
 					panic(err)
 				}
 			},

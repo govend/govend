@@ -13,7 +13,7 @@ import (
 )
 
 // scancmd executes the scan command
-func scancmd(project, file, format string, all bool) error {
+func scancmd(project, file, format string, all bool, vendors bool) error {
 
 	// if no project directory is given, default to current directory
 	if len(project) == 0 {
@@ -34,7 +34,7 @@ func scancmd(project, file, format string, all bool) error {
 	}
 
 	// scan the go project provided
-	pkgs, err := scan(project)
+	pkgs, err := scan(project, !vendors)
 	if err != nil {
 		return err
 	}

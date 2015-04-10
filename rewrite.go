@@ -10,6 +10,7 @@ import (
 	"go/parser"
 	"go/printer"
 	"go/token"
+	"path"
 
 	"github.com/gophersaurus/govend/internal/_vendor/github.com/kr/fs"
 )
@@ -42,15 +43,17 @@ func rewrite(dir string, replace map[string]string) error {
 	return nil
 }
 
-// match takes a file path and replacement map.
-func match(path string, replace map[string]string) (string, bool) {
+// match takes an import path and replacement map.
+func match(importpath string, replace map[string]string) (string, bool) {
 	for key, value := range replace {
-		result := strings.Replace(path, key, value, 1)
-		if path != result {
-			return result, true
+		if len(importpath) >= len(key) {
+			if importpath[:len(key)] == key {
+				result := path.Join(value, importpath[len(key):])
+				return result, true
+			}
 		}
 	}
-	return path, false
+	return importpath, false
 }
 
 // rewriteFile rewrites import statments in the named file
