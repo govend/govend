@@ -533,4 +533,9 @@ var stdpkgs = map[string][]pkg{
 	"httputil": []pkg{
 		pkg{path: "net/http/httputil", dir: "/go/src/net/http/httputil"},
 	},
+
+	// I am being a horrible person and tacking on appengine, cuz im lazy
+	"cloudsql": []pkg{
+		pkg{path: "appengine/cloudsql"},
+	},
 }
