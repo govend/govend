@@ -61,8 +61,6 @@ the `nth` degree (vendor's dependencies, and then all those dependencies) run
 The dependency manifest file that records all dependency paths and revision
 versions is located/generated at `internal/_vendor/vendors.yml`.
 
-`govend` can understand a wide range of scenarios, so when in doubt run `govend`.
-
 ```bash
 → govend -verbose
 identifying project paths...                    complete
