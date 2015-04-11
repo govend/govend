@@ -55,7 +55,7 @@ download and vendor all immediate dependencies.
 
 If the dependencies downloaded also have external dependencies you can simply
 run `govend` again.  If you would like `govend` to download all dependencies to
-the `nth` degree (vendors dependencies, and then all those dependencies) run
+the `nth` degree (vendor's dependencies, and then all those dependencies) run
 `govend -all`.  The dependency manifest file is generated at
 `internal/_vendor/vendors.yml`.
 
