@@ -1,4 +1,4 @@
-Govend [![Build Status](https://travis-ci.org/jackspirou/govend.svg?branch=master)](https://travis-ci.org/jackspirou/govend)
+Govend [![Build Status](https://travis-ci.org/go/gophersaurus.svg?branch=master)](https://travis-ci.org/gophersaurus/govend)
 ============================================================================================================================
 
 The command `govend` takes yet another stab at solving golang dependency management. While many different solutions already exist to manage third party golang packages, `govend` tries a slightly different approach.
@@ -23,7 +23,7 @@ The command `govend` takes yet another stab at solving golang dependency managem
 Demo
 ====
 
-![govend demo](https://raw.githubusercontent.com/jackspirou/govend/master/images/govend_demo.gif)
+![govend demo](https://raw.githubusercontent.com/gophersaurus/govend/master/images/govend_demo.gif)
 
 Install
 =======
@@ -50,12 +50,12 @@ USAGE:
 
 VERSION:
    0.0.1
-   
+
 COMMANDS:
    scan, s	Scans a go project for external package dependencies
    imports, i	Rewrites imports prioritizing the projects vendor directory
    help, h	Shows a list of commands or help for one command
-   
+
 GLOBAL OPTIONS:
    --verbose		print things as they happen
    --help, -h		show help
@@ -65,7 +65,7 @@ GLOBAL OPTIONS:
 ### Vendor Code
 To vendor code run `govend -verbose` or simply `govend` while in the root directory of your project.  This command will vendor all your dependecies and create a simple `internal/_vendor/vendors.yml` file to maintain versions.
 
-`govend` can understand a wide range of senarios, so when in doubt run `govend`. 
+`govend` can understand a wide range of senarios, so when in doubt run `govend`.
 
 ```bash
 → govend -verbose
@@ -104,10 +104,10 @@ The `vendors.yml` file simply contains an array of import paths and commit revis
 ```
 
 ### Rewrite Imports
-`govend` will always rewrite imports, but `govend imports` comes in handy while writing code.  `govend imports` acts exactly like `goimports`, but will prioritize the `internal/_vendor` directory.  If you have ever vendored packages you have probably noticed that `goimports` first pulls from unvendored `$GOPATH` packages.  This can be annoying so give `govend imports -w` a shot. 
+`govend` will always rewrite imports, but `govend imports` comes in handy while writing code.  `govend imports` acts exactly like `goimports`, but will prioritize the `internal/_vendor` directory.  If you have ever vendored packages you have probably noticed that `goimports` first pulls from unvendored `$GOPATH` packages.  This can be annoying so give `govend imports -w` a shot.
 
 ### Scan Code
-If you want to scan your code to find out how many third party dependecies are present run `govend scan`.  You can even specify a path and output formats. 
+If you want to scan your code to find out how many third party dependecies are present run `govend scan`.  You can even specify a path and output formats.
 
 Here is an example of a path: `govend scan some/path/dir`
 ```bash
@@ -127,7 +127,7 @@ golang.org/x/tools/go/vcs
   "gopkg.in/yaml.v2",
   "github.com/kr/fs",
   "golang.org/x/tools/go/vcs"
-]% 
+]%
 ```
 
 **YAML**
@@ -162,7 +162,7 @@ How It Works
  6. Download and vendor packages.
  7. Write the `vendors.yml` manifest file.
  8. Rewrite import paths.
- 
+
 A highlevel visualize is below:
 
 ![alt text](https://raw.githubusercontent.com/jackspirou/govend/ft-rewrite/images/govend_flow.png "govend flow")
@@ -170,7 +170,7 @@ A highlevel visualize is below:
 Another dependency solution?
 ============================
 
-If your looking for other dependency solutions, here is my list: 
+If your looking for other dependency solutions, here is my list:
 
 **Leading Projects**
 * `go get`
@@ -187,9 +187,9 @@ http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s
 
 So we all agree that `go get` is a bad idea.  What about `godeps`?  `godeps` may be perfect for you.  Some really big projects use `godeps` and I admire the author of `godeps`, but it doesn't do quite what I want.  `godeps` edits your `$GOPATH` and also wraps the `go` command like so... `godeps go build` and I want to keep my tools seperate.  I don't want to rely on `godeps` not messing up `go`.  Just my opinion.
 
-K - so how about `nut`?  `nut` is much closer to what I want.  `nut` felt the same way about changing the `$GOPATH` and wrapping the `go` command so the author avoided that.  Good job `nut`!  What I don't like, is that `nut` has options for creating a new golang project.  I think that is beyond the scope for what a dependency managment tool should do for you.  Also I think the `Nut.toml` file is odd, but im sure people think my choice of a `yaml` file is odd.  Finally the `Nut.toml` has options for keep track of your project name, version, authors, and email addresses.  Im not saying those are not nice features, I just think they should be some other tools problem. 
+K - so how about `nut`?  `nut` is much closer to what I want.  `nut` felt the same way about changing the `$GOPATH` and wrapping the `go` command so the author avoided that.  Good job `nut`!  What I don't like, is that `nut` has options for creating a new golang project.  I think that is beyond the scope for what a dependency managment tool should do for you.  Also I think the `Nut.toml` file is odd, but im sure people think my choice of a `yaml` file is odd.  Finally the `Nut.toml` has options for keep track of your project name, version, authors, and email addresses.  Im not saying those are not nice features, I just think they should be some other tools problem.
 
-Fine then, what about project `X`?  K - I have officially exahusted all of my knowledge of different golang dependency managment tools.  I did this to create what I wanted - but if there is better tool out there let me know! 
+Fine then, what about project `X`?  K - I have officially exahusted all of my knowledge of different golang dependency managment tools.  I did this to create what I wanted - but if there is better tool out there let me know!
 
 Why Try To Solve This Problem?
 =============================

@@ -11,7 +11,9 @@ import (
 	"github.com/gophersaurus/govend/internal/_vendor/gopkg.in/yaml.v2"
 )
 
-// Vend vendors packages into the vendor directory.
+// The vend command is the default command for govend.
+//
+// The vend command vendors packages into the vendor directory.
 // It achieves this by following the following steps:
 //
 // Step 1. Identify all relative file paths necessary for the current project.
@@ -28,7 +30,6 @@ func vendcmd(verbose bool) error {
 	//
 	// Step 1. Identify all relative file paths necessary for the current project.
 	//
-	////
 
 	// determine the absolute file path for the current local directory
 	localpath, err := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -55,7 +56,6 @@ func vendcmd(verbose bool) error {
 	//
 	// Step 2. Identify all types of packages currently present in the project.
 	//
-	////
 
 	// scan for external packages
 	pkgs, err := scan(".", false)
@@ -92,7 +92,6 @@ func vendcmd(verbose bool) error {
 	//
 	// Step 3. If the vendors.yml manifest file exists, load it in memory.
 	//
-	////
 
 	// create an empty slice of vendors to fill.
 	var manifest []vendor
@@ -137,7 +136,6 @@ func vendcmd(verbose bool) error {
 	//
 	// Step 4. Verify vendored packages and treat bad ones as unvendored packages.
 	//
-	////
 
 	// check vpkgs is not empty
 	if len(vpkgs) > 0 {
@@ -187,7 +185,6 @@ func vendcmd(verbose bool) error {
 	//
 	// Step 5. Identify package repositories and filter out repo subpackages.
 	//
-	////
 
 	// check uvpkgs is not empty
 	if len(uvpkgs) > 0 {
@@ -247,7 +244,6 @@ func vendcmd(verbose bool) error {
 		//
 		// Step 6. Download and vendor packages.
 		//
-		////
 
 		// check that the repo map is not empty
 		if len(rmap) > 0 {
@@ -374,7 +370,6 @@ func vendcmd(verbose bool) error {
 	//
 	// Step 7. Write the vendors.yml manifest file.
 	//
-	////
 
 	// verbosity
 	if verbose {
@@ -398,7 +393,6 @@ func vendcmd(verbose bool) error {
 	//
 	// Step 8. Rewrite import paths.
 	//
-	////
 
 	// verbosity
 	if verbose {
