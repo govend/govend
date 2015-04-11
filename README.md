@@ -1,7 +1,8 @@
 govend [![Build Status](https://travis-ci.org/gophersaurus/govend.svg?branch=master)](https://travis-ci.org/gophersaurus/govend)
 ============================================================================================================================
 
-The command `govend` takes yet another stab at solving golang dependency management. While many different solutions already exist to manage third party golang packages, `govend` tries a slightly different approach to the problem.
+The CLI tool `govend` takes a stab at golang dependency management.
+While many different solutions already exist to manage external golang packages, `govend` tries a slightly different approach to the problem.
 
 `govend` tries to be good at one thing, vendoring dependencies.
 
