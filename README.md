@@ -27,7 +27,7 @@ Essentially this means `govend` tries to be good at one thing, vendoring depende
 * rewrite golang import comments such as `// import "github.com/org/project"`
 
 
-Demo
+Demo Of Govend Vendoring (eat your own dog food)
 ====
 
 ![govend demo](https://raw.githubusercontent.com/gophersaurus/govend/master/images/govend_demo.gif)
@@ -48,34 +48,7 @@ $ cd project/root/path
 $ govend -verbose
 ```
 
-Options
-=======
-
-```bash
-→ govend -h
-
-NAME:
-   govend - A CLI tool for vendoring golang packages.
-
-USAGE:
-   govend [global options] command [command options] [arguments...]
-
-VERSION:
-   0.0.1
-
-COMMANDS:
-   scan, s	Scans a go project for external package dependencies
-   imports, i	Rewrites imports prioritizing the projects vendor directory
-   help, h	Shows a list of commands or help for one command
-
-GLOBAL OPTIONS:
-   --verbose		print things as they happen
-   --help, -h		show help
-   --version, -v	print the version
-```
-
-### Vendor Code
-To vendor code run `govend -verbose` or simply `govend` while in the root directory of your project.  This command will vendor all your dependecies and create a simple `internal/_vendor/vendors.yml` file to maintain versions.
+To vendor dependencies run `govend -verbose` or simply `govend` while in the root directory of your project.  This command will vendor all your dependecies and create a simple `internal/_vendor/vendors.yml` file to maintain versions.
 
 `govend` can understand a wide range of senarios, so when in doubt run `govend`.
 
