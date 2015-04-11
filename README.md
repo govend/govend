@@ -19,11 +19,11 @@ Essentially this means `govend` tries to be good at one thing, vendoring depende
 (lots of copy/paste)
 
 **govend does try to:**
-* be compatible with any project
-* use the `internal` directory as specified in golang version 1.4
 * rewrite all import paths
-* rewrite golang import comments such as `// import "github.com/org/project"`
+* be compatible with any project
 * maintain vendor import paths easily with `govend imports`
+* use the `internal` directory as specified in golang version 1.4
+* rewrite golang import comments such as `// import "github.com/org/project"`
 
 
 Demo
