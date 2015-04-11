@@ -41,8 +41,7 @@ func main() {
 	app.Name = "govend"
 	app.Usage = "A CLI tool for vendoring golang packages."
 	app.Version = "0.0.1"
-	app.Author = "Jack Spirou"
-	app.Email = "jack.spirou@me.com"
+	app.Author = "github.com/jackspirou"
 
 	// define the list of global options.
 	app.Flags = []cli.Flag{
@@ -72,8 +71,8 @@ func main() {
 					Name:  "all, a",
 					Usage: "show all packages, even those in the standard library",
 				},
-				cli.BoolFlag {
-					Name: "vendor, v",
+				cli.BoolFlag{
+					Name:  "vendor, v",
 					Usage: "show all vendor dependecy packages",
 				},
 			},
