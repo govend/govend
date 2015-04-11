@@ -37,7 +37,7 @@ Install
 ```bash
 $ go get github.com/gophersaurus/govend
 
-$ cd github.com/org/project-name
+$ cd project/root/path
 
 $ govend -verbose
 ```
