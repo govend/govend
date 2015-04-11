@@ -21,6 +21,7 @@ Essentially this means `govend` tries to be good at one thing, vendoring depende
 **govend does try to:**
 * rewrite all import paths
 * be compatible with any project
+* vendor the vendors dependencies to the `nth` degree
 * maintain vendor import paths easily with `govend imports`
 * use the `internal` directory as specified in golang version 1.4
 * rewrite golang import comments such as `// import "github.com/org/project"`
