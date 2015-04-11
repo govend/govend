@@ -37,7 +37,12 @@ Install
 
 ```bash
 $ go get github.com/gophersaurus/govend
+```
 
+Vendor Project Dependencies
+===================
+
+```bash
 $ cd project/root/path
 
 $ govend -verbose
