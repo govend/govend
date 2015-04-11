@@ -6,7 +6,7 @@ projects already exist to manage external golang packages, `govend` follows a
 philosophy of minimal interaction with the user, the project,
 the host's environment configuration, and the `go` command.
 
-`govend` tries to be good at one thing, vendoring dependencies.
+Essentially this means `govend` tries to be good at one thing, vendoring dependencies.
 
 **govend does not try to:**
 * change any environment variables, including `$GOPATH` (lets not mess with your
