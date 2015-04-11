@@ -9,14 +9,14 @@ the host's environment configuration, and the `go` command.
 Essentially this means `govend` tries to be good at one thing, vendoring dependencies.
 
 **govend does not try to:**
-* change any environment variables, including `$GOPATH` (let's not mess with your
-  personal config)
 * create a new golang project for you (govend should work with any project)
 * wrap the `go` command (if `go` gets a major update, we shouldn't break you)
-* dump the dependency manifest in the project root (we hide behind the curtain,
-  not show off)
 * make you maintain the dependency file `internal/_vendor/vendors.yml`
 (lots of copy/paste)
+* dump the dependency manifest in the project root (we hide behind the curtain,
+  not show off)
+* change any environment variables, including `$GOPATH` (let's not mess with your
+  personal config)
 
 **govend does try to:**
 * rewrite all import paths
