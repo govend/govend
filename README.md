@@ -23,7 +23,7 @@ Essentially this means `govend` tries to be good at one thing, vendoring depende
 * use the `internal` directory as specified in golang version 1.4
 * rewrite all import paths
 * rewrite golang import comments such as `// import "github.com/org/project"`
-* make vendor import paths easy to maintain with `govend imports`
+* maintain vendor import paths easily with `govend imports`
 
 
 Demo
