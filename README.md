@@ -6,7 +6,8 @@ projects already exist to manage external golang packages, `govend` follows a
 philosophy of minimal interaction with the user, the project,
 the host's environment configuration, and the `go` command.
 
-Essentially this means `govend` tries to be good at one thing, vendoring dependencies.
+Essentially this means `govend` tries to be good at one thing, vendoring
+dependencies.
 
 **govend does not try to:**
 * create a new golang project for you (govend should work with any project)
@@ -15,8 +16,8 @@ Essentially this means `govend` tries to be good at one thing, vendoring depende
 (lots of copy/paste)
 * dump the dependency manifest in the project root (we hide behind the curtain,
   not show off)
-* change any environment variables, including `$GOPATH` (let's not mess with your
-  personal config)
+* change any environment variables, including `$GOPATH` (let's not mess with
+your personal config)
 
 **govend does try to:**
 * rewrite all import paths
@@ -48,9 +49,15 @@ $ cd project/root/path
 $ govend -verbose
 ```
 
-To vendor dependencies run `govend -verbose` or simply `govend` while in the root directory of your project.  This command will vendor all your dependecies and create a simple `internal/_vendor/vendors.yml` file to maintain versions.
+To vendor project dependencies run `govend -verbose` or simply `govend` while
+located in the root directory of your project.  The `govend` command will
+download and vendor all immediate dependencies.  If the dependencies downloaded
+also have external dependencies you can simply run `govend` again.  If you would
+like `govend` to download all dependencies to the `nth` degree
+(vendors dependencies, and then all those dependencies) run `govend -all`.
+The dependency manifest file is generated at `internal/_vendor/vendors.yml`.
 
-`govend` can understand a wide range of senarios, so when in doubt run `govend`.
+`govend` can understand a wide range of scenarios, so when in doubt run `govend`.
 
 ```bash
 → govend -verbose
