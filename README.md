@@ -15,8 +15,8 @@ Essentially this means `govend` tries to be good at one thing, vendoring depende
 * wrap the `go` command (if `go` gets a major update, we shouldn't break you)
 * dump the dependency manifest in the project root (we hide behind the curtain,
   not show off)
-* make you maintain the dependency file `internal/_vendor/vendors.yml` (thats
-  lots of copy/paste)
+* make you maintain the dependency file `internal/_vendor/vendors.yml`
+(lots of copy/paste)
 
 **govend does try to:**
 * be compatible with any project
