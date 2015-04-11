@@ -1,16 +1,16 @@
 govend [![Build Status](https://travis-ci.org/gophersaurus/govend.svg?branch=master)](https://travis-ci.org/gophersaurus/govend)
 ============================================================================================================================
 
-The command `govend` takes yet another stab at solving golang dependency management. While many different solutions already exist to manage third party golang packages, `govend` tries a slightly different approach.
+The command `govend` takes yet another stab at solving golang dependency management. While many different solutions already exist to manage third party golang packages, `govend` tries a slightly different approach to the problem.
 
-`govend` tries to be good at one thing, vendoring dependecies.
+`govend` tries to be good at one thing, vendoring dependencies.
 
 **govend does not try to:**
-* change any enviorment variables, including `$GOPATH` your enviorment
-* create a new golang project for you
-* wrap the `go` command
-* make you maintain the dependecy file `internal/_vendor/vendors.yml`
-* dump the dependecy file in the root of your project
+* change any environment variables, including `$GOPATH` (lets not mess with your personal config)
+* create a new golang project for you (govend should work with any project)
+* wrap the `go` command (if `go` gets a major update, we shouldn't break you)
+* dump the dependency file in the root of your project (we want to hide behind the curtain, not show off)
+* make you maintain the dependency file `internal/_vendor/vendors.yml` (thats lots of copy/paste)
 
 **govend does try to:**
 * be compatible with any project
