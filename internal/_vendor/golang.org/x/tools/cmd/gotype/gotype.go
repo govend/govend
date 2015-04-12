@@ -18,14 +18,14 @@ import (
 	"runtime"
 	"time"
 
-	"golang.org/x/tools/go/gccgoimporter"
-	_ "golang.org/x/tools/go/gcimporter"
-	"golang.org/x/tools/go/types"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/gccgoimporter"
+	_ "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/gcimporter"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
 var (
-	// main operation modes
-	allFiles  = flag.Bool("a", false, "use all (incl. _test.go) files when processing a directory")
+	allFiles = flag. // main operation modes
+	Bool("a", false, "use all (incl. _test.go) files when processing a directory")
 	allErrors = flag.Bool("e", false, "report all errors (not just the first 10)")
 	verbose   = flag.Bool("v", false, "verbose mode")
 	gccgo     = flag.Bool("gccgo", false, "use gccgoimporter instead of gcimporter")

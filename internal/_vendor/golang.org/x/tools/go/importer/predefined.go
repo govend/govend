@@ -4,7 +4,7 @@
 
 package importer
 
-import "golang.org/x/tools/go/types"
+import "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 
 const (
 	magic   = "\n$$ exports $$\n"

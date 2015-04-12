@@ -11,7 +11,7 @@
 // map type.  The IsEmpty, Min, Max, Clear and TakeMin operations
 // require constant time.
 //
-package intsets // import "golang.org/x/tools/container/intsets"
+package intsets // import "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/container/intsets"
 
 // TODO(adonovan):
 // - Add InsertAll(...int), RemoveAll(...int)

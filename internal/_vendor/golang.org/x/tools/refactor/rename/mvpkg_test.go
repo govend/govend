@@ -17,7 +17,7 @@ import (
 	"strings"
 	"testing"
 
-	"golang.org/x/tools/go/buildutil"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/buildutil"
 )
 
 func TestErrors(t *testing.T) {

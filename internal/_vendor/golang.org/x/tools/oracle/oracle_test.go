@@ -44,8 +44,8 @@ import (
 	"strings"
 	"testing"
 
-	"golang.org/x/tools/go/loader"
-	"golang.org/x/tools/oracle"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/oracle"
 )
 
 var updateFlag = flag.Bool("update", false, "Update the golden files.")

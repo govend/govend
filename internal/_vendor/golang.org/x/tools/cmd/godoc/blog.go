@@ -15,8 +15,8 @@ import (
 	"strings"
 	"sync"
 
-	"golang.org/x/tools/blog"
-	"golang.org/x/tools/godoc/redirect"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/blog"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/godoc/redirect"
 )
 
 const (

@@ -4,13 +4,13 @@
 
 // Package gatefs provides an implementation of the FileSystem
 // interface that wraps another FileSystem and limits its concurrency.
-package gatefs // import "golang.org/x/tools/godoc/vfs/gatefs"
+package gatefs // import "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/godoc/vfs/gatefs"
 
 import (
 	"fmt"
 	"os"
 
-	"golang.org/x/tools/godoc/vfs"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/godoc/vfs"
 )
 
 // New returns a new FileSystem that delegates to fs.

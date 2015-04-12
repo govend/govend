@@ -162,8 +162,8 @@ import (
 	"io"
 	"reflect"
 
-	"golang.org/x/tools/container/intsets"
-	"golang.org/x/tools/go/types"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/container/intsets"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
 // A peLabel is a pointer-equivalence label: two nodes with the same

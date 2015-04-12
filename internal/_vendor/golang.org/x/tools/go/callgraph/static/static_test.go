@@ -11,10 +11,10 @@ import (
 	"sort"
 	"testing"
 
-	"golang.org/x/tools/go/callgraph"
-	"golang.org/x/tools/go/callgraph/static"
-	"golang.org/x/tools/go/loader"
-	"golang.org/x/tools/go/ssa"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/callgraph"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/callgraph/static"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa"
 )
 
 const input = `package P

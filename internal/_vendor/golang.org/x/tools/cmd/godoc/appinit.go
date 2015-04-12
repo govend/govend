@@ -15,11 +15,11 @@ import (
 	"path"
 	"regexp"
 
-	"golang.org/x/tools/godoc"
-	"golang.org/x/tools/godoc/static"
-	"golang.org/x/tools/godoc/vfs"
-	"golang.org/x/tools/godoc/vfs/mapfs"
-	"golang.org/x/tools/godoc/vfs/zipfs"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/godoc"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/godoc/static"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/godoc/vfs"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/godoc/vfs/mapfs"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/godoc/vfs/zipfs"
 )
 
 func init() {

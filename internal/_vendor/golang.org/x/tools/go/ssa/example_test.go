@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"os"
 
-	"golang.org/x/tools/go/loader"
-	"golang.org/x/tools/go/ssa"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa"
 )
 
 // This program demonstrates how to run the SSA builder on a "Hello,

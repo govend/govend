@@ -10,11 +10,11 @@ import (
 	"go/token"
 	"sort"
 
-	"golang.org/x/tools/go/ast/astutil"
-	"golang.org/x/tools/go/ssa"
-	"golang.org/x/tools/go/ssa/ssautil"
-	"golang.org/x/tools/go/types"
-	"golang.org/x/tools/oracle/serial"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ast/astutil"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa/ssautil"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/oracle/serial"
 )
 
 var builtinErrorType = types.Universe.Lookup("error").Type()

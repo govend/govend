@@ -30,6 +30,13 @@ func scan(dir string, skipVendor bool) ([]string, error) {
 		// check if we currently are at a directory
 		if fstat.IsDir() {
 
+			if fstat.Name() == "testdata" {
+
+				// skip the directory
+				w.SkipDir()
+				continue
+			}
+
 			// check if that directory is "_vendor"
 			if fstat.Name() == vendorDir && skipVendor {
 

@@ -23,8 +23,8 @@ import (
 	"runtime"
 	"runtime/pprof"
 
-	"golang.org/x/tools/go/loader"
-	"golang.org/x/tools/oracle"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/oracle"
 )
 
 var posFlag = flag.String("pos", "",

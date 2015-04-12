@@ -8,7 +8,7 @@ import (
 	"go/build"
 	"testing"
 
-	"golang.org/x/tools/go/buildutil"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/buildutil"
 )
 
 func TestAllPackages(t *testing.T) {

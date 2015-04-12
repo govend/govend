@@ -9,7 +9,7 @@
 //
 // THIS INTERFACE IS EXPERIMENTAL AND MAY CHANGE OR BE REMOVED IN FUTURE.
 //
-package lexical // import "golang.org/x/tools/refactor/lexical"
+package lexical // import "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/refactor/lexical"
 
 // OVERVIEW
 //
@@ -35,7 +35,7 @@ import (
 	"os"
 	"strconv"
 
-	"golang.org/x/tools/go/types"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
 const trace = false

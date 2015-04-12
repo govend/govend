@@ -13,12 +13,12 @@ import (
 	"os"
 	"strings"
 
-	"golang.org/x/tools/go/ast/astutil"
-	"golang.org/x/tools/go/exact"
-	"golang.org/x/tools/go/loader"
-	"golang.org/x/tools/go/types"
-	"golang.org/x/tools/go/types/typeutil"
-	"golang.org/x/tools/oracle/serial"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ast/astutil"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/exact"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types/typeutil"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/oracle/serial"
 )
 
 // describe describes the syntax node denoted by the query position,

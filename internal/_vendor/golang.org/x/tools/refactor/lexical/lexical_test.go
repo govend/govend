@@ -8,8 +8,8 @@ import (
 	"go/build"
 	"testing"
 
-	"golang.org/x/tools/go/buildutil"
-	"golang.org/x/tools/go/loader"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/buildutil"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
 )
 
 func TestStdlib(t *testing.T) {

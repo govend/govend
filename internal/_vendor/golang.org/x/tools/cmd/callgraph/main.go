@@ -30,13 +30,13 @@ import (
 	"runtime"
 	"text/template"
 
-	"golang.org/x/tools/go/callgraph"
-	"golang.org/x/tools/go/callgraph/cha"
-	"golang.org/x/tools/go/callgraph/rta"
-	"golang.org/x/tools/go/callgraph/static"
-	"golang.org/x/tools/go/loader"
-	"golang.org/x/tools/go/pointer"
-	"golang.org/x/tools/go/ssa"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/callgraph"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/callgraph/cha"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/callgraph/rta"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/callgraph/static"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/pointer"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa"
 )
 
 var algoFlag = flag.String("algo", "rta",

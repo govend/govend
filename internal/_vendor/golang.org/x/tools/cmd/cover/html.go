@@ -17,7 +17,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"golang.org/x/tools/cover"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/cover"
 )
 
 // htmlOutput reads the profile data from profile and generates an HTML

@@ -607,4 +607,4 @@ ACM, New York, NY, USA, 47-56. DOI=10.1145/349299.349310
 http://doi.acm.org/10.1145/349299.349310
 
 */
-package pointer // import "golang.org/x/tools/go/pointer"
+package pointer // import "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/pointer"

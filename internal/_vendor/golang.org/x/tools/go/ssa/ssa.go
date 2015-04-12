@@ -13,10 +13,10 @@ import (
 	"go/token"
 	"sync"
 
-	"golang.org/x/tools/go/exact"
-	"golang.org/x/tools/go/loader"
-	"golang.org/x/tools/go/types"
-	"golang.org/x/tools/go/types/typeutil"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/exact"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types/typeutil"
 )
 
 // A Program is a partial or complete Go program converted to SSA form.

@@ -11,13 +11,12 @@ import (
 	"io"
 	"math/big"
 
-	"golang.org/x/tools/go/exact"
-	"golang.org/x/tools/go/types"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/exact"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
-// TODO(gri) use tabwriter for alignment?
-
-func print(w io.Writer, pkg *types.Package, filter func(types.Object) bool) {
+func // TODO(gri) use tabwriter for alignment?
+print(w io.Writer, pkg *types.Package, filter func(types.Object) bool) {
 	var p printer
 	p.pkg = pkg
 	p.printPackage(pkg, filter)

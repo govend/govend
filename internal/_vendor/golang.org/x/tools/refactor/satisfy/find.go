@@ -15,7 +15,7 @@
 // since it is computing it anyway, and it is robust for ill-typed
 // inputs, which this package is not.
 //
-package satisfy // import "golang.org/x/tools/refactor/satisfy"
+package satisfy // import "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/refactor/satisfy"
 
 // NOTES:
 //
@@ -49,8 +49,8 @@ import (
 	"go/ast"
 	"go/token"
 
-	"golang.org/x/tools/go/ast/astutil"
-	"golang.org/x/tools/go/types"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ast/astutil"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
 // A Constraint records the fact that the RHS type does and must

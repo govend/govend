@@ -12,7 +12,7 @@ import (
 	"go/build"
 	"os"
 
-	"golang.org/x/tools/refactor/rename"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/refactor/rename"
 )
 
 var (

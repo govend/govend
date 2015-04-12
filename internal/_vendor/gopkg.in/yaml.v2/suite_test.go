@@ -1,7 +1,7 @@
 package yaml_test
 
 import (
-	. "gopkg.in/check.v1"
+	. "github.com/gophersaurus/govend/internal/_vendor/gopkg.in/check.v1"
 	"testing"
 )
 

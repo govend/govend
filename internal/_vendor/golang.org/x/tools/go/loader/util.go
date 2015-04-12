@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"sync"
 
-	"golang.org/x/tools/go/buildutil"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/buildutil"
 )
 
 // parseFiles parses the Go source files within directory dir and

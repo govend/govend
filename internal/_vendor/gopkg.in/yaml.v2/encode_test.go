@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	. "github.com/gophersaurus/govend/internal/_vendor/gopkg.in/check.v1"
 	"github.com/gophersaurus/govend/internal/_vendor/gopkg.in/yaml.v2"
-	. "gopkg.in/check.v1"
 	"net"
 	"os"
 )

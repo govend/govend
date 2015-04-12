@@ -535,7 +535,13 @@ var stdpkgs = map[string][]pkg{
 	},
 
 	// I am being a horrible person and tacking on appengine, cuz im lazy
+	"appengine": []pkg{
+		pkg{path: "appengine"},
+	},
 	"cloudsql": []pkg{
 		pkg{path: "appengine/cloudsql"},
+	},
+	"urlfetch": []pkg{
+		pkg{path: "appengine/urlfetch"},
 	},
 }

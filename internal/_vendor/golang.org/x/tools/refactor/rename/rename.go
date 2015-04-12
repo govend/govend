@@ -5,7 +5,7 @@
 // Package rename contains the implementation of the 'gorename' command
 // whose main function is in golang.org/x/tools/cmd/gorename.
 // See the Usage constant for the command documentation.
-package rename // import "golang.org/x/tools/refactor/rename"
+package rename // import "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/refactor/rename"
 
 import (
 	"bytes"
@@ -23,10 +23,10 @@ import (
 	"strconv"
 	"strings"
 
-	"golang.org/x/tools/go/loader"
-	"golang.org/x/tools/go/types"
-	"golang.org/x/tools/refactor/importgraph"
-	"golang.org/x/tools/refactor/satisfy"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/refactor/importgraph"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/refactor/satisfy"
 )
 
 const Usage = `gorename: precise type-safe renaming of identifiers in Go source code.

@@ -13,8 +13,8 @@ import (
 	"strings"
 	"testing"
 
-	_ "golang.org/x/tools/go/gcimporter"
-	. "golang.org/x/tools/go/types"
+	_ "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/gcimporter"
+	. "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
 func pkgFor(path, source string, info *Info) (*Package, error) {

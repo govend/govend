@@ -4,7 +4,7 @@
 
 // Package gcimporter implements Import for gc-generated object files.
 // Importing this package installs Import as go/types.DefaultImport.
-package gcimporter // import "golang.org/x/tools/go/gcimporter"
+package gcimporter // import "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/gcimporter"
 
 import (
 	"bufio"
@@ -19,12 +19,12 @@ import (
 	"strings"
 	"text/scanner"
 
-	"golang.org/x/tools/go/exact"
-	"golang.org/x/tools/go/types"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/exact"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
-// debugging/development support
-const debug = false
+const debug = // debugging/development support
+false
 
 func init() {
 	types.DefaultImport = Import

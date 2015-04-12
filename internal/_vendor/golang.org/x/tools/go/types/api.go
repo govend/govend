@@ -20,7 +20,7 @@
 // and checks for compliance with the language specification.
 // Use Info.Types[expr].Type for the results of type inference.
 //
-package types // import "golang.org/x/tools/go/types"
+package types // import "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 
 import (
 	"bytes"
@@ -28,7 +28,7 @@ import (
 	"go/ast"
 	"go/token"
 
-	"golang.org/x/tools/go/exact"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/exact"
 )
 
 // Check type-checks a package and returns the resulting complete package

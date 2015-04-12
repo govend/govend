@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Package blog implements a web server for articles written in present format.
-package blog // import "golang.org/x/tools/blog"
+package blog // import "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/blog"
 
 import (
 	"bytes"
@@ -20,8 +20,8 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/tools/blog/atom"
-	"golang.org/x/tools/present"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/blog/atom"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/present"
 )
 
 var validJSONPFunc = regexp.MustCompile(`(?i)^[a-z_][a-z0-9_.]*$`)

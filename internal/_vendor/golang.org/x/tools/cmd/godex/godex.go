@@ -14,7 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"golang.org/x/tools/go/types"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
 var (

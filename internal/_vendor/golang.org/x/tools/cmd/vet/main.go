@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"strings"
 
-	_ "golang.org/x/tools/go/gcimporter"
-	"golang.org/x/tools/go/types"
+	_ "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/gcimporter"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
 // TODO: Need a flag to set build tags when parsing the package.

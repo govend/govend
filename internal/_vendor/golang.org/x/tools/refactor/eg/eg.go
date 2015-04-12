@@ -1,6 +1,6 @@
 // Package eg implements the example-based refactoring tool whose
 // command-line is defined in golang.org/x/tools/cmd/eg.
-package eg // import "golang.org/x/tools/refactor/eg"
+package eg // import "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/refactor/eg"
 
 import (
 	"bytes"
@@ -11,8 +11,8 @@ import (
 	"go/token"
 	"os"
 
-	"golang.org/x/tools/go/loader"
-	"golang.org/x/tools/go/types"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
 const Help = `

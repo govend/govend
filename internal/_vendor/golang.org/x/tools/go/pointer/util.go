@@ -13,8 +13,8 @@ import (
 	"runtime"
 	"time"
 
-	"golang.org/x/tools/container/intsets"
-	"golang.org/x/tools/go/types"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/container/intsets"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
 // CanPoint reports whether the type T is pointerlike,
