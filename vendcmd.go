@@ -82,7 +82,9 @@ func vendcmd(verbose bool) error {
 	if len(uvpkgs) < 1 && len(vpkgs) < 1 {
 
 		// remove everthing in the vendor directory
-		os.RemoveAll(vendorPath)
+		if err := os.RemoveAll(vendorPath); err != nil {
+			return err
+		}
 
 		return nil
 	}
