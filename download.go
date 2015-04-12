@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-func download(repomap map[string]*RepoRoot, manifest []vendor, vendorTempPath, vendorPath string, verbosity bool) error {
+func download(repomap map[string]*RepoRoot, manifest []vendor, vendorTempPath, vendorPath string, verbosity bool) ([]vendor, error) {
 
 	// verbosity
 	if verbosity {
@@ -18,7 +18,7 @@ func download(repomap map[string]*RepoRoot, manifest []vendor, vendorTempPath, v
 
 		// create a directory for the pkg
 		if err := os.MkdirAll(filepath.Dir(filepath.Join(vendorTempPath, r.Root)), 0777); err != nil {
-			return err
+			return nil, err
 		}
 
 		// iterate over the vendors in the vendor file
@@ -49,18 +49,18 @@ func download(repomap map[string]*RepoRoot, manifest []vendor, vendorTempPath, v
 
 					// create the repository at that specific revision
 					if err := r.VCS.CreateAtRev(filepath.Join(vendorTempPath, r.Root), r.Repo, v.Rev); err != nil {
-						return err
+						return nil, err
 					}
 				} else {
 
 					// Create the repository from the default repository revision.
 					if err := r.VCS.Create(filepath.Join(vendorTempPath, r.Root), r.Repo); err != nil {
-						return err
+						return nil, err
 					}
 
 					rev, err := r.VCS.identify(filepath.Join(vendorTempPath, r.Root))
 					if err != nil {
-						return err
+						return nil, err
 					}
 
 					manifest[i] = vendor{Path: v.Path, Rev: rev}
@@ -81,13 +81,13 @@ func download(repomap map[string]*RepoRoot, manifest []vendor, vendorTempPath, v
 
 		// Create the repository from the default repository revision.
 		if err := r.VCS.Create(filepath.Join(vendorTempPath, r.Root), r.Repo); err != nil {
-			return err
+			return nil, err
 		}
 
 		if rev, err := r.VCS.identify(filepath.Join(vendorTempPath, r.Root)); err == nil {
 			manifest = append(manifest, vendor{Path: r.Root, Rev: rev})
 		} else {
-			return err
+			return nil, err
 		}
 
 	UnvendoredManifestMatch:
@@ -103,17 +103,17 @@ func download(repomap map[string]*RepoRoot, manifest []vendor, vendorTempPath, v
 
 		// remove all
 		if err := os.RemoveAll(filepath.Join(vendorPath, r.Root)); err != nil {
-			return err
+			return nil, err
 		}
 
 		// mkdir
 		if err := os.MkdirAll(filepath.Dir(filepath.Join(vendorPath, r.Root)), 0777); err != nil {
-			return err
+			return nil, err
 		}
 
 		// copy
 		if err := CopyDir(filepath.Join(vendorTempPath, r.Root), filepath.Join(vendorPath, r.Root)); err != nil {
-			return err
+			return nil, err
 		}
 	}
 
@@ -125,5 +125,5 @@ func download(repomap map[string]*RepoRoot, manifest []vendor, vendorTempPath, v
 		fmt.Println("				complete")
 	}
 
-	return nil
+	return manifest, nil
 }

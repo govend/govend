@@ -182,28 +182,27 @@ func vendcmd(verbose bool) error {
 		}
 	}
 
-	//
-	// Step 5. Identify package repositories and filter out repo subpackages.
-	//
-
 	// check uvpkgs is not empty
 	if len(uvpkgs) > 0 {
-		if rmap, err := pingrepos(uvpkgs, manifest, localpath, vendorProjectPath, verbose); err == nil {
+
+		//
+		// Step 5. Identify package repositories and filter out repo subpackages.
+		rmap, err := pingrepos(uvpkgs, manifest, localpath, vendorProjectPath, verbose)
+		if err != nil {
+			return err
+		}
+
+		// check that the repo map is not empty
+		if len(rmap) > 0 {
 
 			//
 			// Step 6. Download and vendor packages.
-			//
-
-			// check that the repo map is not empty
-			if len(rmap) > 0 {
-				if err := download(rmap, manifest, vendorTempPath, vendorPath, verbose); err != nil {
-					return err
-				}
+			manifest, err = download(rmap, manifest, vendorTempPath, vendorPath, verbose)
+			if err != nil {
+				return err
 			}
-
-		} else {
-			return err
 		}
+
 	}
 
 	//
