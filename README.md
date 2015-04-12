@@ -10,14 +10,14 @@ Essentially this means `govend` tries to be good at one thing, vendoring
 dependencies.
 
 **govend does not try to:**
-* create a new golang project for you (govend should work with any project)
+* create a new golang project for you (`govend` should work with any project)
 * wrap the `go` command (if `go` gets a major update, we shouldn't break you)
 * make you maintain the dependency file `internal/_vendor/vendors.yml`
 (lots of copy/paste)
-* dump the dependency manifest in the project root (we hide behind the curtain,
-  not show off)
-* change any environment variables, including `$GOPATH` (let's not mess with
-your personal config)
+* dump the dependency manifest in the project root (`govend` hides behind the
+  curtain instead of showing off)
+* change any environment variables, including `$GOPATH` (`govend` does not mess
+  with your personal config)
 
 **govend does try to:**
 * rewrite all import paths
