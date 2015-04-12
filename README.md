@@ -92,8 +92,12 @@ The `vendors.yml` file simply contains an array of import paths and commit revis
   rev: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
 - path: golang.org/x/tools
   rev: 0c09ff325ac41535a3d5fb6d539c32aca981bada
-- path: golang.org/x/tools/go/vcs
-  rev: ""
+- path: golang.org/x/net
+  rev: 84ba27dd5b2d8135e9da1395277f2c9333a2ffda
+- path: gopkg.in/check.v1
+  rev: 64131543e7896d5bcc6bd5a76287eb75ea96c673
+- path: golang.org/x/text
+  rev: d48eb58d199dc14dfaafefabf361feff840ee06c
 ```
 
 ### Rewrite Imports
