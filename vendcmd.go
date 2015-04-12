@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -47,15 +46,14 @@ func vendcmd(verbose bool) error {
 	vendorProjectPath := filepath.Join(projectImportPath, vendorPath)
 	vendorProjectPathSlashed := vendorProjectPath + string(filepath.Separator)
 
-	// verbosity
-	if verbose {
-		fmt.Println("identifying project paths... 			complete")
-		fmt.Print("scanning for external unvendored packages...")
-	}
-
 	//
 	// Step 2. Identify all types of packages currently present in the project.
 	//
+
+	// verbosity
+	if verbose {
+		fmt.Print("scanning for external unvendored packages...")
+	}
 
 	// scan for external packages
 	pkgs, err := scan(".", false)
@@ -188,182 +186,21 @@ func vendcmd(verbose bool) error {
 
 	// check uvpkgs is not empty
 	if len(uvpkgs) > 0 {
+		if rmap, err := pingrepos(uvpkgs, manifest, localpath, vendorProjectPath, verbose); err == nil {
 
-		// create a repo map of package paths to RepoRoots
-		rmap := make(map[string]*RepoRoot)
+			//
+			// Step 6. Download and vendor packages.
+			//
 
-		// verbosity
-		if verbose {
-			fmt.Print("identifying repositories... ")
-		}
-
-		// remove package imports that might already be included
-		//
-		// example: "gopkg.in/mgo.v2/bson" -> "gopkg.in/mgo.v2"
-		for _, pkg := range uvpkgs {
-
-			// iterate through the manifest vendors.yml file looking for matches
-			// and check if we already have vendored code and a revision number
-			for _, v := range manifest {
-				if pkg == v.Path {
-					if _, err := os.Stat(filepath.Join(localpath, vendorProjectPath, pkg)); err == nil {
-						goto UnvendoredPackageMatch
-					}
-				}
-			}
-
-			// check if the package is missing from RepoRoot map
-			if _, ok := rmap[pkg]; !ok {
-
-				// determine import path and repository type by asking the server
-				// hosting the repository and package
-				r, err := RepoRootForImportPath(pkg, false)
-				if err != nil {
-					e := err.Error()
-					msg := "no go-import meta tags"
-					if e[len(e)-len(msg):] == msg {
-						return errors.New("Are you behind a proxy?" + e + "\n")
-					}
-					return err
-				}
-
-				// if the project package root is ont in the RepoRoot map, add it
-				if _, ok := rmap[r.Root]; !ok {
-					rmap[r.Root] = r
-				}
-			}
-
-		UnvendoredPackageMatch:
-		}
-
-		// verbosity
-		if verbose {
-			fmt.Println("			complete")
-		}
-
-		//
-		// Step 6. Download and vendor packages.
-		//
-
-		// check that the repo map is not empty
-		if len(rmap) > 0 {
-
-			// verbosity
-			if verbose {
-				fmt.Println("downloading packages...")
-			}
-
-			// iterate through the rmap
-			for key, r := range rmap {
-
-				// create a directory for the pkg
-				if err := os.MkdirAll(filepath.Dir(filepath.Join(vendorTempPath, r.Root)), 0777); err != nil {
-					return err
-				}
-
-				// iterate over the vendors in the vendor file
-				for i, v := range manifest {
-
-					// check if we have a match
-					if r.Root == v.Path {
-
-						if _, err := os.Stat(filepath.Join(vendorPath, v.Path)); err == nil {
-
-							// verbosity
-							if verbose {
-								fmt.Println(" - " + r.Root + " (vendored)")
-							}
-
-							delete(rmap, key)
-
-							goto UnvendoredManifestMatch
-						}
-
-						// check if a revision exists
-						if len(v.Rev) > 0 {
-
-							// verbosity
-							if verbose {
-								fmt.Println(" ↓ " + r.Repo + " (" + v.Rev + ")")
-							}
-
-							// create the repository at that specific revision
-							if err := r.VCS.CreateAtRev(filepath.Join(vendorTempPath, r.Root), r.Repo, v.Rev); err != nil {
-								return err
-							}
-						} else {
-
-							// Create the repository from the default repository revision.
-							if err := r.VCS.Create(filepath.Join(vendorTempPath, r.Root), r.Repo); err != nil {
-								return err
-							}
-
-							rev, err := r.VCS.identify(filepath.Join(vendorTempPath, r.Root))
-							if err != nil {
-								return err
-							}
-
-							manifest[i] = vendor{Path: v.Path, Rev: rev}
-
-							// verbosity
-							if verbose {
-								fmt.Println(" ↓ " + r.Repo + " (" + rev + ")")
-							}
-						}
-						goto UnvendoredManifestMatch
-					}
-				}
-
-				// verbosity
-				if verbose {
-					fmt.Println(" ↓ " + r.Repo + " (latest)")
-				}
-
-				// Create the repository from the default repository revision.
-				if err := r.VCS.Create(filepath.Join(vendorTempPath, r.Root), r.Repo); err != nil {
-					return err
-				}
-
-				if rev, err := r.VCS.identify(filepath.Join(vendorTempPath, r.Root)); err == nil {
-					manifest = append(manifest, vendor{Path: r.Root, Rev: rev})
-				} else {
-					return err
-				}
-
-			UnvendoredManifestMatch:
-			}
-
-			// verbosity
-			if verbose {
-				fmt.Print("vendoring packages...")
-			}
-
-			// iterate through the rmap
-			for _, r := range rmap {
-
-				// remove all
-				if err := os.RemoveAll(filepath.Join(vendorPath, r.Root)); err != nil {
-					return err
-				}
-
-				// mkdir
-				if err := os.MkdirAll(filepath.Dir(filepath.Join(vendorPath, r.Root)), 0777); err != nil {
-					return err
-				}
-
-				// copy
-				if err := CopyDir(filepath.Join(vendorTempPath, r.Root), filepath.Join(vendorPath, r.Root)); err != nil {
+			// check that the repo map is not empty
+			if len(rmap) > 0 {
+				if err := download(rmap, manifest, vendorTempPath, vendorPath, verbose); err != nil {
 					return err
 				}
 			}
 
-			// remove the temp
-			os.RemoveAll(vendorTempPath)
-
-			// verbosity
-			if verbose {
-				fmt.Println("				complete")
-			}
+		} else {
+			return err
 		}
 	}
 
