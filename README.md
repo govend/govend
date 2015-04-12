@@ -27,8 +27,8 @@ dependencies.
 * rewrite golang import comments such as `// import "github.com/org/project"`
 
 
-Demo Of Govend Vendoring (eat your own dog food)
-====
+Demo (eat your own dog food)
+============================
 
 ![govend demo](https://raw.githubusercontent.com/gophersaurus/govend/master/images/govend_demo.gif)
 
