@@ -171,7 +171,9 @@ func vendcmd(verbose bool) error {
 			}
 
 			// add the missing vpkgpath to the new vendors manifest file
-			manifest = append(manifest, vendor{Path: vpkgpath})
+			//
+			// THIS PRODUCED POOR RESULTS... WE NEED TO BE SMARTER...
+			// manifest = append(manifest, vendor{Path: vpkgpath})
 
 		VendoredPackageMatch:
 		}

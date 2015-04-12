@@ -47,7 +47,7 @@ func pingrepos(uvpkgs []string, manifest []vendor, localpath, vendorProjectPath 
 				return nil, err
 			}
 
-			// if the project package root is ont in the RepoRoot map, add it
+			// if the project package root isn't in the RepoRoot map, add it
 			if _, ok := rmap[r.Root]; !ok {
 				rmap[r.Root] = r
 			}
