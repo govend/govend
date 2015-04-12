@@ -16,7 +16,7 @@ dependencies.
 (lots of copy/paste)
 * dump the dependency manifest in the project root (`govend` hides, it doesn't showing off)
 * change any environment variables, including `$GOPATH` (`govend` doesn't mess
-  with your local config)
+  with your config)
 
 **govend does try to:**
 * rewrite all import paths
