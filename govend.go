@@ -54,6 +54,23 @@ func main() {
 	// define the list of commands.
 	app.Commands = []cli.Command{
 		{
+			Name:        "vendor",
+			Usage:       "Vendors a go project's external package dependencies",
+			ShortName:   "vend",
+			Description: "Use this command to vendor external package dependencies.",
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "recursive, r",
+					Usage: "recursively vendor external package dependencies",
+				},
+			},
+			Action: func(c *cli.Context) {
+				if err := vendcmd(c.GlobalBool("verbose"), c.Bool("recursive")); err != nil {
+					panic(err)
+				}
+			},
+		},
+		{
 			Name:        "scan",
 			Usage:       "Scans a go project for external package dependencies",
 			ShortName:   "s",
@@ -120,7 +137,7 @@ func main() {
 
 	// define the default action.
 	app.Action = func(c *cli.Context) {
-		if err := vendcmd(c.GlobalBool("verbose")); err != nil {
+		if err := vendcmd(c.GlobalBool("verbose"), false); err != nil {
 			panic(err)
 		}
 	}

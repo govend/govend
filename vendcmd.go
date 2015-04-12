@@ -24,7 +24,7 @@ import (
 // Step 7. Write the vendors.yml manifest file.
 // Step 8. Rewrite import paths.
 //
-func vendcmd(verbose bool) error {
+func vendcmd(verbose, recursive bool) error {
 
 	//
 	// Step 1. Identify all relative file paths necessary for the current project.
@@ -257,6 +257,35 @@ func vendcmd(verbose bool) error {
 		fmt.Println("			complete")
 	}
 
-	// if not in vendor file then add it to vendors
+	if recursive {
+
+		// scan for external packages
+		tpkgs, err := scan(".", false)
+		if err != nil {
+			return err
+		}
+
+		// remove standard packages
+		tpkgs = removestdpkgs(tpkgs)
+
+		// find the unvendored packages by removing packages that contain the
+		// projectImportPath as a prefix in the import path
+		//
+		// by using projectImportPath we also remove internal packages
+		tuvpkgs := removeprefix(projectImportPath, tpkgs)
+
+		if len(tuvpkgs) > 0 {
+
+			if verbose {
+				fmt.Println("")
+				fmt.Println("recursively vendoring dependencies...")
+				fmt.Println("")
+			}
+			if err := vendcmd(verbose, recursive); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
