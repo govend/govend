@@ -14,9 +14,8 @@ dependencies.
 * wrap the `go` command (if `go` gets a major update, we shouldn't break you)
 * make you maintain the dependency file `internal/_vendor/vendors.yml`
 (lots of copy/paste)
-* dump the dependency manifest in the project root (`govend` hides behind the
-  curtain instead of showing off)
-* change any environment variables, including `$GOPATH` (`govend` does not mess
+* dump the dependency manifest in the project root (`govend` hides, it doesn't showing off)
+* change any environment variables, including `$GOPATH` (`govend` doesn't mess
   with your personal config)
 
 **govend does try to:**
