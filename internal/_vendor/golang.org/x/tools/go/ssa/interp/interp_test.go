@@ -19,6 +19,7 @@ import (
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa/interp"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa/ssautil"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
@@ -154,12 +155,9 @@ var testdataTests = []string{
 // These are files and packages in $GOROOT/src/.
 var gorootSrcTests = []string{
 	"encoding/ascii85",
-	"encoding/csv",
 	"encoding/hex",
-	"encoding/pem",
-	"hash/crc32",
-	// "testing", // TODO(adonovan): implement runtime.Goexit correctly
-	"text/scanner",
+	// "encoding/pem", // TODO(adonovan): implement (reflect.Value).SetString
+	// "testing",      // TODO(adonovan): implement runtime.Goexit correctly
 	"unicode",
 
 	// Too slow:
@@ -167,10 +165,13 @@ var gorootSrcTests = []string{
 	// "hash/adler32",
 
 	// TODO(adonovan): packages with Examples require os.Pipe (unimplemented):
+	// "hash/crc32",
 	// "unicode/utf8",
 	// "log",
 	// "path",
 	// "flag",
+	// "encoding/csv"
+	// "text/scanner"
 }
 
 type successPredicate func(exitcode int, output string) error
@@ -217,7 +218,7 @@ func run(t *testing.T, dir, input string, success successPredicate) bool {
 		return false
 	}
 
-	prog := ssa.Create(iprog, ssa.SanityCheckFunctions)
+	prog := ssautil.CreateProgram(iprog, ssa.SanityCheckFunctions)
 	prog.BuildAll()
 
 	var mainPkg *ssa.Package
@@ -345,7 +346,7 @@ func TestNullTestmainPackage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreatePackages failed: %s", err)
 	}
-	prog := ssa.Create(iprog, ssa.SanityCheckFunctions)
+	prog := ssautil.CreateProgram(iprog, ssa.SanityCheckFunctions)
 	mainPkg := prog.Package(iprog.Created[0].Pkg)
 	if mainPkg.Func("main") != nil {
 		t.Fatalf("unexpected main function")

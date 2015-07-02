@@ -2,189 +2,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package loader loads, parses and type-checks packages of Go code
-// plus their transitive closure, and retains both the ASTs and the
-// derived facts.
-//
-// THIS INTERFACE IS EXPERIMENTAL AND IS LIKELY TO CHANGE.
-//
-// The package defines two primary types: Config, which specifies a
-// set of initial packages to load and various other options; and
-// Program, which is the result of successfully loading the packages
-// specified by a configuration.
-//
-// The configuration can be set directly, but *Config provides various
-// convenience methods to simplify the common cases, each of which can
-// be called any number of times.  Finally, these are followed by a
-// call to Load() to actually load and type-check the program.
-//
-//      var conf loader.Config
-//
-//      // Use the command-line arguments to specify
-//      // a set of initial packages to load from source.
-//      // See FromArgsUsage for help.
-//      rest, err := conf.FromArgs(os.Args[1:], wantTests)
-//
-//      // Parse the specified files and create an ad-hoc package with path "foo".
-//      // All files must have the same 'package' declaration.
-//      conf.CreateFromFilenames("foo", "foo.go", "bar.go")
-//
-//      // Create an ad-hoc package with path "foo" from
-//      // the specified already-parsed files.
-//      // All ASTs must have the same 'package' declaration.
-//      conf.CreateFromFiles("foo", parsedFiles)
-//
-//      // Add "runtime" to the set of packages to be loaded.
-//      conf.Import("runtime")
-//
-//      // Adds "fmt" and "fmt_test" to the set of packages
-//      // to be loaded.  "fmt" will include *_test.go files.
-//      conf.ImportWithTests("fmt")
-//
-//      // Finally, load all the packages specified by the configuration.
-//      prog, err := conf.Load()
-//
-//
-// CONCEPTS AND TERMINOLOGY
-//
-// An AD-HOC package is one specified as a set of source files on the
-// command line.  In the simplest case, it may consist of a single file
-// such as $GOROOT/src/net/http/triv.go.
-//
-// EXTERNAL TEST packages are those comprised of a set of *_test.go
-// files all with the same 'package foo_test' declaration, all in the
-// same directory.  (go/build.Package calls these files XTestFiles.)
-//
-// An IMPORTABLE package is one that can be referred to by some import
-// spec.  The Path() of each importable package is unique within a
-// Program.
-//
-// Ad-hoc packages and external test packages are NON-IMPORTABLE.  The
-// Path() of an ad-hoc package is inferred from the package
-// declarations of its files and is therefore not a unique package key.
-// For example, Config.CreatePkgs may specify two initial ad-hoc
-// packages both called "main".
-//
-// An AUGMENTED package is an importable package P plus all the
-// *_test.go files with same 'package foo' declaration as P.
-// (go/build.Package calls these files TestFiles.)
-//
-// The INITIAL packages are those specified in the configuration.  A
-// DEPENDENCY is a package loaded to satisfy an import in an initial
-// package or another dependency.
-//
 package loader
 
-// 'go test', in-package test files, and import cycles
-// ---------------------------------------------------
-//
-// An external test package may depend upon members of the augmented
-// package that are not in the unaugmented package, such as functions
-// that expose internals.  (See bufio/export_test.go for an example.)
-// So, the loader must ensure that for each external test package
-// it loads, it also augments the corresponding non-test package.
-//
-// The import graph over n unaugmented packages must be acyclic; the
-// import graph over n-1 unaugmented packages plus one augmented
-// package must also be acyclic.  ('go test' relies on this.)  But the
-// import graph over n augmented packages may contain cycles.
-//
-// First, all the (unaugmented) non-test packages and their
-// dependencies are imported in the usual way; the loader reports an
-// error if it detects an import cycle.
-//
-// Then, each package P for which testing is desired is augmented by
-// the list P' of its in-package test files, by calling
-// (*types.Checker).Files.  This arrangement ensures that P' may
-// reference definitions within P, but P may not reference definitions
-// within P'.  Furthermore, P' may import any other package, including
-// ones that depend upon P, without an import cycle error.
-//
-// Consider two packages A and B, both of which have lists of
-// in-package test files we'll call A' and B', and which have the
-// following import graph edges:
-//    B  imports A
-//    B' imports A
-//    A' imports B
-// This last edge would be expected to create an error were it not
-// for the special type-checking discipline above.
-// Cycles of size greater than two are possible.  For example:
-//   compress/bzip2/bzip2_test.go (package bzip2)  imports "io/ioutil"
-//   io/ioutil/tempfile_test.go   (package ioutil) imports "regexp"
-//   regexp/exec_test.go          (package regexp) imports "compress/bzip2"
-//
-//
-// Concurrency
-// -----------
-//
-// Let us define the import dependency graph as follows.  Each node is a
-// list of files passed to (Checker).Files at once.  Many of these lists
-// are the production code of an importable Go package, so those nodes
-// are labelled by the package's import path.  The remaining nodes are
-// ad-hoc packages and lists of in-package *_test.go files that augment
-// an importable package; those nodes have no label.
-//
-// The edges of the graph represent import statements appearing within a
-// file.  An edge connects a node (a list of files) to the node it
-// imports, which is importable and thus always labelled.
-//
-// Loading is controlled by this dependency graph.
-//
-// To reduce I/O latency, we start loading a package's dependencies
-// asynchronously as soon as we've parsed its files and enumerated its
-// imports (scanImports).  This performs a preorder traversal of the
-// import dependency graph.
-//
-// To exploit hardware parallelism, we type-check unrelated packages in
-// parallel, where "unrelated" means not ordered by the partial order of
-// the import dependency graph.
-//
-// We use a concurrency-safe blocking cache (importer.imported) to
-// record the results of type-checking, whether success or failure.  An
-// entry is created in this cache by startLoad the first time the
-// package is imported.  The first goroutine to request an entry becomes
-// responsible for completing the task and broadcasting completion to
-// subsequent requestors, which block until then.
-//
-// Type checking occurs in (parallel) postorder: we cannot type-check a
-// set of files until we have loaded and type-checked all of their
-// immediate dependencies (and thus all of their transitive
-// dependencies). If the input were guaranteed free of import cycles,
-// this would be trivial: we could simply wait for completion of the
-// dependencies and then invoke the typechecker.
-//
-// But as we saw in the 'go test' section above, some cycles in the
-// import graph over packages are actually legal, so long as the
-// cycle-forming edge originates in the in-package test files that
-// augment the package.  This explains why the nodes of the import
-// dependency graph are not packages, but lists of files: the unlabelled
-// nodes avoid the cycles.  Consider packages A and B where B imports A
-// and A's in-package tests AT import B.  The naively constructed import
-// graph over packages would contain a cycle (A+AT) --> B --> (A+AT) but
-// the graph over lists of files is AT --> B --> A, where AT is an
-// unlabelled node.
-//
-// Awaiting completion of the dependencies in a cyclic graph would
-// deadlock, so we must materialize the import dependency graph (as
-// importer.graph) and check whether each import edge forms a cycle.  If
-// x imports y, and the graph already contains a path from y to x, then
-// there is an import cycle, in which case the processing of x must not
-// wait for the completion of processing of y.
-//
-// When the type-checker makes a callback (doImport) to the loader for a
-// given import edge, there are two possible cases.  In the normal case,
-// the dependency has already been completely type-checked; doImport
-// does a cache lookup and returns it.  In the cyclic case, the entry in
-// the cache is still necessarily incomplete, indicating a cycle.  We
-// perform the cycle check again to obtain the error message, and return
-// the error.
-//
-// The result of using concurrency is about a 2.5x speedup for stdlib_test.
-
-// TODO(adonovan):
-// - cache the calls to build.Import so we don't do it three times per
-//   test package.
-// - Thorough overhaul of package documentation.
+// See doc.go for package documentation and implementation notes.
 
 import (
 	"errors"
@@ -200,13 +20,13 @@ import (
 	"time"
 
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ast/astutil"
-	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/gcimporter"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
 const trace = false // show timing info for type-checking
 
-// Config specifies the configuration for a program to load.
+// Config specifies the configuration for loading a whole program from
+// Go source code.
 // The zero value for Config is a ready-to-use default configuration.
 type Config struct {
 	// Fset is the file set for the parser to use when loading the
@@ -222,8 +42,7 @@ type Config struct {
 	//
 	// The supplied IgnoreFuncBodies is not used; the effective
 	// value comes from the TypeCheckFuncBodies func below.
-	//
-	// TypeChecker.Packages is lazily initialized during Load.
+	// The supplied Import function is not used either.
 	TypeChecker types.Config
 
 	// TypeCheckFuncBodies is a predicate over package import
@@ -233,31 +52,6 @@ type Config struct {
 	// dependencies from source.  If nil, all func bodies are type
 	// checked.
 	TypeCheckFuncBodies func(string) bool
-
-	// ImportFromBinary determines whether to satisfy dependencies by
-	// loading gc export data instead of Go source code.
-	//
-	// If false, the entire program---the initial packages and their
-	// transitive closure of dependencies---will be loaded from
-	// source, parsed, and type-checked.  This is required for
-	// whole-program analyses such as pointer analysis.
-	//
-	// If true, the go/gcimporter mechanism is used instead to read
-	// the binary export-data files written by the gc toolchain.
-	// They supply only the types of package-level declarations and
-	// values of constants, but no code, this option will not yield
-	// a whole program.  It is intended for analyses that perform
-	// modular analysis of a single package, e.g. traditional
-	// compilation.
-	//
-	// No check is made that the export data files are up-to-date.
-	//
-	// The initial packages (CreatePkgs and ImportPkgs) are always
-	// loaded from Go source, regardless of this flag's setting.
-	//
-	// NB: there is a bug when loading multiple initial packages with
-	// this flag enabled: https://github.com/golang/go/issues/9955.
-	ImportFromBinary bool
 
 	// If Build is non-nil, it is used to locate source packages.
 	// Otherwise &build.Default is used.
@@ -309,19 +103,6 @@ type Config struct {
 	//
 	// It must be safe to call concurrently from multiple goroutines.
 	FindPackage func(ctxt *build.Context, importPath string) (*build.Package, error)
-
-	// PackageCreated is a hook called when a types.Package
-	// is created but before it has been populated.
-	//
-	// The package's import Path() and Scope() are defined,
-	// but not its Name() since no package declaration has
-	// been seen yet.
-	//
-	// Clients may use this to insert synthetic items into
-	// the package scope, for example.
-	//
-	// It must be safe to call concurrently from multiple goroutines.
-	PackageCreated func(*types.Package)
 }
 
 // A PkgSpec specifies a non-importable package to be created by Load.
@@ -334,8 +115,7 @@ type PkgSpec struct {
 	Filenames []string    // names of files to be parsed
 }
 
-// A Program is a Go program loaded from source or binary
-// as specified by a Config.
+// A Program is a Go program loaded from source as specified by a Config.
 type Program struct {
 	Fset *token.FileSet // the file set for this program
 
@@ -349,16 +129,15 @@ type Program struct {
 	// as specified by Config.ImportPkgs.
 	Imported map[string]*PackageInfo
 
-	// ImportMap is the canonical mapping of import paths to
-	// packages used by the type-checker (Config.TypeChecker.Packages).
-	// It contains all Imported initial packages, but not Created
-	// ones, and all imported dependencies.
-	ImportMap map[string]*types.Package
-
 	// AllPackages contains the PackageInfo of every package
 	// encountered by Load: all initial packages and all
 	// dependencies, including incomplete ones.
 	AllPackages map[*types.Package]*PackageInfo
+
+	// importMap is the canonical mapping of import paths to
+	// packages.  It contains all Imported initial packages, but not
+	// Created ones, and all imported dependencies.
+	importMap map[string]*types.Package
 }
 
 // PackageInfo holds the ASTs and facts derived by the type-checker
@@ -460,7 +239,7 @@ func (conf *Config) FromArgs(args []string, xtest bool) ([]string, error) {
 
 	if len(args) > 0 && strings.HasSuffix(args[0], ".go") {
 		// Assume args is a list of a *.go files
-		// denoting a single ad-hoc package.
+		// denoting a single ad hoc package.
 		for _, arg := range args {
 			if !strings.HasSuffix(arg, ".go") {
 				return nil, fmt.Errorf("named files must be .go files: %s", arg)
@@ -534,6 +313,12 @@ func (conf *Config) addImport(path string, tests bool) {
 func (prog *Program) PathEnclosingInterval(start, end token.Pos) (pkg *PackageInfo, path []ast.Node, exact bool) {
 	for _, info := range prog.AllPackages {
 		for _, f := range info.Files {
+			if f.Pos() == token.NoPos {
+				// This can happen if the parser saw
+				// too many errors and bailed out.
+				// (Use parser.AllErrors to prevent that.)
+				continue
+			}
 			if !tokenFileContainsPos(prog.Fset.File(f.Pos()), start) {
 				continue
 			}
@@ -557,23 +342,31 @@ func (prog *Program) InitialPackages() []*PackageInfo {
 	return infos
 }
 
+// Package returns the ASTs and results of type checking for the
+// specified package.
+func (prog *Program) Package(path string) *PackageInfo {
+	if info, ok := prog.AllPackages[prog.importMap[path]]; ok {
+		return info
+	}
+	for _, info := range prog.Created {
+		if path == info.Pkg.Path() {
+			return info
+		}
+	}
+	return nil
+}
+
 // ---------- Implementation ----------
 
 // importer holds the working state of the algorithm.
 type importer struct {
 	conf  *Config   // the client configuration
-	prog  *Program  // resulting program
 	start time.Time // for logging
 
-	// This mutex serializes access to prog.ImportMap (aka
-	// TypeChecker.Packages); we also use it for AllPackages.
-	//
-	// The TypeChecker.Packages map is not really used by this
-	// package, but may be used by the client's Import function,
-	// and by clients of the returned Program.
-	typecheckerMu sync.Mutex
+	progMu sync.Mutex // guards prog
+	prog   *Program   // the resulting program
 
-	importedMu sync.Mutex
+	importedMu sync.Mutex             // guards imported
 	imported   map[string]*importInfo // all imported packages (incl. failures) by import path
 
 	// import dependency graph: graph[x][y] => x imports y
@@ -634,12 +427,6 @@ func (ii *importInfo) Complete(info *PackageInfo, err error) {
 // It is an error if no packages were loaded.
 //
 func (conf *Config) Load() (*Program, error) {
-	// Initialize by setting the conf's copy, so all copies of
-	// TypeChecker agree on the identity of the map.
-	if conf.TypeChecker.Packages == nil {
-		conf.TypeChecker.Packages = make(map[string]*types.Package)
-	}
-
 	// Create a simple default error handler for parse/type errors.
 	if conf.TypeChecker.Error == nil {
 		conf.TypeChecker.Error = func(e error) { fmt.Fprintln(os.Stderr, e) }
@@ -657,6 +444,8 @@ func (conf *Config) Load() (*Program, error) {
 	// Install default FindPackage hook using go/build logic.
 	if conf.FindPackage == nil {
 		conf.FindPackage = func(ctxt *build.Context, path string) (*build.Package, error) {
+			// TODO(adonovan): cache calls to build.Import
+			// so we don't do it three times per test package.
 			bp, err := ctxt.Import(path, conf.Cwd, 0)
 			if _, ok := err.(*build.NoGoError); ok {
 				return bp, nil // empty directory is not an error
@@ -668,7 +457,7 @@ func (conf *Config) Load() (*Program, error) {
 	prog := &Program{
 		Fset:        conf.fset(),
 		Imported:    make(map[string]*PackageInfo),
-		ImportMap:   conf.TypeChecker.Packages,
+		importMap:   make(map[string]*types.Package),
 		AllPackages: make(map[*types.Package]*PackageInfo),
 	}
 
@@ -737,7 +526,7 @@ func (conf *Config) Load() (*Program, error) {
 			info.appendError(err)
 		}
 
-		// Ad-hoc packages are non-importable,
+		// Ad hoc packages are non-importable,
 		// so no cycle check is needed.
 		// addFiles loads dependencies in parallel.
 		imp.addFiles(info, files, false)
@@ -775,7 +564,7 @@ func (conf *Config) Load() (*Program, error) {
 
 	// Create infos for indirectly imported packages.
 	// e.g. incomplete packages without syntax, loaded from export data.
-	for _, obj := range prog.ImportMap {
+	for _, obj := range prog.importMap {
 		info := prog.AllPackages[obj]
 		if info == nil {
 			prog.AllPackages[obj] = &PackageInfo{Pkg: obj, Importable: true}
@@ -1039,57 +828,19 @@ func (imp *importer) startLoad(path string) *importInfo {
 		ii = &importInfo{path: path}
 		ii.complete.L = &ii.mu
 		imp.imported[path] = ii
-
-		go imp.load(path, ii)
+		go func() {
+			ii.Complete(imp.load(path))
+		}()
 	}
 	imp.importedMu.Unlock()
 
 	return ii
 }
 
-func (imp *importer) load(path string, ii *importInfo) {
-	var info *PackageInfo
-	var err error
-	// Find and create the actual package.
-	if _, ok := imp.conf.ImportPkgs[path]; ok || !imp.conf.ImportFromBinary {
-		info, err = imp.loadFromSource(path)
-	} else {
-		info, err = imp.importFromBinary(path)
-	}
-	ii.Complete(info, err)
-}
-
-// importFromBinary implements package loading from the client-supplied
-// external source, e.g. object files from the gc compiler.
-//
-func (imp *importer) importFromBinary(path string) (*PackageInfo, error) {
-	// Determine the caller's effective Import function.
-	importfn := imp.conf.TypeChecker.Import
-	if importfn == nil {
-		importfn = gcimporter.Import
-	}
-	imp.typecheckerMu.Lock()
-	pkg, err := importfn(imp.conf.TypeChecker.Packages, path)
-	if pkg != nil {
-		imp.conf.TypeChecker.Packages[path] = pkg
-	}
-	imp.typecheckerMu.Unlock()
-	if err != nil {
-		return nil, err
-	}
-	info := &PackageInfo{Pkg: pkg}
-	info.Importable = true
-	imp.typecheckerMu.Lock()
-	imp.prog.AllPackages[pkg] = info
-	imp.typecheckerMu.Unlock()
-	return info, nil
-}
-
-// loadFromSource implements package loading by parsing Go source files
+// load implements package loading by parsing Go source files
 // located by go/build.
-// The returned PackageInfo's typeCheck function must be called.
 //
-func (imp *importer) loadFromSource(path string) (*PackageInfo, error) {
+func (imp *importer) load(path string) (*PackageInfo, error) {
 	bp, err := imp.conf.FindPackage(imp.conf.build(), path)
 	if err != nil {
 		return nil, err // package not found
@@ -1103,9 +854,9 @@ func (imp *importer) loadFromSource(path string) (*PackageInfo, error) {
 
 	imp.addFiles(info, files, true)
 
-	imp.typecheckerMu.Lock()
-	imp.conf.TypeChecker.Packages[path] = info.Pkg
-	imp.typecheckerMu.Unlock()
+	imp.progMu.Lock()
+	imp.prog.importMap[path] = info.Pkg
+	imp.progMu.Unlock()
 
 	return info, nil
 }
@@ -1145,9 +896,6 @@ func (imp *importer) addFiles(info *PackageInfo, files []*ast.File, cycleCheck b
 
 func (imp *importer) newPackageInfo(path string) *PackageInfo {
 	pkg := types.NewPackage(path, "")
-	if imp.conf.PackageCreated != nil {
-		imp.conf.PackageCreated(pkg)
-	}
 	info := &PackageInfo{
 		Pkg: pkg,
 		Info: types.Info{
@@ -1173,8 +921,8 @@ func (imp *importer) newPackageInfo(path string) *PackageInfo {
 	tc.Error = info.appendError // appendError wraps the user's Error function
 
 	info.checker = types.NewChecker(&tc, imp.conf.fset(), pkg, &info.Info)
-	imp.typecheckerMu.Lock()
+	imp.progMu.Lock()
 	imp.prog.AllPackages[pkg] = info
-	imp.typecheckerMu.Unlock()
+	imp.progMu.Unlock()
 	return info
 }

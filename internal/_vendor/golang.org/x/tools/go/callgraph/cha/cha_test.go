@@ -18,7 +18,7 @@ import (
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/callgraph"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/callgraph/cha"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
-	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa/ssautil"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
@@ -72,7 +72,7 @@ func TestCHA(t *testing.T) {
 			continue
 		}
 
-		prog := ssa.Create(iprog, 0)
+		prog := ssautil.CreateProgram(iprog, 0)
 		mainPkg := prog.Package(iprog.Created[0].Pkg)
 		prog.BuildAll()
 

@@ -40,8 +40,12 @@ var (
 	iana = flag.String("iana",
 		"http://www.iana.org",
 		"URL of the IANA repository")
-	unicodeVersion = flag.String("unicode", unicode.Version, "unicode version to use")
-	cldrVersion    = flag.String("cldr", cldr.Version, "cldr version to use")
+	unicodeVersion = flag.String("unicode",
+		getEnv("UNICODE_VERSION", unicode.Version),
+		"unicode version to use")
+	cldrVersion = flag.String("cldr",
+		getEnv("CLDR_VERSION", cldr.Version),
+		"cldr version to use")
 	// Allow an environment variable to specify the local directory.
 	// go generate doesn't allow specifying arguments; this is a useful
 	// alternative to specifying a local mirror.
@@ -49,6 +53,13 @@ var (
 		os.Getenv("UNICODE_DIR"),
 		"directory containing local data files; for debugging only.")
 )
+
+func getEnv(name, def string) string {
+	if v := os.Getenv(name); v != "" {
+		return v
+	}
+	return def
+}
 
 // Init performs common initialization for a gen command. It parses the flags
 // and sets up the standard logging parameters.
@@ -150,8 +161,8 @@ func get(root, path string) io.ReadCloser {
 	return resp.Body
 }
 
-// WriteGoFile writes applies gofmt to the given bytes and writes them to a file
-// with the given name. It writes a standard file comment and package statement.
+// WriteGoFiles prepends a standard file comment and package statement to the
+// given bytes, applies gofmt, and writes them to a file with the given name.
 // It will call log.Fatal if there are any errors.
 func WriteGoFile(filename, pkg string, b []byte) {
 	w, err := os.Create(filename)
@@ -159,19 +170,13 @@ func WriteGoFile(filename, pkg string, b []byte) {
 		log.Fatalf("Could not create file %s: %v", filename, err)
 	}
 	defer w.Close()
-	_, err = fmt.Fprintf(w, header, pkg)
+	src := []byte(fmt.Sprintf(header, pkg))
+	src = append(src, b...)
+	formatted, err := format.Source(src)
 	if err != nil {
-		log.Fatalf("Error writing header: %v", err)
-	}
-	// Strip leading newlines.
-	for len(b) > 0 && b[0] == '\n' {
-		b = b[1:]
-	}
-	formatted, err := format.Source(b)
-	if err != nil {
-		// Print the original buffer even in case of an error so that the
+		// Print the generated code even in case of an error so that the
 		// returned error can be meaningfully interpreted.
-		w.Write(b)
+		w.Write(src)
 		log.Fatalf("Error formatting file %s: %v", filename, err)
 	}
 	if _, err := w.Write(formatted); err != nil {

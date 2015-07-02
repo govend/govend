@@ -5,46 +5,115 @@
 package oracle
 
 import (
+	"bytes"
 	"fmt"
 	"go/ast"
 	"go/token"
+	"io/ioutil"
 	"sort"
 
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/oracle/serial"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/refactor/importgraph"
 )
 
 // Referrers reports all identifiers that resolve to the same object
 // as the queried identifier, within any package in the analysis scope.
-//
-func referrers(o *Oracle, qpos *QueryPos) (queryResult, error) {
-	id, _ := qpos.path[0].(*ast.Ident)
-	if id == nil {
-		return nil, fmt.Errorf("no identifier here")
+func referrers(q *Query) error {
+	lconf := loader.Config{Build: q.Build}
+	allowErrors(&lconf)
+
+	if err := importQueryPackage(q.Pos, &lconf); err != nil {
+		return err
 	}
 
-	obj := qpos.info.ObjectOf(id)
-	if obj == nil {
-		// Happens for y in "switch y := x.(type)", but I think that's all.
-		return nil, fmt.Errorf("no object for identifier")
+	var id *ast.Ident
+	var obj types.Object
+	var lprog *loader.Program
+	var pass2 bool
+	var qpos *queryPos
+	for {
+		// Load/parse/type-check the program.
+		var err error
+		lprog, err = lconf.Load()
+		if err != nil {
+			return err
+		}
+		q.Fset = lprog.Fset
+
+		qpos, err = parseQueryPos(lprog, q.Pos, false)
+		if err != nil {
+			return err
+		}
+
+		id, _ = qpos.path[0].(*ast.Ident)
+		if id == nil {
+			return fmt.Errorf("no identifier here")
+		}
+
+		obj = qpos.info.ObjectOf(id)
+		if obj == nil {
+			// Happens for y in "switch y := x.(type)",
+			// the package declaration,
+			// and unresolved identifiers.
+			if _, ok := qpos.path[1].(*ast.File); ok { // package decl?
+				pkg := qpos.info.Pkg
+				obj = types.NewPkgName(id.Pos(), pkg, pkg.Name(), pkg)
+			} else {
+				return fmt.Errorf("no object for identifier: %T", qpos.path[1])
+			}
+		}
+
+		if pass2 {
+			break
+		}
+
+		// If the identifier is exported, we must load all packages that
+		// depend transitively upon the package that defines it.
+		// Treat PkgNames as exported, even though they're lowercase.
+		if _, isPkg := obj.(*types.PkgName); !(isPkg || obj.Exported()) {
+			break // not exported
+		}
+
+		// Scan the workspace and build the import graph.
+		// Ignore broken packages.
+		_, rev, _ := importgraph.Build(q.Build)
+
+		// Re-load the larger program.
+		// Create a new file set so that ...
+		// External test packages are never imported,
+		// so they will never appear in the graph.
+		// (We must reset the Config here, not just reset the Fset field.)
+		lconf = loader.Config{
+			Fset:  token.NewFileSet(),
+			Build: q.Build,
+		}
+		allowErrors(&lconf)
+		for path := range rev.Search(obj.Pkg().Path()) {
+			lconf.ImportWithTests(path)
+		}
+		pass2 = true
 	}
 
 	// Iterate over all go/types' Uses facts for the entire program.
 	var refs []*ast.Ident
-	for _, info := range o.typeInfo {
+	for _, info := range lprog.AllPackages {
 		for id2, obj2 := range info.Uses {
 			if sameObj(obj, obj2) {
 				refs = append(refs, id2)
 			}
 		}
 	}
-	sort.Sort(byNamePos(refs))
+	sort.Sort(byNamePos{q.Fset, refs})
 
-	return &referrersResult{
+	q.result = &referrersResult{
+		qpos:  qpos,
 		query: id,
 		obj:   obj,
 		refs:  refs,
-	}, nil
+	}
+	return nil
 }
 
 // same reports whether x and y are identical, or both are PkgNames
@@ -64,28 +133,77 @@ func sameObj(x, y types.Object) bool {
 
 // -------- utils --------
 
-type byNamePos []*ast.Ident
+// An deterministic ordering for token.Pos that doesn't
+// depend on the order in which packages were loaded.
+func lessPos(fset *token.FileSet, x, y token.Pos) bool {
+	fx := fset.File(x)
+	fy := fset.File(y)
+	if fx != fy {
+		return fx.Name() < fy.Name()
+	}
+	return x < y
+}
 
-func (p byNamePos) Len() int           { return len(p) }
-func (p byNamePos) Less(i, j int) bool { return p[i].NamePos < p[j].NamePos }
-func (p byNamePos) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+type byNamePos struct {
+	fset *token.FileSet
+	ids  []*ast.Ident
+}
+
+func (p byNamePos) Len() int      { return len(p.ids) }
+func (p byNamePos) Swap(i, j int) { p.ids[i], p.ids[j] = p.ids[j], p.ids[i] }
+func (p byNamePos) Less(i, j int) bool {
+	return lessPos(p.fset, p.ids[i].NamePos, p.ids[j].NamePos)
+}
 
 type referrersResult struct {
+	qpos  *queryPos
 	query *ast.Ident   // identifier of query
 	obj   types.Object // object it denotes
 	refs  []*ast.Ident // set of all other references to it
 }
 
 func (r *referrersResult) display(printf printfFunc) {
-	if r.query.Pos() != r.obj.Pos() {
-		printf(r.query, "reference to %s", r.obj.Name())
+	printf(r.obj, "%d references to %s", len(r.refs), r.qpos.objectString(r.obj))
+
+	// Show referring lines, like grep.
+	type fileinfo struct {
+		refs     []*ast.Ident
+		linenums []int       // line number of refs[i]
+		data     chan []byte // file contents
 	}
-	// TODO(adonovan): pretty-print object using same logic as
-	// (*describeValueResult).display.
-	printf(r.obj, "defined here as %s", r.obj)
+	var fileinfos []*fileinfo
+	fileinfosByName := make(map[string]*fileinfo)
+
+	// First pass: start the file reads concurrently.
 	for _, ref := range r.refs {
-		if r.query != ref {
-			printf(ref, "referenced here")
+		posn := r.qpos.fset.Position(ref.Pos())
+		fi := fileinfosByName[posn.Filename]
+		if fi == nil {
+			fi = &fileinfo{data: make(chan []byte)}
+			fileinfosByName[posn.Filename] = fi
+			fileinfos = append(fileinfos, fi)
+
+			// First request for this file:
+			// start asynchronous read.
+			go func() {
+				content, err := ioutil.ReadFile(posn.Filename)
+				if err != nil {
+					content = []byte(fmt.Sprintf("error: %v", err))
+				}
+				fi.data <- content
+			}()
+		}
+		fi.refs = append(fi.refs, ref)
+		fi.linenums = append(fi.linenums, posn.Line)
+	}
+
+	// Second pass: print refs in original order.
+	// One line may have several refs at different columns.
+	for _, fi := range fileinfos {
+		content := <-fi.data // wait for I/O completion
+		lines := bytes.Split(content, []byte("\n"))
+		for i, ref := range fi.refs {
+			printf(ref, "%s", lines[fi.linenums[i]-1])
 		}
 	}
 }

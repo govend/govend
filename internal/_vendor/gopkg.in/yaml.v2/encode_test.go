@@ -190,6 +190,12 @@ var marshalTests = []struct {
 			A struct{ X, y int } "a,omitempty,flow"
 		}{struct{ X, y int }{0, 1}},
 		"{}\n",
+	}, {
+		&struct {
+			A float64 "a,omitempty"
+			B float64 "b,omitempty"
+		}{1, 0},
+		"a: 1\n",
 	},
 
 	// Flow flag
@@ -305,6 +311,16 @@ var marshalTests = []struct {
 	{
 		map[string]string{"a": "b: c"},
 		"a: 'b: c'\n",
+	},
+
+	// Containing hash mark ('#') in string should be quoted
+	{
+		map[string]string{"a": "Hello #comment"},
+		"a: 'Hello #comment'\n",
+	},
+	{
+		map[string]string{"a": "你好 #comment"},
+		"a: '你好 #comment'\n",
 	},
 }
 

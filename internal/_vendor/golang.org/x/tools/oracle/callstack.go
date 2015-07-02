@@ -9,7 +9,9 @@ import (
 	"go/token"
 
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/callgraph"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa/ssautil"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/oracle/serial"
 )
 
@@ -23,26 +25,52 @@ import (
 // TODO(adonovan): permit user to specify a starting point other than
 // the analysis root.
 //
-func callstack(o *Oracle, qpos *QueryPos) (queryResult, error) {
-	pkg := o.prog.Package(qpos.info.Pkg)
+func callstack(q *Query) error {
+	fset := token.NewFileSet()
+	lconf := loader.Config{Fset: fset, Build: q.Build}
+
+	if err := setPTAScope(&lconf, q.Scope); err != nil {
+		return err
+	}
+
+	// Load/parse/type-check the program.
+	lprog, err := lconf.Load()
+	if err != nil {
+		return err
+	}
+
+	qpos, err := parseQueryPos(lprog, q.Pos, false)
+	if err != nil {
+		return err
+	}
+
+	prog := ssautil.CreateProgram(lprog, 0)
+
+	ptaConfig, err := setupPTA(prog, lprog, q.PTALog, q.Reflection)
+	if err != nil {
+		return err
+	}
+
+	pkg := prog.Package(qpos.info.Pkg)
 	if pkg == nil {
-		return nil, fmt.Errorf("no SSA package")
+		return fmt.Errorf("no SSA package")
 	}
 
 	if !ssa.HasEnclosingFunction(pkg, qpos.path) {
-		return nil, fmt.Errorf("this position is not inside a function")
+		return fmt.Errorf("this position is not inside a function")
 	}
 
-	buildSSA(o)
+	// Defer SSA construction till after errors are reported.
+	prog.BuildAll()
 
 	target := ssa.EnclosingFunction(pkg, qpos.path)
 	if target == nil {
-		return nil, fmt.Errorf("no SSA function built for this location (dead code?)")
+		return fmt.Errorf("no SSA function built for this location (dead code?)")
 	}
 
 	// Run the pointer analysis and build the complete call graph.
-	o.ptaConfig.BuildCallGraph = true
-	cg := ptrAnalysis(o).CallGraph
+	ptaConfig.BuildCallGraph = true
+	cg := ptrAnalysis(ptaConfig).CallGraph
 	cg.DeleteSyntheticNodes()
 
 	// Search for an arbitrary path from a root to the target function.
@@ -52,15 +80,17 @@ func callstack(o *Oracle, qpos *QueryPos) (queryResult, error) {
 		callpath = callpath[1:] // remove synthetic edge from <root>
 	}
 
-	return &callstackResult{
+	q.Fset = fset
+	q.result = &callstackResult{
 		qpos:     qpos,
 		target:   target,
 		callpath: callpath,
-	}, nil
+	}
+	return nil
 }
 
 type callstackResult struct {
-	qpos     *QueryPos
+	qpos     *queryPos
 	target   *ssa.Function
 	callpath []*callgraph.Edge
 }

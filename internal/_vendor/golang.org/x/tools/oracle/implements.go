@@ -12,16 +12,38 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types/typeutil"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/oracle/serial"
 )
 
 // Implements displays the "implements" relation as it pertains to the
-// selected type.  If the selection is a method, 'implements' displays
+// selected type within a single package.
+// If the selection is a method, 'implements' displays
 // the corresponding methods of the types that would have been reported
 // by an implements query on the receiver type.
 //
-func implements(o *Oracle, qpos *QueryPos) (queryResult, error) {
+func implements(q *Query) error {
+	lconf := loader.Config{Build: q.Build}
+	allowErrors(&lconf)
+
+	if err := importQueryPackage(q.Pos, &lconf); err != nil {
+		return err
+	}
+
+	// Load/parse/type-check the program.
+	lprog, err := lconf.Load()
+	if err != nil {
+		return err
+	}
+	q.Fset = lprog.Fset
+
+	qpos, err := parseQueryPos(lprog, q.Pos, false)
+	if err != nil {
+		return err
+	}
+
 	// Find the selected type.
 	path, action := findInterestingNode(qpos.info, qpos.path)
 
@@ -35,7 +57,7 @@ func implements(o *Oracle, qpos *QueryPos) (queryResult, error) {
 			if obj, ok := qpos.info.ObjectOf(id).(*types.Func); ok {
 				recv := obj.Type().(*types.Signature).Recv()
 				if recv == nil {
-					return nil, fmt.Errorf("this function is not a method")
+					return fmt.Errorf("this function is not a method")
 				}
 				method = obj
 				T = recv.Type()
@@ -45,7 +67,7 @@ func implements(o *Oracle, qpos *QueryPos) (queryResult, error) {
 		T = qpos.info.TypeOf(path[0].(ast.Expr))
 	}
 	if T == nil {
-		return nil, fmt.Errorf("no type or method here")
+		return fmt.Errorf("no type or method here")
 	}
 
 	// Find all named types, even local types (which can have
@@ -55,7 +77,7 @@ func implements(o *Oracle, qpos *QueryPos) (queryResult, error) {
 	// i.e. don't reduceScope?
 	//
 	var allNamed []types.Type
-	for _, info := range o.typeInfo {
+	for _, info := range lprog.AllPackages {
 		for _, obj := range info.Defs {
 			if obj, ok := obj.(*types.TypeName); ok {
 				allNamed = append(allNamed, obj.Type())
@@ -64,7 +86,7 @@ func implements(o *Oracle, qpos *QueryPos) (queryResult, error) {
 	}
 	allNamed = append(allNamed, types.Universe.Lookup("error").Type())
 
-	var msets types.MethodSetCache
+	var msets typeutil.MethodSetCache
 
 	// Test each named type.
 	var to, from, fromPtr []types.Type
@@ -135,11 +157,14 @@ func implements(o *Oracle, qpos *QueryPos) (queryResult, error) {
 		}
 	}
 
-	return &implementsResult{qpos, T, pos, to, from, fromPtr, method, toMethod, fromMethod, fromPtrMethod}, nil
+	q.result = &implementsResult{
+		qpos, T, pos, to, from, fromPtr, method, toMethod, fromMethod, fromPtrMethod,
+	}
+	return nil
 }
 
 type implementsResult struct {
-	qpos *QueryPos
+	qpos *queryPos
 
 	t       types.Type   // queried type (not necessarily named)
 	pos     interface{}  // pos of t (*types.Name or *QueryPos)
@@ -160,20 +185,20 @@ func (r *implementsResult) display(printf printfFunc) {
 	meth := func(sel *types.Selection) {
 		if sel != nil {
 			printf(sel.Obj(), "\t%s method (%s).%s",
-				relation, r.qpos.TypeString(sel.Recv()), sel.Obj().Name())
+				relation, r.qpos.typeString(sel.Recv()), sel.Obj().Name())
 		}
 	}
 
 	if isInterface(r.t) {
 		if types.NewMethodSet(r.t).Len() == 0 { // TODO(adonovan): cache mset
-			printf(r.pos, "empty interface type %s", r.t)
+			printf(r.pos, "empty interface type %s", r.qpos.typeString(r.t))
 			return
 		}
 
 		if r.method == nil {
-			printf(r.pos, "interface type %s", r.t)
+			printf(r.pos, "interface type %s", r.qpos.typeString(r.t))
 		} else {
-			printf(r.method, "abstract method %s", r.qpos.ObjectString(r.method))
+			printf(r.method, "abstract method %s", r.qpos.objectString(r.method))
 		}
 
 		// Show concrete types (or methods) first; use two passes.
@@ -181,7 +206,7 @@ func (r *implementsResult) display(printf printfFunc) {
 			if !isInterface(sub) {
 				if r.method == nil {
 					printf(deref(sub).(*types.Named).Obj(), "\t%s %s type %s",
-						relation, typeKind(sub), sub)
+						relation, typeKind(sub), r.qpos.typeString(sub))
 				} else {
 					meth(r.toMethod[i])
 				}
@@ -191,7 +216,7 @@ func (r *implementsResult) display(printf printfFunc) {
 			if isInterface(sub) {
 				if r.method == nil {
 					printf(sub.(*types.Named).Obj(), "\t%s %s type %s",
-						relation, typeKind(sub), sub)
+						relation, typeKind(sub), r.qpos.typeString(sub))
 				} else {
 					meth(r.toMethod[i])
 				}
@@ -201,7 +226,8 @@ func (r *implementsResult) display(printf printfFunc) {
 		relation = "implements"
 		for i, super := range r.from {
 			if r.method == nil {
-				printf(super.(*types.Named).Obj(), "\t%s %s", relation, super)
+				printf(super.(*types.Named).Obj(), "\t%s %s",
+					relation, r.qpos.typeString(super))
 			} else {
 				meth(r.fromMethod[i])
 			}
@@ -211,15 +237,16 @@ func (r *implementsResult) display(printf printfFunc) {
 
 		if r.from != nil {
 			if r.method == nil {
-				printf(r.pos, "%s type %s", typeKind(r.t), r.t)
+				printf(r.pos, "%s type %s",
+					typeKind(r.t), r.qpos.typeString(r.t))
 			} else {
 				printf(r.method, "concrete method %s",
-					r.qpos.ObjectString(r.method))
+					r.qpos.objectString(r.method))
 			}
 			for i, super := range r.from {
 				if r.method == nil {
 					printf(super.(*types.Named).Obj(), "\t%s %s",
-						relation, super)
+						relation, r.qpos.typeString(super))
 				} else {
 					meth(r.fromMethod[i])
 				}
@@ -227,23 +254,24 @@ func (r *implementsResult) display(printf printfFunc) {
 		}
 		if r.fromPtr != nil {
 			if r.method == nil {
-				printf(r.pos, "pointer type *%s", r.t)
+				printf(r.pos, "pointer type *%s", r.qpos.typeString(r.t))
 			} else {
 				// TODO(adonovan): de-dup (C).f and (*C).f implementing (I).f.
 				printf(r.method, "concrete method %s",
-					r.qpos.ObjectString(r.method))
+					r.qpos.objectString(r.method))
 			}
 
 			for i, psuper := range r.fromPtr {
 				if r.method == nil {
 					printf(psuper.(*types.Named).Obj(), "\t%s %s",
-						relation, psuper)
+						relation, r.qpos.typeString(psuper))
 				} else {
 					meth(r.fromPtrMethod[i])
 				}
 			}
 		} else if r.from == nil {
-			printf(r.pos, "%s type %s implements only interface{}", typeKind(r.t), r.t)
+			printf(r.pos, "%s type %s implements only interface{}",
+				typeKind(r.t), r.qpos.typeString(r.t))
 		}
 	}
 }
@@ -260,7 +288,7 @@ func (r *implementsResult) toSerial(res *serial.Result, fset *token.FileSet) {
 	}
 	if r.method != nil {
 		res.Implements.Method = &serial.DescribeMethod{
-			Name: r.qpos.ObjectString(r.method),
+			Name: r.qpos.objectString(r.method),
 			Pos:  fset.Position(r.method.Pos()).String(),
 		}
 	}

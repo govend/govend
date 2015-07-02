@@ -13,17 +13,15 @@ import (
 	"runtime"
 	"runtime/pprof"
 
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/buildutil"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa/interp"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa/ssautil"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
 var (
-	importbinFlag = flag.Bool("importbin", false,
-		"Import binary export data from gc's object files, not source. "+
-			"Imported functions will have no bodies.")
-
 	modeFlag = ssa.BuilderModeFlag(flag.CommandLine, "build", 0)
 
 	testFlag = flag.Bool("test", false, "Loads test code (*_test.go) for imported packages.")
@@ -42,7 +40,7 @@ Usage: ssadump [<flag> ...] <args> ...
 Use -help flag to display options.
 
 Examples:
-% ssadump -build=FPG hello.go            # quickly dump SSA form of a single package
+% ssadump -build=F hello.go              # dump SSA form of a single package
 % ssadump -run -interp=T hello.go        # interpret a program, with tracing
 % ssadump -run -test unicode -- -test.v  # interpret the unicode package's tests, verbosely
 ` + loader.FromArgsUsage +
@@ -56,6 +54,8 @@ if set, it runs the tests of each package.
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 func init() {
+	flag.Var((*buildutil.TagsFlag)(&build.Default.BuildTags), "tags", buildutil.TagsFlagDoc)
+
 	// If $GOMAXPROCS isn't set, use the full capacity of the machine.
 	// For small machines, use at least 4 threads.
 	if os.Getenv("GOMAXPROCS") == "" {
@@ -78,12 +78,9 @@ func doMain() error {
 	flag.Parse()
 	args := flag.Args()
 
-	conf := loader.Config{
-		Build:            &build.Default,
-		ImportFromBinary: *importbinFlag,
-	}
-	// TODO(adonovan): make go/types choose its default Sizes from
-	// build.Default or a specified *build.Context.
+	conf := loader.Config{Build: &build.Default}
+
+	// Choose types.Sizes from conf.Build.
 	var wordSize int64 = 8
 	switch conf.Build.GOARCH {
 	case "386", "arm":
@@ -140,11 +137,18 @@ func doMain() error {
 	}
 
 	// Create and build SSA-form program representation.
-	prog := ssa.Create(iprog, *modeFlag)
-	prog.BuildAll()
+	prog := ssautil.CreateProgram(iprog, *modeFlag)
+
+	// Build and display only the initial packages
+	// (and synthetic wrappers), unless -run is specified.
+	for _, info := range iprog.InitialPackages() {
+		prog.Package(info.Pkg).Build()
+	}
 
 	// Run the interpreter.
 	if *runFlag {
+		prog.BuildAll()
+
 		var main *ssa.Package
 		pkgs := prog.AllPackages()
 		if *testFlag {

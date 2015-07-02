@@ -9,42 +9,75 @@ import (
 	"go/token"
 
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/callgraph"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa/ssautil"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/oracle/serial"
 )
 
 // Callers reports the possible callers of the function
 // immediately enclosing the specified source location.
 //
-func callers(o *Oracle, qpos *QueryPos) (queryResult, error) {
-	pkg := o.prog.Package(qpos.info.Pkg)
-	if pkg == nil {
-		return nil, fmt.Errorf("no SSA package")
-	}
-	if !ssa.HasEnclosingFunction(pkg, qpos.path) {
-		return nil, fmt.Errorf("this position is not inside a function")
+func callers(q *Query) error {
+	lconf := loader.Config{Build: q.Build}
+
+	if err := setPTAScope(&lconf, q.Scope); err != nil {
+		return err
 	}
 
-	buildSSA(o)
+	// Load/parse/type-check the program.
+	lprog, err := lconf.Load()
+	if err != nil {
+		return err
+	}
+	q.Fset = lprog.Fset
+
+	qpos, err := parseQueryPos(lprog, q.Pos, false)
+	if err != nil {
+		return err
+	}
+
+	prog := ssautil.CreateProgram(lprog, 0)
+
+	ptaConfig, err := setupPTA(prog, lprog, q.PTALog, q.Reflection)
+	if err != nil {
+		return err
+	}
+
+	pkg := prog.Package(qpos.info.Pkg)
+	if pkg == nil {
+		return fmt.Errorf("no SSA package")
+	}
+	if !ssa.HasEnclosingFunction(pkg, qpos.path) {
+		return fmt.Errorf("this position is not inside a function")
+	}
+
+	// Defer SSA construction till after errors are reported.
+	prog.BuildAll()
 
 	target := ssa.EnclosingFunction(pkg, qpos.path)
 	if target == nil {
-		return nil, fmt.Errorf("no SSA function built for this location (dead code?)")
+		return fmt.Errorf("no SSA function built for this location (dead code?)")
 	}
+
+	// TODO(adonovan): opt: if function is never address-taken, skip
+	// the pointer analysis.  Just look for direct calls.  This can
+	// be done in a single pass over the SSA.
 
 	// Run the pointer analysis, recording each
 	// call found to originate from target.
-	o.ptaConfig.BuildCallGraph = true
-	cg := ptrAnalysis(o).CallGraph
+	ptaConfig.BuildCallGraph = true
+	cg := ptrAnalysis(ptaConfig).CallGraph
 	cg.DeleteSyntheticNodes()
 	edges := cg.CreateNode(target).In
 	// TODO(adonovan): sort + dedup calls to ensure test determinism.
 
-	return &callersResult{
+	q.result = &callersResult{
 		target:    target,
 		callgraph: cg,
 		edges:     edges,
-	}, nil
+	}
+	return nil
 }
 
 type callersResult struct {

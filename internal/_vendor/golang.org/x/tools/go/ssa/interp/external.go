@@ -59,8 +59,10 @@ func init() {
 		"(reflect.rtype).Bits":             ext۰reflect۰rtype۰Bits,
 		"(reflect.rtype).Elem":             ext۰reflect۰rtype۰Elem,
 		"(reflect.rtype).Field":            ext۰reflect۰rtype۰Field,
+		"(reflect.rtype).In":               ext۰reflect۰rtype۰In,
 		"(reflect.rtype).Kind":             ext۰reflect۰rtype۰Kind,
 		"(reflect.rtype).NumField":         ext۰reflect۰rtype۰NumField,
+		"(reflect.rtype).NumIn":            ext۰reflect۰rtype۰NumIn,
 		"(reflect.rtype).NumMethod":        ext۰reflect۰rtype۰NumMethod,
 		"(reflect.rtype).NumOut":           ext۰reflect۰rtype۰NumOut,
 		"(reflect.rtype).Out":              ext۰reflect۰rtype۰Out,
@@ -79,10 +81,12 @@ func init() {
 		"math.Log":                         ext۰math۰Log,
 		"math.Min":                         ext۰math۰Min,
 		"os.runtime_args":                  ext۰os۰runtime_args,
+		"os.runtime_beforeExit":            ext۰os۰runtime_beforeExit,
 		"reflect.New":                      ext۰reflect۰New,
 		"reflect.SliceOf":                  ext۰reflect۰SliceOf,
 		"reflect.TypeOf":                   ext۰reflect۰TypeOf,
 		"reflect.ValueOf":                  ext۰reflect۰ValueOf,
+		"reflect.Zero":                     ext۰reflect۰Zero,
 		"reflect.init":                     ext۰reflect۰Init,
 		"reflect.valueInterface":           ext۰reflect۰valueInterface,
 		"runtime.Breakpoint":               ext۰runtime۰Breakpoint,
@@ -228,6 +232,10 @@ func ext۰os۰runtime_args(fr *frame, args []value) value {
 	return fr.i.osArgs
 }
 
+func ext۰os۰runtime_beforeExit(fr *frame, args []value) value {
+	return nil
+}
+
 func ext۰runtime۰Breakpoint(fr *frame, args []value) value {
 	runtime.Breakpoint()
 	return nil
@@ -328,7 +336,9 @@ func ext۰sync۰runtime_Semrelease(fr *frame, args []value) value {
 }
 
 func ext۰runtime۰GOMAXPROCS(fr *frame, args []value) value {
-	return runtime.GOMAXPROCS(args[0].(int))
+	// Ignore args[0]; don't let the interpreted program
+	// set the interpreter's GOMAXPROCS!
+	return runtime.GOMAXPROCS(0)
 }
 
 func ext۰runtime۰Goexit(fr *frame, args []value) value {

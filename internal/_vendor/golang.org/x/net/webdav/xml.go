@@ -115,13 +115,13 @@ func next(d *xml.Decoder) (xml.Token, error) {
 }
 
 // http://www.webdav.org/specs/rfc4918.html#ELEMENT_prop (for propfind)
-type propnames []xml.Name
+type propfindProps []xml.Name
 
 // UnmarshalXML appends the property names enclosed within start to pn.
 //
 // It returns an error if start does not contain any properties or if
 // properties contain values. Character data between properties is ignored.
-func (pn *propnames) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+func (pn *propfindProps) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	for {
 		t, err := next(d)
 		if err != nil {
@@ -149,11 +149,11 @@ func (pn *propnames) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error 
 
 // http://www.webdav.org/specs/rfc4918.html#ELEMENT_propfind
 type propfind struct {
-	XMLName  xml.Name  `xml:"DAV: propfind"`
-	Allprop  *struct{} `xml:"DAV: allprop"`
-	Propname *struct{} `xml:"DAV: propname"`
-	Prop     propnames `xml:"DAV: prop"`
-	Include  propnames `xml:"DAV: include"`
+	XMLName  xml.Name      `xml:"DAV: propfind"`
+	Allprop  *struct{}     `xml:"DAV: allprop"`
+	Propname *struct{}     `xml:"DAV: propname"`
+	Prop     propfindProps `xml:"DAV: prop"`
+	Include  propfindProps `xml:"DAV: include"`
 }
 
 func readPropfind(r io.Reader) (pf propfind, status int, err error) {
@@ -206,32 +206,55 @@ type Property struct {
 }
 
 // http://www.webdav.org/specs/rfc4918.html#ELEMENT_error
+// See multistatusWriter for the "D:" namespace prefix.
 type xmlError struct {
-	XMLName  xml.Name `xml:"DAV: error"`
+	XMLName  xml.Name `xml:"D:error"`
 	InnerXML []byte   `xml:",innerxml"`
 }
 
 // http://www.webdav.org/specs/rfc4918.html#ELEMENT_propstat
+// See multistatusWriter for the "D:" namespace prefix.
 type propstat struct {
-	Prop                []Property `xml:"DAV: prop>_ignored_"`
-	Status              string     `xml:"DAV: status"`
-	Error               *xmlError  `xml:"DAV: error"`
-	ResponseDescription string     `xml:"DAV: responsedescription,omitempty"`
+	Prop                []Property `xml:"D:prop>_ignored_"`
+	Status              string     `xml:"D:status"`
+	Error               *xmlError  `xml:"D:error"`
+	ResponseDescription string     `xml:"D:responsedescription,omitempty"`
+}
+
+// MarshalXML prepends the "D:" namespace prefix on properties in the DAV: namespace
+// before encoding. See multistatusWriter.
+func (ps propstat) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	for k, prop := range ps.Prop {
+		if prop.XMLName.Space == "DAV:" {
+			prop.XMLName = xml.Name{Space: "", Local: "D:" + prop.XMLName.Local}
+			ps.Prop[k] = prop
+		}
+	}
+	// Distinct type to avoid infinite recursion of MarshalXML.
+	type newpropstat propstat
+	return e.EncodeElement(newpropstat(ps), start)
 }
 
 // http://www.webdav.org/specs/rfc4918.html#ELEMENT_response
+// See multistatusWriter for the "D:" namespace prefix.
 type response struct {
-	XMLName             xml.Name   `xml:"DAV: response"`
-	Href                []string   `xml:"DAV: href"`
-	Propstat            []propstat `xml:"DAV: propstat"`
-	Status              string     `xml:"DAV: status,omitempty"`
-	Error               *xmlError  `xml:"DAV: error"`
-	ResponseDescription string     `xml:"DAV: responsedescription,omitempty"`
+	XMLName             xml.Name   `xml:"D:response"`
+	Href                []string   `xml:"D:href"`
+	Propstat            []propstat `xml:"D:propstat"`
+	Status              string     `xml:"D:status,omitempty"`
+	Error               *xmlError  `xml:"D:error"`
+	ResponseDescription string     `xml:"D:responsedescription,omitempty"`
 }
 
 // MultistatusWriter marshals one or more Responses into a XML
 // multistatus response.
 // See http://www.webdav.org/specs/rfc4918.html#ELEMENT_multistatus
+// TODO(rsto, mpl): As a workaround, the "D:" namespace prefix, defined as
+// "DAV:" on this element, is prepended on the nested response, as well as on all
+// its nested elements. All property names in the DAV: namespace are prefixed as
+// well. This is because some versions of Mini-Redirector (on windows 7) ignore
+// elements with a default namespace (no prefixed namespace). A less intrusive fix
+// should be possible after golang.org/cl/11074. See https://golang.org/issue/11177
 type multistatusWriter struct {
 	// ResponseDescription contains the optional responsedescription
 	// of the multistatus XML element. Only the latest content before
@@ -264,29 +287,37 @@ func (w *multistatusWriter) write(r *response) error {
 			return errInvalidResponse
 		}
 	}
-	if w.enc == nil {
-		w.w.Header().Add("Content-Type", "text/xml; charset=utf-8")
-		w.w.WriteHeader(StatusMulti)
-		_, err := fmt.Fprintf(w.w, `<?xml version="1.0" encoding="UTF-8"?>`)
-		if err != nil {
-			return err
-		}
-		w.enc = xml.NewEncoder(w.w)
-		err = w.enc.EncodeToken(xml.StartElement{
-			Name: xml.Name{
-				Space: "DAV:",
-				Local: "multistatus",
-			},
-			Attr: []xml.Attr{{
-				Name:  xml.Name{Local: "xmlns"},
-				Value: "DAV:",
-			}},
-		})
-		if err != nil {
-			return err
-		}
+	err := w.writeHeader()
+	if err != nil {
+		return err
 	}
 	return w.enc.Encode(r)
+}
+
+// writeHeader writes a XML multistatus start element on w's underlying
+// http.ResponseWriter and returns the result of the write operation.
+// After the first write attempt, writeHeader becomes a no-op.
+func (w *multistatusWriter) writeHeader() error {
+	if w.enc != nil {
+		return nil
+	}
+	w.w.Header().Add("Content-Type", "text/xml; charset=utf-8")
+	w.w.WriteHeader(StatusMulti)
+	_, err := fmt.Fprintf(w.w, `<?xml version="1.0" encoding="UTF-8"?>`)
+	if err != nil {
+		return err
+	}
+	w.enc = xml.NewEncoder(w.w)
+	return w.enc.EncodeToken(xml.StartElement{
+		Name: xml.Name{
+			Space: "DAV:",
+			Local: "multistatus",
+		},
+		Attr: []xml.Attr{{
+			Name:  xml.Name{Space: "xmlns", Local: "D"},
+			Value: "DAV:",
+		}},
+	})
 }
 
 // Close completes the marshalling of the multistatus response. It returns
@@ -316,4 +347,122 @@ func (w *multistatusWriter) close() error {
 		}
 	}
 	return w.enc.Flush()
+}
+
+// http://www.webdav.org/specs/rfc4918.html#ELEMENT_prop (for proppatch)
+type proppatchProps []Property
+
+var xmlLangName = xml.Name{Space: "http://www.w3.org/XML/1998/namespace", Local: "lang"}
+
+func xmlLang(s xml.StartElement, d string) string {
+	for _, attr := range s.Attr {
+		if attr.Name == xmlLangName {
+			return attr.Value
+		}
+	}
+	return d
+}
+
+type xmlValue []byte
+
+func (v *xmlValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	// The XML value of a property can be arbitrary, mixed-content XML.
+	// To make sure that the unmarshalled value contains all required
+	// namespaces, we encode all the property value XML tokens into a
+	// buffer. This forces the encoder to redeclare any used namespaces.
+	var b bytes.Buffer
+	e := xml.NewEncoder(&b)
+	for {
+		t, err := next(d)
+		if err != nil {
+			return err
+		}
+		if e, ok := t.(xml.EndElement); ok && e.Name == start.Name {
+			break
+		}
+		if err = e.EncodeToken(t); err != nil {
+			return err
+		}
+	}
+	err := e.Flush()
+	if err != nil {
+		return err
+	}
+	*v = b.Bytes()
+	return nil
+}
+
+// UnmarshalXML appends the property names and values enclosed within start
+// to ps.
+//
+// An xml:lang attribute that is defined either on the DAV:prop or property
+// name XML element is propagated to the property's Lang field.
+//
+// UnmarshalXML returns an error if start does not contain any properties or if
+// property values contain syntactically incorrect XML.
+func (ps *proppatchProps) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	lang := xmlLang(start, "")
+	for {
+		t, err := next(d)
+		if err != nil {
+			return err
+		}
+		switch elem := t.(type) {
+		case xml.EndElement:
+			if len(*ps) == 0 {
+				return fmt.Errorf("%s must not be empty", start.Name.Local)
+			}
+			return nil
+		case xml.StartElement:
+			p := Property{
+				XMLName: t.(xml.StartElement).Name,
+				Lang:    xmlLang(t.(xml.StartElement), lang),
+			}
+			err = d.DecodeElement(((*xmlValue)(&p.InnerXML)), &elem)
+			if err != nil {
+				return err
+			}
+			*ps = append(*ps, p)
+		}
+	}
+}
+
+// http://www.webdav.org/specs/rfc4918.html#ELEMENT_set
+// http://www.webdav.org/specs/rfc4918.html#ELEMENT_remove
+type setRemove struct {
+	XMLName xml.Name
+	Lang    string         `xml:"xml:lang,attr,omitempty"`
+	Prop    proppatchProps `xml:"DAV: prop"`
+}
+
+// http://www.webdav.org/specs/rfc4918.html#ELEMENT_propertyupdate
+type propertyupdate struct {
+	XMLName   xml.Name    `xml:"DAV: propertyupdate"`
+	Lang      string      `xml:"xml:lang,attr,omitempty"`
+	SetRemove []setRemove `xml:",any"`
+}
+
+func readProppatch(r io.Reader) (patches []Proppatch, status int, err error) {
+	var pu propertyupdate
+	if err = xml.NewDecoder(r).Decode(&pu); err != nil {
+		return nil, http.StatusBadRequest, err
+	}
+	for _, op := range pu.SetRemove {
+		remove := false
+		switch op.XMLName {
+		case xml.Name{Space: "DAV:", Local: "set"}:
+			// No-op.
+		case xml.Name{Space: "DAV:", Local: "remove"}:
+			for _, p := range op.Prop {
+				if len(p.InnerXML) > 0 {
+					return nil, http.StatusBadRequest, errInvalidProppatch
+				}
+			}
+			remove = true
+		default:
+			return nil, http.StatusBadRequest, errInvalidProppatch
+		}
+		patches = append(patches, Proppatch{Remove: remove, Props: op.Prop})
+	}
+	return patches, 0, nil
 }

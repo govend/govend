@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:generate go run ../collate/maketables.go -cldr=23 -unicode=6.2.0 -types=search,searchjl -package=search
+
 // Package search provides language-specific search and string matching.
 //
 // Natural language matching can be intricate. For example, Danish will insist
@@ -14,7 +16,10 @@
 package search
 
 import (
+	"strings"
+
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/text/collate/colltab"
+	newcolltab "github.com/gophersaurus/govend/internal/_vendor/golang.org/x/text/internal/colltab"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/text/language"
 )
 
@@ -31,26 +36,60 @@ var (
 	Exact Option = nil
 
 	// Loose causes case, diacritics and width to be ignored.
-	Loose Option = nil //
+	Loose Option = loose
 
 	// IgnoreCase enables case-insensitive search.
-	IgnoreCase Option = nil
+	IgnoreCase Option = ignoreCase
 
 	// IgnoreDiacritics causes diacritics to be ignored ("ö" == "o").
-	IgnoreDiacritics Option = nil
+	IgnoreDiacritics Option = ignoreDiacritics
 
-	// IgnoreWidth equates fullwidth with halfwidth variants.
-	IgnoreWidth Option = nil
+	// IgnoreWidth equates narrow with wide variants.
+	IgnoreWidth Option = ignoreWidth
 )
+
+func ignoreDiacritics(m *Matcher) { m.ignoreDiacritics = true }
+func ignoreCase(m *Matcher)       { m.ignoreCase = true }
+func ignoreWidth(m *Matcher)      { m.ignoreWidth = true }
+func loose(m *Matcher) {
+	ignoreDiacritics(m)
+	ignoreCase(m)
+	ignoreWidth(m)
+}
+
+var (
+	// Supported lists the languages for which search differs from its parent.
+	Supported language.Coverage
+
+	tags []language.Tag
+)
+
+func init() {
+	ids := strings.Split(availableLocales, ",")
+	tags = make([]language.Tag, len(ids))
+	for i, s := range ids {
+		tags[i] = language.Raw.MustParse(s)
+	}
+	Supported = language.NewCoverage(tags)
+}
 
 // New returns a new Matcher for the given language and options.
 func New(t language.Tag, opts ...Option) *Matcher {
-	panic("TODO: implement")
+	m := &Matcher{
+		w: colltab.Init(locales[newcolltab.MatchLang(t, tags)]),
+	}
+	for _, f := range opts {
+		f(m)
+	}
+	return m
 }
 
 // A Matcher implements language-specific string matching.
 type Matcher struct {
-	w colltab.Weighter
+	w                colltab.Weighter
+	ignoreCase       bool
+	ignoreWidth      bool
+	ignoreDiacritics bool
 }
 
 // An IndexOption specifies how the Index methods of Pattern or Matcher should
@@ -60,28 +99,13 @@ type IndexOption byte
 const (
 	// Anchor restricts the search to the start (or end for Backwards) of the
 	// text.
-	Anchor IndexOption = iota
+	Anchor IndexOption = 1 << iota
 
 	// Backwards starts the search from the end of the text.
 	Backwards
-)
 
-// Design note (TODO remove):
-// We use IndexOption, instead of having Index, IndexString, IndexLast,
-// IndexLastString, IndexPrefix, IndexPrefixString, ....
-// (Note: HasPrefix would have reduced utility compared to those in the  strings
-// and bytes packages as the matched prefix in the searched strings may be of
-// different lengths, so we need to return an additional index.)
-// Advantage:
-// - Avoid combinatorial explosion of method calls (now 2 Index variants,
-//   instead of 8, or 16 if we have All variants).
-// - Compared to an API where these options are set on Matcher or Pattern, it
-//   will be clearer when Index*() is invoked with certain options.
-// - Small API and still normal Index() call for the by far most common case.
-// Disadvantage:
-// - Slightly different from analogous packages in the core library (even though
-//   there things are not entirely consistent anyway.)
-// - Little bit of overhead on each Index call (one branch for the common case.)
+	anchorBackwards = Anchor | Backwards
+)
 
 // Index reports the start and end position of the first occurrence of pat in b
 // or -1, -1 if pat is not present.
@@ -111,17 +135,31 @@ func (m *Matcher) EqualString(a, b string) bool {
 
 // Compile compiles and returns a pattern that can be used for faster searching.
 func (m *Matcher) Compile(b []byte) *Pattern {
-	panic("TODO: implement")
+	p := &Pattern{m: m}
+	iter := newcolltab.Iter{Weighter: m.w}
+	for iter.SetInput(b); iter.Next(); {
+	}
+	p.ce = iter.Elems
+	p.deleteEmptyElements()
+	return p
 }
 
 // CompileString compiles and returns a pattern that can be used for faster
 // searching.
-func (m *Matcher) CompileString(str string) *Pattern {
-	panic("TODO: implement")
+func (m *Matcher) CompileString(s string) *Pattern {
+	p := &Pattern{m: m}
+	iter := newcolltab.Iter{Weighter: m.w}
+	for iter.SetInputString(s); iter.Next(); {
+	}
+	p.ce = iter.Elems
+	p.deleteEmptyElements()
+	return p
 }
 
 // A Pattern is a compiled search string. It is safe for concurrent use.
 type Pattern struct {
+	m  *Matcher
+	ce []colltab.Elem
 }
 
 // Design note (TODO remove):
@@ -132,17 +170,62 @@ type Pattern struct {
 // Index reports the start and end position of the first occurrence of p in b
 // or -1, -1 if p is not present.
 func (p *Pattern) Index(b []byte, opts ...IndexOption) (start, end int) {
-	panic("TODO: implement")
+	// Pick a large enough buffer such that we likely do not need to allocate
+	// and small enough to not cause too much overhead initializing.
+	var buf [8]colltab.Elem
+
+	it := &newcolltab.Iter{
+		Weighter: p.m.w,
+		Elems:    buf[:0],
+	}
+	it.SetInput(b)
+
+	var optMask IndexOption
+	for _, o := range opts {
+		optMask |= o
+	}
+
+	switch optMask {
+	case 0:
+		return p.forwardSearch(it)
+	case Anchor:
+		return p.anchoredForwardSearch(it)
+	case Backwards, anchorBackwards:
+		panic("TODO: implement")
+	default:
+		panic("unrecognized option")
+	}
 }
 
 // IndexString reports the start and end position of the first occurrence of p
 // in s or -1, -1 if p is not present.
 func (p *Pattern) IndexString(s string, opts ...IndexOption) (start, end int) {
-	panic("TODO: implement")
-}
+	// Pick a large enough buffer such that we likely do not need to allocate
+	// and small enough to not cause too much overhead initializing.
+	var buf [8]colltab.Elem
 
-// Supported lists the languages for which search differs from its parent.
-var Supported language.Coverage // TODO: implement.
+	it := &newcolltab.Iter{
+		Weighter: p.m.w,
+		Elems:    buf[:0],
+	}
+	it.SetInputString(s)
+
+	var optMask IndexOption
+	for _, o := range opts {
+		optMask |= o
+	}
+
+	switch optMask {
+	case 0:
+		return p.forwardSearch(it)
+	case Anchor:
+		return p.anchoredForwardSearch(it)
+	case Backwards, anchorBackwards:
+		panic("TODO: implement")
+	default:
+		panic("unrecognized option")
+	}
+}
 
 // TODO:
 // - Maybe IndexAll methods (probably not necessary).

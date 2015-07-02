@@ -25,6 +25,7 @@ import (
 
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types/typeutil"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/refactor/importgraph"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/refactor/satisfy"
 )
@@ -154,7 +155,7 @@ type renamer struct {
 	to                 string
 	satisfyConstraints map[satisfy.Constraint]bool
 	packages           map[*types.Package]*loader.PackageInfo // subset of iprog.AllPackages to inspect
-	msets              types.MethodSetCache
+	msets              typeutil.MethodSetCache
 	changeMethods      bool
 }
 
@@ -253,6 +254,8 @@ func Main(ctxt *build.Context, offsetFlag, fromFlag, to string) error {
 		// Scan the workspace and build the import graph.
 		_, rev, errors := importgraph.Build(ctxt)
 		if len(errors) > 0 {
+			// With a large GOPATH tree, errors are inevitable.
+			// Report them but proceed.
 			fmt.Fprintf(os.Stderr, "While scanning Go workspace:\n")
 			for path, err := range errors {
 				fmt.Fprintf(os.Stderr, "Package %q: %s.\n", path, err)

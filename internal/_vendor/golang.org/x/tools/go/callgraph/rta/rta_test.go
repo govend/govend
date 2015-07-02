@@ -19,6 +19,7 @@ import (
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/callgraph/rta"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa/ssautil"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/types"
 )
 
@@ -76,7 +77,7 @@ func TestRTA(t *testing.T) {
 			continue
 		}
 
-		prog := ssa.Create(iprog, 0)
+		prog := ssautil.CreateProgram(iprog, 0)
 		mainPkg := prog.Package(iprog.Created[0].Pkg)
 		prog.BuildAll()
 
@@ -125,7 +126,7 @@ func printResult(res *rta.Result, from *types.Package) string {
 	var rtypes []string
 	res.RuntimeTypes.Iterate(func(key types.Type, value interface{}) {
 		if value == false { // accessible to reflection
-			rtypes = append(rtypes, types.TypeString(from, key))
+			rtypes = append(rtypes, types.TypeString(key, types.RelativeTo(from)))
 		}
 	})
 	writeSorted(rtypes)

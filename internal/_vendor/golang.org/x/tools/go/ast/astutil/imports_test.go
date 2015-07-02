@@ -315,6 +315,31 @@ import "time"
 type T time.Time
 `,
 	},
+
+	// Issue 9961: Match prefixes using path segments rather than bytes
+	{
+		name: "issue 9961",
+		pkg:  "regexp",
+		in: `package main
+
+import (
+	"flag"
+	"testing"
+
+	"rsc.io/p"
+)
+`,
+		out: `package main
+
+import (
+	"flag"
+	"regexp"
+	"testing"
+
+	"rsc.io/p"
+)
+`,
+	},
 }
 
 func TestAddImport(t *testing.T) {
@@ -349,6 +374,22 @@ import (
 )
 `
 	if got := print(t, "doubleimport", file); got != want {
+		t.Errorf("got: %s\nwant: %s", got, want)
+	}
+}
+
+func TestDoubleAddNamedImport(t *testing.T) {
+	file := parse(t, "doublenamedimport", "package main\n")
+	AddNamedImport(fset, file, "o", "os")
+	AddNamedImport(fset, file, "i", "io")
+	want := `package main
+
+import (
+	i "io"
+	o "os"
+)
+`
+	if got := print(t, "doublenamedimport", file); got != want {
 		t.Errorf("got: %s\nwant: %s", got, want)
 	}
 }

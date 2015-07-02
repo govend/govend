@@ -14,7 +14,7 @@ import (
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/callgraph"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/callgraph/static"
 	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/loader"
-	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa"
+	"github.com/gophersaurus/govend/internal/_vendor/golang.org/x/tools/go/ssa/ssautil"
 )
 
 const input = `package P
@@ -62,7 +62,7 @@ func TestStatic(t *testing.T) {
 
 	P := iprog.Created[0].Pkg
 
-	prog := ssa.Create(iprog, 0)
+	prog := ssautil.CreateProgram(iprog, 0)
 	prog.BuildAll()
 
 	cg := static.CallGraph(prog)

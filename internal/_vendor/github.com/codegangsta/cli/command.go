@@ -91,9 +91,9 @@ func (c Command) Run(ctx *Context) error {
 	}
 
 	if err != nil {
-		fmt.Fprint(ctx.App.Writer, "Incorrect Usage.\n\n")
-		ShowCommandHelp(ctx, c.Name)
+		fmt.Fprintln(ctx.App.Writer, "Incorrect Usage.")
 		fmt.Fprintln(ctx.App.Writer)
+		ShowCommandHelp(ctx, c.Name)
 		return err
 	}
 
@@ -102,10 +102,9 @@ func (c Command) Run(ctx *Context) error {
 		fmt.Fprintln(ctx.App.Writer, nerr)
 		fmt.Fprintln(ctx.App.Writer)
 		ShowCommandHelp(ctx, c.Name)
-		fmt.Fprintln(ctx.App.Writer)
 		return nerr
 	}
-	context := NewContext(ctx.App, set, ctx.globalSet)
+	context := NewContext(ctx.App, set, ctx)
 
 	if checkCommandCompletions(context, c.Name) {
 		return nil
@@ -157,6 +156,13 @@ func (c Command) startApp(ctx *Context) error {
 	app.Commands = c.Subcommands
 	app.Flags = c.Flags
 	app.HideHelp = c.HideHelp
+
+	app.Version = ctx.App.Version
+	app.HideVersion = ctx.App.HideVersion
+	app.Compiled = ctx.App.Compiled
+	app.Author = ctx.App.Author
+	app.Email = ctx.App.Email
+	app.Writer = ctx.App.Writer
 
 	// bash completion
 	app.EnableBashCompletion = ctx.App.EnableBashCompletion
