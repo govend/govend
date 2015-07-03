@@ -71,6 +71,17 @@ func main() {
 			},
 		},
 		{
+			Name:        "update",
+			Usage:       "Update updates external vendored go packages",
+			ShortName:   "u",
+			Description: "Use this command to update external vendored package dependencies.",
+			Action: func(c *cli.Context) {
+				if err := updatecmd(c.Args().First(), c.Args().Get(2), c.GlobalBool("verbose"), c.Bool("recursive")); err != nil {
+					panic(err)
+				}
+			},
+		},
+		{
 			Name:        "scan",
 			Usage:       "Scans a go project for external package dependencies",
 			ShortName:   "s",
