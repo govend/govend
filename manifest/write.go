@@ -17,26 +17,20 @@ func Write(file string, vendors *[]Vendor) error {
 	// marshal by format type
 	switch format {
 
-	// marshal JSON
 	case "json":
 		bytes, err = json.Marshal(&vendors)
 		if err != nil {
 			return err
 		}
-
-		// marshal YML
 	case "yml", "yaml", "":
 		bytes, err = yaml.Marshal(&vendors)
 		if err != nil {
 			return err
 		}
-
-	// error on unsupported extension type.
 	default:
 		return fmt.Errorf("vendor manifest file format type '%s' is not supported", format)
 	}
 
-	// write file
 	if err := ioutil.WriteFile(file, bytes, 0777); err != nil {
 		return err
 	}

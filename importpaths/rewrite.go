@@ -12,20 +12,17 @@ import (
 	"go/token"
 	"path"
 
-	"github.com/gophersaurus/govend/internal/_vendor/github.com/kr/fs"
+	"github.com/kr/fs"
 )
 
 // Rewrite takes a directory path and a map of key value strings and
 // updates the import path with those replacements.
 func Rewrite(dir string, replace map[string]string) error {
 
-	// create a new walk.
 	w := fs.Walk(dir)
-
-	// start the walk down the directory tree.
 	for w.Step() {
 
-		// check for errors.
+		// check errors
 		if w.Err() != nil {
 			log.Println("gf import rewrite:", w.Err())
 			continue
@@ -33,8 +30,6 @@ func Rewrite(dir string, replace map[string]string) error {
 
 		// check the file is a .go file.
 		if !w.Stat().IsDir() && strings.HasSuffix(w.Path(), ".go") {
-
-			// rewrite the file.
 			if err := rewriteFile(w.Path(), replace); err != nil {
 				return err
 			}

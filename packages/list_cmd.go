@@ -86,7 +86,7 @@ func ListCMD(dir, vendorDir, file, format string, all bool, vendors bool) error 
 		return errors.New("unsupported format: " + format)
 	}
 
-	// if a file to write to was specified, write to it.
+	// if a file to write to was specified, write to it
 	if len(file) > 0 {
 		if err := ioutil.WriteFile(file, b, 0644); err != nil {
 			return err
@@ -94,7 +94,7 @@ func ListCMD(dir, vendorDir, file, format string, all bool, vendors bool) error 
 		return nil
 	}
 
-	// no file specified, just print results to screen.
+	// no file specified, print the results to screen
 	fmt.Printf("%s", b)
 	return nil
 }

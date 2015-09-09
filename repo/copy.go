@@ -1,6 +1,9 @@
 package repo
 
+// Origial code by Jaybill McCarthy: http://jayblog.jaybill.com/post/id/26
+
 import (
+	"errors"
 	"io"
 	"io/ioutil"
 	"log"
@@ -9,9 +12,7 @@ import (
 )
 
 // CopyFile copies a file source to the provided destination.
-//
-// Origial code by Jaybill McCarthy: http://jayblog.jaybill.com/post/id/26
-func CopyFile(source string, dest string) (err error) {
+func CopyFile(source string, dest string) error {
 	sf, err := os.Open(source)
 	if err != nil {
 		return err
@@ -30,7 +31,7 @@ func CopyFile(source string, dest string) (err error) {
 		}
 
 	}
-	return
+	return err
 }
 
 // CopyDir recursively copies a directory tree, attempting to preserve permissions.
@@ -38,19 +39,19 @@ func CopyFile(source string, dest string) (err error) {
 //
 // CopyDir ignores '.gitignore' files and all other directories that contain a
 // '.' or '_' preceding them.
-func CopyDir(source string, dest string) (err error) {
+func CopyDir(source string, dest string) error {
 	// get properties of source dir
 	fi, err := os.Stat(source)
 	if err != nil {
 		return err
 	}
 	if !fi.IsDir() {
-		return &CustomError{"Source is not a directory"}
+		return errors.New("Source is not a directory")
 	}
 	// ensure dest dir does not already exist
 	_, err = os.Open(dest)
 	if !os.IsNotExist(err) {
-		return &CustomError{"Destination already exists"}
+		return errors.New("Destination already exists")
 	}
 	// create dest dir
 	err = os.MkdirAll(dest, fi.Mode())
@@ -79,18 +80,7 @@ func CopyDir(source string, dest string) (err error) {
 					log.Println(err)
 				}
 			}
-
 		}
 	}
-	return
-}
-
-// CustomError is a struct for returning custom error messages.
-type CustomError struct {
-	What string
-}
-
-// Error impliments the error interface.
-func (e *CustomError) Error() string {
-	return e.What
+	return err
 }

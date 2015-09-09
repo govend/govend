@@ -5,13 +5,10 @@ import "path"
 // RemoveStandardPackages
 func RemoveStandardPackages(pkgs []string) []string {
 
-	// define an empty package list to fill
 	var pkglist []string
 
-	// iterate through the files import paths
 	for _, pkg := range pkgs {
 
-		// determine the name of the package
 		name := path.Base(pkg)
 
 		// skip CGO and any relative import paths
