@@ -10,40 +10,47 @@ var tempVendorDir = "_tmp_vendor"
 
 // Download writes the source contents of a Repo to disk. The revision version
 // of the repository is returned and the directory is created.
-func Download(r *Repo, dir, rev string) (string, error) {
+func Download(r *Repo, dir, vendorRev string) (string, error) {
 
 	if _, err := os.Stat(filepath.Join(dir, r.ImportPath)); err == nil {
 		return "", fmt.Errorf("repository '%s' has already been vendored", r.ImportPath)
 	}
 
 	// create the repository at a specific revision
-	if rev == "" || rev == "latest" {
+	if vendorRev == "" || vendorRev == "latest" {
 		if err := r.VCS.Create(filepath.Join(tempVendorDir, r.ImportPath), r.URL); err != nil {
+			os.RemoveAll(tempVendorDir)
 			return "", err
 		}
 	} else {
-		if err := r.VCS.CreateAtRev(filepath.Join(tempVendorDir, r.ImportPath), r.URL, rev); err != nil {
+		if err := r.VCS.CreateAtRev(filepath.Join(tempVendorDir, r.ImportPath), r.URL, vendorRev); err != nil {
+			os.RemoveAll(tempVendorDir)
 			return "", err
 		}
 	}
 
-	revision, err := r.VCS.Identify(filepath.Join(tempVendorDir, r.ImportPath))
+	rev, err := r.VCS.Identify(filepath.Join(tempVendorDir, r.ImportPath))
 	if err != nil {
+		os.RemoveAll(tempVendorDir)
 		return "", err
 	}
 
 	// mkdir
 	if err := os.MkdirAll(filepath.Dir(filepath.Join(dir, r.ImportPath)), 0777); err != nil {
+		os.RemoveAll(tempVendorDir)
 		return "", err
 	}
 
 	// copy
 	if err := CopyDir(filepath.Join(tempVendorDir, r.ImportPath), filepath.Join(dir, r.ImportPath)); err != nil {
+		os.RemoveAll(tempVendorDir)
 		return "", err
 	}
 
 	// remove the temp
-	os.RemoveAll(tempVendorDir)
+	if err := os.RemoveAll(tempVendorDir); err != nil {
+		return "", err
+	}
 
-	return revision, nil
+	return rev, nil
 }

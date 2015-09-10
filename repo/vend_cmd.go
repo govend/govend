@@ -68,17 +68,17 @@ func VendCMD(vendorDir, vendorFile string, verbose, recursive bool) error {
 
 	// download the repository contents
 	for _, repo := range repomap {
-		revision := "latest"
+		vendorRev := "latest"
 		for _, vendor := range vendors {
 			if vendor.Path == repo.ImportPath {
-				revision = vendor.Rev
+				vendorRev = vendor.Rev
 				break
 			}
 		}
 		if verbose {
-			fmt.Printf(" ↓ %s (%s)\n", repo.ImportPath, revision)
+			fmt.Printf(" ↓ %s (%s)\n", repo.ImportPath, vendorRev)
 		}
-		rev, err := Download(repo, filepath.Join(localpath, vendorDir), revision)
+		rev, err := Download(repo, filepath.Join(localpath, vendorDir), vendorRev)
 		if err != nil {
 			return err
 		}
