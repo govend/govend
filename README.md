@@ -67,34 +67,44 @@ downloading recursive dependencies...
 The `vendors.yml` file contains an array of import paths and commit revisions.
 
 ```yaml
-- path: github.com/codegangsta/cli
-  rev: 9b2bd2b3489748d4d0a204fa4eb2ee9e89e0ebc6
+- path: gopkg.in/yaml.v2
+  rev: 7ad95dd0798a40da1ccdff6dff35fd177b5edf40
 - path: github.com/jackspirou/importsplus
   rev: 7f84f4286a52ec63260adeb8398ca7814ae19422
-- path: gopkg.in/yaml.v2
-  rev: 49c95bdc21843256fb6c4e0d370a05f24a0bf213
+- path: golang.org/x/tools
+  rev: 1330b289ad6d59313d86910fa35d5022cd871e7f
+- path: github.com/spf13/cobra
+  rev: 4b86c66ef25470e678a4d6a372711d7050344ccc
 - path: github.com/kr/fs
   rev: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
-- path: golang.org/x/tools
-  rev: 0c09ff325ac41535a3d5fb6d539c32aca981bada
+- path: github.com/inconshreveable/mousetrap
+  rev: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - path: golang.org/x/net
-  rev: 84ba27dd5b2d8135e9da1395277f2c9333a2ffda
+  rev: db8e4de5b2d6653f66aea53094624468caad15d2
+- path: github.com/spf13/pflag
+  rev: f735fdff4ffb34299727eb2e3c9abab588742d41
+- path: github.com/cpuguy83/go-md2man
+  rev: 71acacd42f85e5e82f70a55327789582a5200a90
 - path: gopkg.in/check.v1
-  rev: 64131543e7896d5bcc6bd5a76287eb75ea96c673
+  rev: 11d3bc7aa68e238947792f30573146a3231fc0f1
 - path: golang.org/x/text
-  rev: d48eb58d199dc14dfaafefabf361feff840ee06c
+  rev: 6368131e2e9977b23aa20c631034cb98d65461a7
+- path: github.com/russross/blackfriday
+  rev: 8cec3a854e68dba10faabbe31c089abf4a3e57a6
+- path: github.com/shurcooL/sanitized_anchor_name
+  rev: 244f5ac324cb97e1987ef901a0081a77bfd8e845
 ```
 
-### Scan Code
+### List Dependencies
 If you want to scan your code to find out how many third party dependencies are
-present run `govend list`.  You can even specify a path and output formats.
+in your project run `govend list`. You can specify a path and output formats.
 
-Here is an example of a path: `govend scan some/path/dir`
+Here is an example of a path: `govend list some/project/path`
 ```bash
-github.com/codegangsta/cli
-github.com/jackspirou/importsplus
-gopkg.in/yaml.v2
+github.com/spf13/cobra
 github.com/kr/fs
+gopkg.in/yaml.v2
+github.com/jackspirou/importsplus
 golang.org/x/tools/go/vcs
 ```
 
@@ -102,31 +112,31 @@ golang.org/x/tools/go/vcs
 `govend list -f json`
 ```bash
 [
-  "github.com/codegangsta/cli",
-  "github.com/jackspirou/importsplus",
-  "gopkg.in/yaml.v2",
+  "github.com/spf13/cobra",
   "github.com/kr/fs",
+  "gopkg.in/yaml.v2",
+  "github.com/jackspirou/importsplus",
   "golang.org/x/tools/go/vcs"
-]%
+]%  
 ```
 
 **YAML**
 `govend list -f yml`
 ```bash
-- github.com/codegangsta/cli
-- github.com/jackspirou/importsplus
-- gopkg.in/yaml.v2
+- github.com/spf13/cobra
 - github.com/kr/fs
+- gopkg.in/yaml.v2
+- github.com/jackspirou/importsplus
 - golang.org/x/tools/go/vcs
 ```
 **XML**
 `govend list -f xml`
 ```bash
-<string>github.com/codegangsta/cli</string>
-<string>github.com/jackspirou/importsplus</string>
-<string>gopkg.in/yaml.v2</string>
+<string>github.com/spf13/cobra</string>
 <string>github.com/kr/fs</string>
-<string>golang.org/x/tools/go/vcs</string>%  
+<string>gopkg.in/yaml.v2</string>
+<string>github.com/jackspirou/importsplus</string>
+<string>golang.org/x/tools/go/vcs</string>%
 ```
 
 Known Issues
