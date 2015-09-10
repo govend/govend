@@ -30,8 +30,7 @@ $ cd project/root
 $ govend -v
 ```
 
-To vendor project dependencies run `govend -v` or simply `govend` while in the
-root directory of your project.
+To vendor dependencies run `govend -v` while in the project root directory.
 
 ```bash
 → govend -v
