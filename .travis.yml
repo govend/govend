@@ -5,4 +5,12 @@ go:
   - 1.5.1
   - tip
 
+before_install:
+  - rm -rf vendor
+  - go vet -v ./...
+
+install:
+  - go get -u github.com/gophersaurus/govend
+  - govend -v
+
 script: go test $(go list ./...|grep -v vendor)
