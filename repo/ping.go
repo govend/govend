@@ -9,8 +9,8 @@ func Ping(pkg string) (*Repo, error) {
 	repo, err := ImportPath(pkg, false)
 	if err != nil {
 		e := err.Error()
-		msg := "no go-import meta tags"
-		if e[len(e)-len(msg):] == msg {
+		msg1 := "no go-import meta tags"
+		if e[len(e)-len(msg1):] == msg1 {
 			return nil, fmt.Errorf("network ping (potential proxy issue): %s ", e)
 		}
 		return nil, fmt.Errorf("network ping: %s", err)

@@ -31,7 +31,7 @@ func Write(file string, vendors *[]Vendor) error {
 		return fmt.Errorf("vendor manifest file format type '%s' is not supported", format)
 	}
 
-	if err := ioutil.WriteFile(file, bytes, 0777); err != nil {
+	if err := ioutil.WriteFile(file, bytes, 0644); err != nil {
 		return err
 	}
 

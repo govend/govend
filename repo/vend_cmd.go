@@ -41,9 +41,8 @@ func VendCMD(vendorDir, vendorFile string, verbose, recursive bool) error {
 
 	// if the vendor manifest file exists, read it
 	var vendors []manifest.Vendor
-	manifestFile := filepath.Join(vendorDir, vendorFile)
-	if _, err := os.Stat(manifestFile); err == nil {
-		if err := manifest.Read(manifestFile, &vendors); err != nil {
+	if _, err := os.Stat(vendorFile); err == nil {
+		if err := manifest.Read(vendorFile, &vendors); err != nil {
 			return err
 		}
 	}
@@ -54,8 +53,10 @@ func VendCMD(vendorDir, vendorFile string, verbose, recursive bool) error {
 	// filter out vendored repositories from the repomap
 	for _, vendor := range vendors {
 		if _, ok := repomap[vendor.Path]; ok {
+			if _, err := os.Stat(filepath.Join(vendorDir, vendor.Path)); err == nil {
+				delete(repomap, vendor.Path)
+			}
 			vendorsManifest = append(vendorsManifest, vendor)
-			delete(repomap, vendor.Path)
 		}
 	}
 
@@ -67,10 +68,17 @@ func VendCMD(vendorDir, vendorFile string, verbose, recursive bool) error {
 
 	// download the repository contents
 	for _, repo := range repomap {
-		if verbose {
-			fmt.Printf(" ↓ %s (latest)\n", repo.ImportPath)
+		revision := "latest"
+		for _, vendor := range vendors {
+			if vendor.Path == repo.ImportPath {
+				revision = vendor.Rev
+				break
+			}
 		}
-		rev, err := Download(repo, filepath.Join(localpath, vendorDir))
+		if verbose {
+			fmt.Printf(" ↓ %s (%s)\n", repo.ImportPath, revision)
+		}
+		rev, err := Download(repo, filepath.Join(localpath, vendorDir), revision)
 		if err != nil {
 			return err
 		}
@@ -78,11 +86,11 @@ func VendCMD(vendorDir, vendorFile string, verbose, recursive bool) error {
 	}
 
 	if len(vendorsManifest) > 0 {
-		if err := manifest.Write(manifestFile, &vendorsManifest); err != nil {
+		if err := manifest.Write(vendorFile, &vendorsManifest); err != nil {
 			return err
 		}
 	} else {
-		os.Remove(manifestFile)
+		os.Remove(vendorFile)
 	}
 
 	if recursive {
@@ -95,7 +103,9 @@ func VendCMD(vendorDir, vendorFile string, verbose, recursive bool) error {
 
 		for _, pkg := range rpkgs {
 			if _, err := os.Stat(filepath.Join(vendorDir, pkg)); os.IsNotExist(err) {
-				fmt.Println("\nvendoring external dependencies recursively...\n")
+				if verbose {
+					fmt.Print("\ndownloading recursive dependencies...\n\n")
+				}
 				if err := VendCMD(vendorDir, vendorFile, verbose, recursive); err != nil {
 					return err
 				}
