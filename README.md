@@ -1,85 +1,71 @@
 govend [![Build Status](https://travis-ci.org/gophersaurus/govend.svg?branch=master)](https://travis-ci.org/gophersaurus/govend)
 ============================================================================================================================
 
-The CLI tool `govend` takes a stab at golang dependency management.  While many
-projects already exist to manage external golang packages, `govend` follows a
-philosophy of minimal interaction with the user, project, host's environment
-configuration, and `go` command.
+`govend` leverages the `GO15VENDOREXPERIMENT` to vendor dependencies.
 
-Essentially this means `govend` tries to be good at one thing, vendoring
-dependencies.
+**govend:**
+* is compatible with any project
+* vendor dependencies to the `nth` degree
+* fills in vendored import paths for you with `govend imports`
+* use the `vendor` directory as specified in golang version 1.5
 
-**govend does not try to:**
-* create a new golang project for you (`govend` should work with any project)
-* wrap the `go` command (if `go` gets a major update, we shouldn't break you)
-* make you maintain the dependency file `internal/_vendor/vendors.yml`
-(lots of copy/paste)
-* dump the dependency manifest in the project root (`govend` hides, it doesn't showing off)
-* change any environment variables, including `$GOPATH` (`govend` doesn't mess
-  with env configs)
-
-**govend does try to:**
-* rewrite all import paths
-* be compatible with any project
-* vendor the vendors dependencies to the `nth` degree
-* maintain vendor import paths easily with `govend imports`
-* use the `internal` directory as specified in golang version 1.4
-* rewrite golang import comments such as `// import "github.com/org/project"`
-
-
-Demo (eat your own dog food)
-============================
-
-![govend demo](https://raw.githubusercontent.com/gophersaurus/govend/master/images/govend_demo.gif)
+**govend does not:**
+* create a new project for you
+* wrap the `go` command
+* change environment variables, including `$GOPATH`
 
 Install
 =======
 
 ```bash
-$ go get github.com/gophersaurus/govend
+$ go get -u github.com/gophersaurus/govend
 ```
 
 Vendor Dependencies
 ===================
 
 ```bash
-$ cd project/root/path
+$ cd project/root
 
-$ govend -verbose
+$ govend -v
 ```
 
-To vendor project dependencies run `govend -verbose` or simply `govend` while
-located in the root directory of your project.  The `govend` command will
-download and vendor all immediate dependencies.  
-
-If the dependencies downloaded also have external dependencies you can simply
-run `govend` again.  If you would like `govend` to download all dependencies to
-the `nth` degree (vendor's dependencies, and then all those dependencies) run
-`govend -all`.  
-
-The dependency manifest file that records all dependency paths and revision
-versions is located/generated at `internal/_vendor/vendors.yml`.
+To vendor project dependencies run `govend -v` or simply `govend` while in the
+root directory of your project.
 
 ```bash
-→ govend -verbose
-identifying project paths...                    complete
-scanning for external unvendored packages...    5 packages found
-will generate manifest...                       internal/_vendor/vendors.yml
-identifying repositories...                     complete
-downloading packages...
- ↓ https://github.com/codegangsta/cli (latest)
- ↓ https://github.com/jackspirou/importsplus (latest)
- ↓ https://gopkg.in/yaml.v2 (latest)
- ↓ https://github.com/kr/fs (latest)
- ↓ https://go.googlesource.com/tools (latest)
-vendoring packages...                           complete
-writing vendors.yml manifest...                 complete
-rewriting import paths...                       complete
+→ govend -v
+5 packages scanned, 5 repositories found
+ ↓ gopkg.in/yaml.v2 (latest)
+ ↓ github.com/jackspirou/importsplus (latest)
+ ↓ golang.org/x/tools (latest)
+ ↓ github.com/spf13/cobra (latest)
+ ↓ github.com/kr/fs (latest)
+
+downloading recursive dependencies...
+
+55 packages scanned, 10 repositories found
+ ↓ github.com/inconshreveable/mousetrap (latest)
+ ↓ golang.org/x/net (latest)
+ ↓ github.com/spf13/pflag (latest)
+ ↓ github.com/cpuguy83/go-md2man (latest)
+ ↓ gopkg.in/check.v1 (latest)
+
+downloading recursive dependencies...
+
+74 packages scanned, 12 repositories found
+ ↓ golang.org/x/text (latest)
+ ↓ github.com/russross/blackfriday (latest)
+
+downloading recursive dependencies...
+
+95 packages scanned, 13 repositories found
+ ↓ github.com/shurcooL/sanitized_anchor_name (latest)
 ```
 
-### `internal/_vendor/vendors.yml`
+### `vendors.yml`
 
-The `vendors.yml` file simply contains an array of import paths and commit revisions.
+The `vendors.yml` file contains an array of import paths and commit revisions.
 
 ```yaml
 - path: github.com/codegangsta/cli
@@ -100,11 +86,9 @@ The `vendors.yml` file simply contains an array of import paths and commit revis
   rev: d48eb58d199dc14dfaafefabf361feff840ee06c
 ```
 
-### Rewrite Imports
-`govend` will always rewrite imports, but `govend imports` comes in handy while writing code.  `govend imports` acts exactly like `goimports`, but will prioritize the `internal/_vendor` directory.  If you have ever vendored packages you have probably noticed that `goimports` first pulls from unvendored `$GOPATH` packages.  This can be annoying so give `govend imports -w` a shot.
-
 ### Scan Code
-If you want to scan your code to find out how many third party dependencies are present run `govend scan`.  You can even specify a path and output formats.
+If you want to scan your code to find out how many third party dependencies are
+present run `govend list`.  You can even specify a path and output formats.
 
 Here is an example of a path: `govend scan some/path/dir`
 ```bash
@@ -116,7 +100,7 @@ golang.org/x/tools/go/vcs
 ```
 
 **JSON**
-`govend scan -fmt=json`
+`govend list -f json`
 ```bash
 [
   "github.com/codegangsta/cli",
@@ -128,7 +112,7 @@ golang.org/x/tools/go/vcs
 ```
 
 **YAML**
-`govend scan -fmt=yml`
+`govend list -f yml`
 ```bash
 - github.com/codegangsta/cli
 - github.com/jackspirou/importsplus
@@ -137,7 +121,7 @@ golang.org/x/tools/go/vcs
 - golang.org/x/tools/go/vcs
 ```
 **XML**
-`govend scan -fmt=xml`
+`govend list -f xml`
 ```bash
 <string>github.com/codegangsta/cli</string>
 <string>github.com/jackspirou/importsplus</string>
@@ -146,121 +130,16 @@ golang.org/x/tools/go/vcs
 <string>golang.org/x/tools/go/vcs</string>%  
 ```
 
-How It Works
-============
-
-`govend` works by running the following steps below:
-
- 1. Identify all relative file paths necessary for the current project.
- 2. Identify all types of packages currently present in the project.
- 3. If the `vendors.yml` manifest file exists, load it in memory.
- 4. Verify vendored packages and treat bad ones as unvendored packages.
- 5. Identify package repositories and filter out repo subpackages.
- 6. Download and vendor packages.
- 7. Write the `vendors.yml` manifest file.
- 8. Rewrite import paths.
-
-A highlevel visualize is below:
-
-![alt text](https://raw.githubusercontent.com/jackspirou/govend/ft-rewrite/images/govend_flow.png "govend flow")
-
-Another dependency solution?
-============================
-
-If your looking for other dependency solutions, here is my list:
-
-**Leading Projects**
-* `go get`
-* [Godeps](https://github.com/tools/godep)
-* [nut](https://github.com/jingweno/nut)
-
-**Many Others**
-* [PackageManagementTools](https://github.com/golang/go/wiki/PackageManagementTools)
-
-In my experience, `go get` has been very effective for downloading and adding golang packages into a local development `$GOPATH`. Yet, you should not be using `go get` as a step for production deployments.  If you are doing that, please stop and use `govend` or `godeps` or `nut` or any third party dependency manager.  I had experiences that made me fear when  depending on the OS build, network environment, and hosting provider to ensure `go get` would not fail.
-
-> "go get is nice for playing around, but if your going to do something serious like deploy binaries to production, your deploy to production script shouldn't involve fetching some random dude's stuff on github. - Brad Fitzpatrick"
-http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s
-
-So we all agree that `go get` is a bad idea.  What about `godeps`?  `godeps` may be perfect for you.  Some really big projects use `godeps` and I admire the author of `godeps`, but it doesn't do quite what I want.  `godeps` edits your `$GOPATH` and also wraps the `go` command like so... `godeps go build` and I want to keep my tools seperate.  I don't want to rely on `godeps` not messing up `go`.  Just my opinion.
-
-K - so how about `nut`?  `nut` is much closer to what I want.  `nut` felt the same way about changing the `$GOPATH` and wrapping the `go` command so the author avoided that.  Good job `nut`!  What I don't like, is that `nut` has options for creating a new golang project.  I think that is beyond the scope for what a dependency management tool should do for you.  Also I think the `Nut.toml` file is odd, but I'm sure people think my choice of a `yaml` file is odd.  Finally the `Nut.toml` has options for keep track of your project name, version, authors, and email addresses.  Im not saying those are not nice features, I just think they should be some other tools problem.
-
-Fine then, what about project `X`?  K - I have officially exhausted all of my knowledge of different golang dependency management tools.  I did this to create what I wanted - but if there is better tool out there let me know!
-
-Why Try To Solve This Problem?
-=============================
-
-I like to think that this project and others were inspired by talks at **GopherCon14** (I am too poor to attend) and the **GoTeam Google I/O Golang Fireside Chat 2013** (still to poor to attend).
-
-You can watch them online just like I do at these links below! (yay internets)
-
--	Fireside Chat (part 1)
-	http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=4m30s
-
--	Fireside Chat (part 2)
-	http://www.youtube.com/watch?v=p9VUCp98ay4&feature=youtu.be&t=36m40s
-
--	GopherCon14 SoundCloud Best Practices for Production Environments
-	http://www.youtube.com/watch?v=Y1-RLAl7iOI&feature=youtu.be&t=20m5s
-
 Known Issues
 ============
 
 Does `govend` work on Windows platforms?
 
-> I have no idea.  I think so, but it should be tested.  Let me know what you find.
-
-Why will some packages in `vendor` not get pushed up when I commit?
-
-> Take a look at your `.gitignore` and `.gitignore_global` files. I had an issue where one of these files ignored `*.com` which would include most third party golang packages.
->
-> For your `.gitignore_global` I recommend the file below, but maybe changes to this will be needed as well:
-
-[.gitignore_global](https://gist.github.com/jackspirou/eb8bcf296136056fa88d)
-```yaml
-# Compiled source #
-###################
-*.class
-*.dll
-*.exe
-*.o
-*.so
-
-# Packages #
-############
-# it's better to unpack these files and commit the raw source
-# git has its own built in compression methods
-*.7z
-*.dmg
-*.gz
-*.iso
-*.jar
-*.rar
-*.tar
-*.zip
-
-# Logs and databases #
-######################
-*.log
-*.sql
-*.sqlite
-
-# OS generated files #
-######################
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-```
-
+> I think so, but it should be tested.  Let me know what you find.
 
 Contributing
 ============
 
 ### Can I Contribute?
 
-> Please do! I need all the help I can get :)
+> Please do! Simply fork the code and send a pull request.
