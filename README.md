@@ -3,15 +3,15 @@ govend [![Build Status](https://travis-ci.org/gophersaurus/govend.svg?branch=mas
 
 `govend` leverages the `GO15VENDOREXPERIMENT` to vendor dependencies.
 
-**govend:**
-* is compatible with any project
+**it does:**
 * vendor dependencies to the `nth` degree
-* fills in vendored import paths for you with `govend imports`
+* try to be flexible for compatibility with any project
+* fill in vendored import paths for you with `govend imports`
 * use the `vendor` directory as specified in golang version 1.5
 
-**govend does not:**
-* create a new project for you
+**it does not:**
 * wrap the `go` command
+* create a new project for you
 * change environment variables, including `$GOPATH`
 
 Install
