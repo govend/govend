@@ -1,4 +1,5 @@
-govend [![Build Status](https://travis-ci.org/gophersaurus/govend.svg?branch=master)](https://travis-ci.org/gophersaurus/govend)
+govend
+[![GoDoc](http://godoc.org/github.com/gophersaurus/govend?status.png)](http://godoc.org/github.com/gophersaurus/govend) [![Build Status](https://travis-ci.org/gophersaurus/govend.svg?branch=master)](https://travis-ci.org/gophersaurus/govend) [![Go Report Card](http://goreportcard.com/badge/gophersaurus/govend)](http://goreportcard.com/report/gophersaurus/govend)
 ============================================================================================================================
 
 `govend` leverages the `GO15VENDOREXPERIMENT` to vendor dependencies.
