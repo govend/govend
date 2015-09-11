@@ -10,8 +10,11 @@ env:
 
 install:
   - go install
-  - govend -v
 
 script:
   - go vet -v $(go list ./...|grep -v vendor)
   - go test -v $(go list ./...|grep -v vendor)
+  - rm -rf vendor
+  - govend -v
+  - rm -rf vendor && rm vendor.yml
+  - govend -v
