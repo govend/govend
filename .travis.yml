@@ -13,7 +13,7 @@ before_install:
   - go vet -v ./...
 
 install:
-  - go get -u github.com/gophersaurus/govend
+  - go install
   - govend -v
 
 script: go test $(go list ./...|grep -v vendor)
