@@ -101,7 +101,7 @@ func main() {
 	src = bytes.Replace(src, []byte(ctx.GOROOT), []byte("/go"), -1)
 
 	// add line wrapping and some better formatting.
-  src = bytes.Replace(src, []byte("map[string][]stdpkg{"), []byte("map[string][]stdpkg{\n"), -1)
+	src = bytes.Replace(src, []byte("map[string][]stdpkg{"), []byte("map[string][]stdpkg{\n"), -1)
 	src = bytes.Replace(src, []byte("[]stdpkg{stdpkg{"), []byte("{\n{"), -1)
 	src = bytes.Replace(src, []byte(", stdpkg"), []byte(",\nstdpkg"), -1)
 	src = bytes.Replace(src, []byte("stdpkg{path"), []byte("{path"), -1)
