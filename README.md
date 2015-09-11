@@ -144,7 +144,7 @@ Known Issues
 
 Does `govend` work on Windows platforms?
 
-> I think so, but it should be tested.  Let me know what you find.
+> It does, we have tested it, but some bugs may exist.
 
 Contributing
 ============
