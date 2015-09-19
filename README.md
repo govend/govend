@@ -139,8 +139,8 @@ golang.org/x/tools/go/vcs
 <string>golang.org/x/tools/go/vcs</string>%
 ```
 
-Known Issues
-============
+Windows Support
+===============
 
 Does `govend` work on Windows platforms?
 
