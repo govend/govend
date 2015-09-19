@@ -7,7 +7,7 @@ govend [![GoDoc](http://godoc.org/github.com/gophersaurus/govend?status.png)](ht
 * try to be compatible with any project
 * vendor nested dependencies to the `nth` degree
 * use the `vendor` directory as specified in golang version 1.5
-* provide `goimports` functionality while prioritizing vendored packages via the `govend imports` command
+* provide `goimports` functionality, while prioritizing vendored packages via the `govend imports` command
 
 **it does not:**
 * wrap the `go` command
