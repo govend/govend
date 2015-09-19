@@ -4,15 +4,15 @@ govend [![GoDoc](http://godoc.org/github.com/gophersaurus/govend?status.png)](ht
 `govend` leverages the `GO15VENDOREXPERIMENT` to vendor dependencies.
 
 **it does:**
-* vendor dependencies to the `nth` degree
-* try to be flexible for compatibility with any project
-* fill in vendored import paths for you with `govend imports`
+* try to be compatible with any project
+* vendor nested dependencies to the `nth` degree
 * use the `vendor` directory as specified in golang version 1.5
+* provide the same functionality as `goimports`, but prioritizing vendored packages via `govend imports`
 
 **it does not:**
 * wrap the `go` command
 * create a new project for you
-* change environment variables, including `$GOPATH`
+* alter any environment variables, including `$GOPATH`
 
 Install
 =======
