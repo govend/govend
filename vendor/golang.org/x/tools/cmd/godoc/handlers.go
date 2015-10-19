@@ -13,8 +13,11 @@
 package main
 
 import (
+	"encoding/json"
+	"go/format"
 	"log"
 	"net/http"
+	"strings"
 	"text/template"
 
 	"golang.org/x/tools/godoc"
@@ -27,16 +30,57 @@ var (
 	fs   = vfs.NameSpace{}
 )
 
-func registerHandlers(pres *godoc.Presentation) {
+var enforceHosts = false // set true in production on app engine
+
+// hostEnforcerHandler redirects requests to "http://foo.golang.org/bar"
+// to "https://golang.org/bar".
+// It permits requests to the host "godoc-test.golang.org" for testing.
+type hostEnforcerHandler struct {
+	h http.Handler
+}
+
+func (h hostEnforcerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if !enforceHosts {
+		h.h.ServeHTTP(w, r)
+		return
+	}
+	if r.TLS == nil || !h.validHost(r.Host) {
+		r.URL.Scheme = "https"
+		if h.validHost(r.Host) {
+			r.URL.Host = r.Host
+		} else {
+			r.URL.Host = "golang.org"
+		}
+		http.Redirect(w, r, r.URL.String(), http.StatusFound)
+		return
+	}
+	h.h.ServeHTTP(w, r)
+}
+
+func (h hostEnforcerHandler) validHost(host string) bool {
+	switch strings.ToLower(host) {
+	case "golang.org", "godoc-test.golang.org":
+		return true
+	}
+	return false
+}
+
+func registerHandlers(pres *godoc.Presentation) *http.ServeMux {
 	if pres == nil {
 		panic("nil Presentation")
 	}
-	http.HandleFunc("/doc/codewalk/", codewalk)
-	http.Handle("/doc/play/", pres.FileServer())
-	http.Handle("/robots.txt", pres.FileServer())
-	http.Handle("/", pres)
-	http.Handle("/pkg/C/", redirect.Handler("/cmd/cgo/"))
-	redirect.Register(nil)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/doc/codewalk/", codewalk)
+	mux.Handle("/doc/play/", pres.FileServer())
+	mux.Handle("/robots.txt", pres.FileServer())
+	mux.Handle("/", pres)
+	mux.Handle("/pkg/C/", redirect.Handler("/cmd/cgo/"))
+	mux.HandleFunc("/fmt", fmtHandler)
+	redirect.Register(mux)
+
+	http.Handle("/", hostEnforcerHandler{mux})
+
+	return mux
 }
 
 func readTemplate(name string) *template.Template {
@@ -80,4 +124,23 @@ func readTemplates(p *godoc.Presentation, html bool) {
 		p.SearchTxtHTML = readTemplate("searchtxt.html")
 		p.SearchDescXML = readTemplate("opensearch.xml")
 	}
+}
+
+type fmtResponse struct {
+	Body  string
+	Error string
+}
+
+// fmtHandler takes a Go program in its "body" form value, formats it with
+// standard gofmt formatting, and writes a fmtResponse as a JSON object.
+func fmtHandler(w http.ResponseWriter, r *http.Request) {
+	resp := new(fmtResponse)
+	body, err := format.Source([]byte(r.FormValue("body")))
+	if err != nil {
+		resp.Error = err.Error()
+	} else {
+		resp.Body = string(body)
+	}
+	w.Header().Set("Content-type", "application/json; charset=utf-8")
+	json.NewEncoder(w).Encode(resp)
 }

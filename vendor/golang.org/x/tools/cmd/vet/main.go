@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// NOTE: This version of vet is retired. Bug fixes only.
+// Vet now lives in the core repository.
+
 // Vet is a simple checker for static errors in Go source code.
 // See doc.go for more information.
 package main
@@ -52,6 +55,14 @@ var experimental = map[string]bool{}
 
 // setTrueCount record how many flags are explicitly set to true.
 var setTrueCount int
+
+// dirsRun and filesRun indicate whether the vet is applied to directory or
+// file targets. The distinction affects which checks are run.
+var dirsRun, filesRun bool
+
+// includesNonTest indicates whether the vet is applied to non-test targets.
+// Certain checks are relevant only if they touch both test and non-test files.
+var includesNonTest bool
 
 // A triState is a boolean that knows whether it has been set to either true or false.
 // It is used to identify if a flag appears; the standard boolean flag cannot
@@ -209,8 +220,6 @@ func main() {
 	if flag.NArg() == 0 {
 		Usage()
 	}
-	dirs := false
-	files := false
 	for _, name := range flag.Args() {
 		// Is it a directory?
 		fi, err := os.Stat(name)
@@ -219,15 +228,18 @@ func main() {
 			continue
 		}
 		if fi.IsDir() {
-			dirs = true
+			dirsRun = true
 		} else {
-			files = true
+			filesRun = true
+			if !strings.HasSuffix(name, "_test.go") {
+				includesNonTest = true
+			}
 		}
 	}
-	if dirs && files {
+	if dirsRun && filesRun {
 		Usage()
 	}
-	if dirs {
+	if dirsRun {
 		for _, name := range flag.Args() {
 			walkDir(name)
 		}

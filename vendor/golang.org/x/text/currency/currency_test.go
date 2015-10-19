@@ -4,10 +4,16 @@
 
 package currency
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+
+	"golang.org/x/text/internal/testtext"
+	"golang.org/x/text/language"
+)
 
 func TestParseISO(t *testing.T) {
-	tests := []struct {
+	testCases := []struct {
 		in  string
 		out string
 		ok  bool
@@ -29,9 +35,55 @@ func TestParseISO(t *testing.T) {
 		{"\x00\x00\x00", "XXX", false},
 		{"\xff\xff\xff", "XXX", false},
 	}
-	for i, tc := range tests {
+	for i, tc := range testCases {
 		if x, err := ParseISO(tc.in); x.String() != tc.out || err == nil != tc.ok {
 			t.Errorf("%d:%s: was %s, %v; want %s, %v", i, tc.in, x, err == nil, tc.out, tc.ok)
+		}
+	}
+}
+
+func TestFromRegion(t *testing.T) {
+	testCases := []struct {
+		region, currency string
+		ok               bool
+	}{
+		{"NL", "EUR", true},
+		{"BE", "EUR", true},
+		{"AG", "XCD", true},
+		{"CH", "CHF", true},
+		{"CU", "CUP", true},   // first of multiple
+		{"DG", "USD", true},   // does not have M49 code
+		{"150", "XXX", false}, // implicit false
+		{"CP", "XXX", false},  // explicit false in CLDR
+		{"CS", "XXX", false},  // all expired
+		{"ZZ", "XXX", false},  // none match
+	}
+	for _, tc := range testCases {
+		cur, ok := FromRegion(language.MustParseRegion(tc.region))
+		if cur.String() != tc.currency || ok != tc.ok {
+			t.Errorf("%s: got %v, %v; want %v, %v", tc.region, cur, ok, tc.currency, tc.ok)
+		}
+	}
+}
+
+func TestFromTag(t *testing.T) {
+	testCases := []struct {
+		tag, currency string
+		conf          language.Confidence
+	}{
+		{"nl", "EUR", language.Low},      // nl also spoken outside Euro land.
+		{"nl-BE", "EUR", language.Exact}, // region is known
+		{"pt", "BRL", language.Low},
+		{"en", "USD", language.Low},
+		{"en-u-cu-eur", "EUR", language.Exact},
+		{"tlh", "XXX", language.No}, // Klingon has no country.
+		{"es-419", "XXX", language.No},
+		{"und", "USD", language.Low},
+	}
+	for _, tc := range testCases {
+		cur, conf := FromTag(language.MustParse(tc.tag))
+		if cur.String() != tc.currency || conf != tc.conf {
+			t.Errorf("%s: got %v, %v; want %v, %v", tc.tag, cur, conf, tc.currency, tc.conf)
 		}
 	}
 }
@@ -57,7 +109,7 @@ func TestTable(t *testing.T) {
 }
 
 func TestKindRounding(t *testing.T) {
-	tests := []struct {
+	testCases := []struct {
 		kind  Kind
 		cur   Currency
 		scale int
@@ -72,12 +124,40 @@ func TestKindRounding(t *testing.T) {
 		{Cash, czk, 0, 1},
 		{Standard, zwr, 2, 1},
 		{Cash, zwr, 0, 1},
+		{Standard, KRW, 0, 1},
+		{Cash, KRW, 0, 1}, // Cash defaults to standard.
 	}
-	for i, tc := range tests {
+	for i, tc := range testCases {
 		if scale, inc := tc.kind.Rounding(tc.cur); scale != tc.scale && inc != tc.inc {
 			t.Errorf("%d: got %d, %d; want %d, %d", i, scale, inc, tc.scale, tc.inc)
 		}
 	}
+}
+
+const body = `package main
+import (
+	"fmt"
+	"golang.org/x/text/currency"
+)
+func main() {
+	%s
+}
+`
+
+func TestLinking(t *testing.T) {
+	base := getSize(t, `fmt.Print(currency.CLDRVersion)`)
+	symbols := getSize(t, `fmt.Print(currency.Symbol(currency.USD))`)
+	if d := symbols - base; d < 2*1024 {
+		t.Errorf("size(symbols)-size(base) was %d; want > 2K", d)
+	}
+}
+
+func getSize(t *testing.T, main string) int {
+	size, err := testtext.CodeSize(fmt.Sprintf(body, main))
+	if err != nil {
+		t.Skipf("skipping link size test; binary size could not be determined: %v", err)
+	}
+	return size
 }
 
 func BenchmarkString(b *testing.B) {

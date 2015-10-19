@@ -2,21 +2,22 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package currency
-
 //go:generate go run gen.go gen_common.go -output tables.go
+
+// Package currency contains currency-related functionality.
+package currency
 
 import (
 	"errors"
+	"sort"
 
 	"golang.org/x/text/internal/tag"
+	"golang.org/x/text/language"
 )
 
 // TODO:
 // - language-specific currency names.
-// - Value type
 // - currency formatting.
-// - get currency from tag/region.
 // - currency information per region
 // - register currency code (there are no private use area)
 
@@ -73,6 +74,12 @@ func (c Currency) String() string {
 	return currency.Elem(int(c.index))[:3]
 }
 
+// Value creates a Value for the given currency and amount.
+func (c Currency) Value(amount interface{}) Value {
+	// TODO: verify amount is a supported number type
+	return Value{amount: amount, currency: c}
+}
+
 var (
 	errSyntax = errors.New("currency: tag is not well-formed")
 	errValue  = errors.New("currency: tag is not a recognized currency")
@@ -100,6 +107,38 @@ func MustParseISO(s string) Currency {
 		panic(err)
 	}
 	return c
+}
+
+// FromRegion reports the Currency that is currently legal tender in the given
+// region according to CLDR. It will return false if region currently does not
+// have a legal tender.
+func FromRegion(r language.Region) (tender Currency, ok bool) {
+	x := regionToCode(r)
+	i := sort.Search(len(regionToCurrency), func(i int) bool {
+		return regionToCurrency[i].region >= x
+	})
+	if i < len(regionToCurrency) && regionToCurrency[i].region == x {
+		return Currency{regionToCurrency[i].code}, true
+	}
+	return Currency{0}, false
+}
+
+// FromTag reports the most likely currency for the given tag. It considers the
+// currency defined in the -u extension and infers the region if necessary.
+func FromTag(t language.Tag) (Currency, language.Confidence) {
+	if cur := t.TypeForKey("cu"); len(cur) == 3 {
+		var buf [3]byte
+		copy(buf[:], cur)
+		tag.FixCase("XXX", buf[:])
+		if x := currency.Index(buf[:]); x > 0 {
+			return Currency{uint16(x)}, language.Exact
+		}
+	}
+	r, conf := t.Region()
+	if cur, ok := FromRegion(r); ok {
+		return cur, conf
+	}
+	return Currency{}, language.No
 }
 
 var (

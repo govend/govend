@@ -140,6 +140,7 @@ type FlagSet struct {
 	formal            map[NormalizedName]*Flag
 	shorthands        map[byte]*Flag
 	args              []string // arguments after flags
+	argsLenAtDash     int      // len(args) when a '--' was located when parsing, or -1 if no --
 	exitOnError       bool     // does the program exit if there's an error?
 	errorHandling     ErrorHandling
 	output            io.Writer // nil means stderr; use out() accessor
@@ -292,6 +293,13 @@ func (f *FlagSet) getFlagType(name string, ftype string, convFunc func(sval stri
 	return result, nil
 }
 
+// ArgsLenAtDash will return the length of f.Args at the moment when a -- was
+// found during arg parsing. This allows your program to know which args were
+// before the -- and which came after.
+func (f *FlagSet) ArgsLenAtDash() int {
+	return f.argsLenAtDash
+}
+
 // MarkDeprecated indicated that a flag is deprecated in your program. It will
 // continue to function but will not show up in help or usage messages. Using
 // this flag will also print the given usageMessage.
@@ -307,9 +315,9 @@ func (f *FlagSet) MarkDeprecated(name string, usageMessage string) error {
 	return nil
 }
 
-// Mark the shorthand of a flag deprecated in your program. It will
-// continue to function but will not show up in help or usage messages. Using
-// this flag will also print the given usageMessage.
+// MarkShorthandDeprecated will mark the shorthand of a flag deprecated in your
+// program. It will continue to function but will not show up in help or usage
+// messages. Using this flag will also print the given usageMessage.
 func (f *FlagSet) MarkShorthandDeprecated(name string, usageMessage string) error {
 	flag := f.Lookup(name)
 	if flag == nil {
@@ -740,6 +748,7 @@ func (f *FlagSet) parseArgs(args []string) (err error) {
 
 		if s[1] == '-' {
 			if len(s) == 2 { // "--" terminates the flags
+				f.argsLenAtDash = len(f.args)
 				f.args = append(f.args, args...)
 				break
 			}
@@ -806,12 +815,13 @@ func NewFlagSet(name string, errorHandling ErrorHandling) *FlagSet {
 	f := &FlagSet{
 		name:          name,
 		errorHandling: errorHandling,
+		argsLenAtDash: -1,
 		interspersed:  true,
 	}
 	return f
 }
 
-// SetIntersperesed sets whether to support interspersed option/non-option arguments.
+// SetInterspersed sets whether to support interspersed option/non-option arguments.
 func (f *FlagSet) SetInterspersed(interspersed bool) {
 	f.interspersed = interspersed
 }
@@ -822,4 +832,5 @@ func (f *FlagSet) SetInterspersed(interspersed bool) {
 func (f *FlagSet) Init(name string, errorHandling ErrorHandling) {
 	f.name = name
 	f.errorHandling = errorHandling
+	f.argsLenAtDash = -1
 }

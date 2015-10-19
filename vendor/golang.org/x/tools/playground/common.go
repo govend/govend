@@ -49,14 +49,14 @@ func passThru(w io.Writer, req *http.Request) error {
 	return nil
 }
 
-var onAppengine = false // will be overriden by appengine.go
+var onAppengine = false // will be overriden by appengine.go and appenginevm.go
 
 func allowShare(r *http.Request) bool {
 	if !onAppengine {
 		return true
 	}
 	switch r.Header.Get("X-AppEngine-Country") {
-	case "", "ZZ", "HK", "CN", "RC":
+	case "", "ZZ", "CN":
 		return false
 	}
 	return true
