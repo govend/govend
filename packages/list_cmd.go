@@ -32,7 +32,7 @@ func ListCMD(dir, vendorDir, file, format string, all bool, vendors bool) error 
 	}
 
 	// scan the project directory provided
-	pkgs, err := Scan(dir, vendorDir, vendors)
+	pkgs, _, err := Scan(dir, vendorDir, vendors, true)
 	if err != nil {
 		return err
 	}

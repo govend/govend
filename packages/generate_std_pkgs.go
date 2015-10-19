@@ -21,17 +21,7 @@ import (
 )
 
 // pkgs is a map of the standard golang packages.
-var pkgs = map[string][]stdpkg{
-	"appengine": {
-		{path: "appengine"},
-	},
-	"cloudsql": {
-		{path: "appengine/cloudsql"},
-	},
-	"urlfetch": {
-		{path: "appengine/urlfetch"},
-	},
-}
+var pkgs = map[string][]stdpkg{}
 
 // fset is a set of file tokens.
 var fset = token.NewFileSet()

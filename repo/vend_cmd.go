@@ -5,11 +5,15 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gophersaurus/govend/go15experiment"
 	"github.com/gophersaurus/govend/manifest"
 	"github.com/gophersaurus/govend/packages"
 )
+
+var badpkgs = map[string]string{}
+var lastpkgs = []string{}
 
 // VendCMD
 func VendCMD(vendorDir, vendorFile string, verbose, recursive bool) error {
@@ -21,22 +25,43 @@ func VendCMD(vendorDir, vendorFile string, verbose, recursive bool) error {
 	}
 
 	// scan for external packages
-	pkgs, err := packages.ScanDeps(".", vendorDir, false)
+	pkgs, invalidpkgs, err := packages.ScanDeps(".", vendorDir, false, verbose)
 	if err != nil {
 		return err
 	}
 
+	for pkg, msg := range invalidpkgs {
+		if _, ok := badpkgs[pkg]; !ok {
+			badpkgs[pkg] = msg
+		}
+	}
+
 	repomap := make(map[string]*Repo)
 	for _, pkg := range pkgs {
+
+		if _, ok := badpkgs[pkg]; ok {
+			continue
+		}
+
 		repo, err := Ping(pkg)
 		if err != nil {
+			if strings.Contains(err.Error(), "unrecognized import path") {
+
+				badpkgs[pkg] = "unable to ping"
+				if verbose {
+					fmt.Printf(" ✖ %s (bad ping)\n", pkg)
+				}
+
+				continue
+			}
 			return err
 		}
+
 		repomap[repo.ImportPath] = repo
 	}
 
 	if verbose {
-		fmt.Printf("%d packages scanned, %d repositories found\n", len(pkgs), len(repomap))
+		fmt.Printf("%d packages scanned, %d packages skipped, %d repositories found\n", len(pkgs), len(badpkgs), len(repomap))
 	}
 
 	// if the vendor manifest file exists, read it
@@ -68,6 +93,7 @@ func VendCMD(vendorDir, vendorFile string, verbose, recursive bool) error {
 
 	// download the repository contents
 	for _, repo := range repomap {
+
 		vendorRev := "latest"
 		for _, vendor := range vendors {
 			if vendor.Path == repo.ImportPath {
@@ -75,13 +101,16 @@ func VendCMD(vendorDir, vendorFile string, verbose, recursive bool) error {
 				break
 			}
 		}
+
 		if verbose {
 			fmt.Printf(" ↓ %s (%s)\n", repo.ImportPath, vendorRev)
 		}
+
 		rev, err := Download(repo, filepath.Join(localpath, vendorDir), vendorRev)
 		if err != nil {
 			return err
 		}
+
 		vendorsManifest = append(vendorsManifest, manifest.NewVendor(repo.ImportPath, rev))
 	}
 
@@ -96,12 +125,41 @@ func VendCMD(vendorDir, vendorFile string, verbose, recursive bool) error {
 	if recursive {
 
 		// scan vendored dependencies for external packages
-		rpkgs, err := packages.ScanDeps(".", vendorDir, false)
+		rpkgs, invalidpkgs, err := packages.ScanDeps(".", vendorDir, false, verbose)
 		if err != nil {
 			return err
 		}
 
+		for pkg, msg := range invalidpkgs {
+			if _, ok := badpkgs[pkg]; !ok {
+				badpkgs[pkg] = msg
+			}
+		}
+
+		fpkgs := []string{}
 		for _, pkg := range rpkgs {
+			if _, ok := badpkgs[pkg]; !ok {
+				fpkgs = append(fpkgs, pkg)
+			}
+		}
+
+		if len(lastpkgs) == len(fpkgs) {
+			for i := range lastpkgs {
+				if lastpkgs[i] != fpkgs[i] {
+					break
+				}
+				if len(lastpkgs) == i+1 {
+					if verbose {
+						fmt.Println("it looks like some packages reference broken imports...")
+					}
+					return nil
+				}
+			}
+		}
+
+		lastpkgs = fpkgs
+
+		for _, pkg := range fpkgs {
 			if _, err := os.Stat(filepath.Join(vendorDir, pkg)); os.IsNotExist(err) {
 				if verbose {
 					fmt.Print("\ndownloading recursive dependencies...\n\n")
@@ -109,6 +167,7 @@ func VendCMD(vendorDir, vendorFile string, verbose, recursive bool) error {
 				if err := VendCMD(vendorDir, vendorFile, verbose, recursive); err != nil {
 					return err
 				}
+				break
 			}
 		}
 	}

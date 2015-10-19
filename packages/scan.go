@@ -12,10 +12,21 @@ import (
 	"github.com/kr/fs"
 )
 
-// Scan scans a directory to collect external package imports.
-func Scan(dir, vendorDir string, skipVendor bool) ([]string, error) {
+const (
+	eofError        = "expected 'package', found 'EOF'"
+	importPathError = "invalid import path:"
+)
 
-	var pkglist []string
+var (
+	rootExceptions = []string{"appengine/"}
+	scannedFiles   = map[string][]string{}
+)
+
+// Scan scans a directory to collect external package imports.
+func Scan(dir, vendorDir string, skipVendor, verbose bool) ([]string, map[string]string, error) {
+
+	pkglist := []string{}
+	badpkgs := map[string]string{}
 
 	w := fs.Walk(dir)
 	for w.Step() {
@@ -23,6 +34,7 @@ func Scan(dir, vendorDir string, skipVendor bool) ([]string, error) {
 		fstat := w.Stat()
 
 		if fstat.IsDir() {
+
 			if fstat.Name() == "testdata" {
 				w.SkipDir()
 				continue
@@ -42,33 +54,51 @@ func Scan(dir, vendorDir string, skipVendor bool) ([]string, error) {
 			continue
 		}
 
+		fpath := w.Path()
+
 		// check the file is a .go file
-		if strings.HasSuffix(w.Path(), ".go") {
+		if strings.HasSuffix(fpath, ".go") {
 
-			fset := token.NewFileSet()
+			var imports []string
 
-			// parse only the import declarations in the .go file
-			f, err := parser.ParseFile(fset, w.Path(), nil, parser.ImportsOnly)
-			if err != nil {
+			if pkgs, ok := scannedFiles[fpath]; ok {
+				imports = pkgs
+			} else {
 
-				msg := "expected 'package', found 'EOF'"
-				e := err.Error()
-				if len(e) >= len(msg) {
-					if e[len(e)-len(msg):] == msg {
+				fset := token.NewFileSet()
+
+				// parse only the import declarations in the .go file
+				f, err := parser.ParseFile(fset, w.Path(), nil, parser.ImportsOnly)
+				if err != nil {
+
+					e := err.Error()
+
+					if strings.Contains(e, eofError) {
 						continue
 					}
+
+					if strings.Contains(e, importPathError) {
+						for _, i := range f.Imports {
+							badpkgs[i.Path.Value] = "invalid import path"
+						}
+						continue
+					}
+
+					return nil, badpkgs, err
 				}
-				return nil, err
+
+				// unquote the import path value
+				for _, i := range f.Imports {
+					importpath, err := strconv.Unquote(i.Path.Value)
+					if err != nil {
+						return nil, badpkgs, err
+					}
+					imports = append(imports, importpath)
+				}
 			}
 
 			// iterate over import paths
-			for _, i := range f.Imports {
-
-				// unquote the import path value
-				importpath, err := strconv.Unquote(i.Path.Value)
-				if err != nil {
-					return nil, err
-				}
+			for _, importpath := range imports {
 
 				// iterate through the known external packages
 				for _, pkg := range pkglist {
@@ -77,12 +107,19 @@ func Scan(dir, vendorDir string, skipVendor bool) ([]string, error) {
 					}
 				}
 
-				pkglist = append(pkglist, importpath)
+				for _, root := range rootExceptions {
+					if len(importpath) >= len(root) {
+						if importpath[:len(root)] == root {
+							goto SKIP
+						}
+					}
+				}
 
+				pkglist = append(pkglist, importpath)
 			SKIP: // skips the appending of packages that are already present
 			}
 		}
 	}
 
-	return pkglist, nil
+	return pkglist, badpkgs, nil
 }
