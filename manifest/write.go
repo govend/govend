@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"sort"
 
 	"gopkg.in/yaml.v2"
 )
@@ -13,6 +14,9 @@ func Write(file string, vendors *[]Vendor) error {
 
 	var bytes []byte
 	var err error
+
+	// sort vendors to fixate ordering in manifest file
+	sort.Sort(vendorSorter(*vendors))
 
 	// marshal by format type
 	switch format {
