@@ -16,7 +16,7 @@ func Write(file string, vendors *[]Vendor) error {
 	var err error
 
 	// sort vendors to fixate ordering in manifest file
-	sort.Sort(vendorSorter(*vendors))
+	sort.Sort(sorter(*vendors))
 
 	// marshal by format type
 	switch format {
