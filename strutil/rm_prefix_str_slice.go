@@ -1,4 +1,4 @@
-package strutils
+package strutil
 
 // RemovePrefixInStringSlice removes any items from a given slice of strings
 // that start with the provided prefix.

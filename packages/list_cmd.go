@@ -10,7 +10,7 @@ import (
 	"io/ioutil"
 	"path"
 
-	"github.com/gophersaurus/govend/strutils"
+	"github.com/gophersaurus/govend/strutil"
 
 	"gopkg.in/yaml.v2"
 )
@@ -49,7 +49,7 @@ func ListCMD(dir, vendorDir, file, format string, all bool, vendors bool) error 
 	}
 
 	// filter out packages internal to the project
-	pkgs = strutils.RemovePrefixInStringSlice(projectpath, pkgs)
+	pkgs = strutil.RemovePrefixInStringSlice(projectpath, pkgs)
 
 	// create an slice of bytes to print or write results
 	var b []byte

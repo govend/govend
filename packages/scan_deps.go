@@ -1,6 +1,6 @@
 package packages
 
-import "github.com/gophersaurus/govend/strutils"
+import "github.com/gophersaurus/govend/strutil"
 
 // ScanDeps
 func ScanDeps(dir, vendorDir string, skipVendor, verbose bool) ([]string, map[string]string, error) {
@@ -19,7 +19,7 @@ func ScanDeps(dir, vendorDir string, skipVendor, verbose bool) ([]string, map[st
 	if err != nil {
 		return nil, badpkgs, err
 	}
-	pkgs = strutils.RemovePrefixInStringSlice(projectImportPath, pkgs)
+	pkgs = strutil.RemovePrefixInStringSlice(projectImportPath, pkgs)
 
 	return pkgs, badpkgs, nil
 }
