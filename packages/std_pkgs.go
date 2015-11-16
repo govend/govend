@@ -3,8 +3,49 @@
 package packages
 
 var stdpkgs = map[string][]stdpkg{
-	"urlfetch": {
-		{path: "appengine/urlfetch", dir: ""},
+	"crc64": {
+		{path: "hash/crc64", dir: "/go/src/hash/crc64"},
+	},
+	"palette": {
+		{path: "image/color/palette", dir: "/go/src/image/color/palette"},
+	},
+	"windows": {
+		{path: "internal/syscall/windows", dir: "/go/src/internal/syscall/windows"},
+	},
+	"regexp": {
+		{path: "regexp", dir: "/go/src/regexp"},
+	},
+	"sync": {
+		{path: "sync", dir: "/go/src/sync"},
+	},
+	"pack": {
+		{path: "cmd/pack", dir: "/go/src/cmd/pack"},
+	},
+	"aes": {
+		{path: "crypto/aes", dir: "/go/src/crypto/aes"},
+	},
+	"des": {
+		{path: "crypto/des", dir: "/go/src/crypto/des"},
+	},
+	"ppc64": {
+		{path: "cmd/compile/internal/ppc64", dir: "/go/src/cmd/compile/internal/ppc64"},
+		{path: "cmd/internal/obj/ppc64", dir: "/go/src/cmd/internal/obj/ppc64"},
+		{path: "cmd/link/internal/ppc64", dir: "/go/src/cmd/link/internal/ppc64"},
+	},
+	"pprof": {
+		{path: "cmd/pprof", dir: "/go/src/cmd/pprof"},
+		{path: "net/http/pprof", dir: "/go/src/net/http/pprof"},
+		{path: "runtime/pprof", dir: "/go/src/runtime/pprof"},
+	},
+	"token": {
+		{path: "go/token", dir: "/go/src/go/token"},
+	},
+	"user": {
+		{path: "os/user", dir: "/go/src/os/user"},
+	},
+	"amd64": {
+		{path: "cmd/compile/internal/amd64", dir: "/go/src/cmd/compile/internal/amd64"},
+		{path: "cmd/link/internal/amd64", dir: "/go/src/cmd/link/internal/amd64"},
 	},
 	"arm": {
 		{path: "cmd/compile/internal/arm", dir: "/go/src/cmd/compile/internal/arm"},
@@ -17,492 +58,395 @@ var stdpkgs = map[string][]stdpkg{
 		{path: "cmd/internal/obj/arm64", dir: "/go/src/cmd/internal/obj/arm64"},
 		{path: "cmd/link/internal/arm64", dir: "/go/src/cmd/link/internal/arm64"},
 	},
-	"cover": {
-		{path: "cmd/cover", dir: "/go/src/cmd/cover"},
+	"color": {
+		{path: "image/color", dir: "/go/src/image/color"},
 	},
-	"fix": {
-		{path: "cmd/fix", dir: "/go/src/cmd/fix"},
-	},
-	"symbolizer": {
-		{path: "cmd/pprof/internal/symbolizer", dir: "/go/src/cmd/pprof/internal/symbolizer"},
-	},
-	"container": {
-		{path: "container", dir: "/go/src/container"},
-	},
-	"ascii85": {
-		{path: "encoding/ascii85", dir: "/go/src/encoding/ascii85"},
-	},
-	"constant": {
-		{path: "go/constant", dir: "/go/src/go/constant"},
-	},
-	"template": {
-		{path: "html/template", dir: "/go/src/html/template"},
-		{path: "text/template", dir: "/go/src/text/template"},
-	},
-	"textproto": {
-		{path: "net/textproto", dir: "/go/src/net/textproto"},
-	},
-	"unicode": {
-		{path: "unicode", dir: "/go/src/unicode"},
-	},
-	"unsafe": {
-		{path: "unsafe", dir: "/go/src/unsafe"},
-	},
-	"gofmt": {
-		{path: "cmd/gofmt", dir: "/go/src/cmd/gofmt"},
-	},
-	"aes": {
-		{path: "crypto/aes", dir: "/go/src/crypto/aes"},
-	},
-	"ast": {
-		{path: "go/ast", dir: "/go/src/go/ast"},
-	},
-	"regexp": {
-		{path: "regexp", dir: "/go/src/regexp"},
-	},
-	"syntax": {
-		{path: "regexp/syntax", dir: "/go/src/regexp/syntax"},
-	},
-	"utf8": {
-		{path: "unicode/utf8", dir: "/go/src/unicode/utf8"},
+	"quotedprintable": {
+		{path: "mime/quotedprintable", dir: "/go/src/mime/quotedprintable"},
 	},
 	"tar": {
 		{path: "archive/tar", dir: "/go/src/archive/tar"},
 	},
-	"bufio": {
-		{path: "bufio", dir: "/go/src/bufio"},
-	},
-	"obj": {
-		{path: "cmd/internal/obj", dir: "/go/src/cmd/internal/obj"},
-	},
-	"objdump": {
-		{path: "cmd/objdump", dir: "/go/src/cmd/objdump"},
-	},
-	"des": {
-		{path: "crypto/des", dir: "/go/src/crypto/des"},
-	},
-	"flag": {
-		{path: "flag", dir: "/go/src/flag"},
-	},
-	"build": {
-		{path: "go/build", dir: "/go/src/go/build"},
-	},
-	"scanner": {
-		{path: "go/scanner", dir: "/go/src/go/scanner"},
-		{path: "text/scanner", dir: "/go/src/text/scanner"},
-	},
-	"compile": {
-		{path: "cmd/compile", dir: "/go/src/cmd/compile"},
-	},
-	"sha256": {
-		{path: "crypto/sha256", dir: "/go/src/crypto/sha256"},
-	},
-	"base32": {
-		{path: "encoding/base32", dir: "/go/src/encoding/base32"},
-	},
-	"hash": {
-		{path: "hash", dir: "/go/src/hash"},
-	},
-	"mail": {
-		{path: "net/mail", dir: "/go/src/net/mail"},
-	},
-	"cgo": {
-		{path: "cmd/cgo", dir: "/go/src/cmd/cgo"},
-		{path: "runtime/cgo", dir: "/go/src/runtime/cgo"},
-	},
-	"html": {
-		{path: "html", dir: "/go/src/html"},
-	},
-	"race": {
-		{path: "runtime/race", dir: "/go/src/runtime/race"},
-	},
-	"driver": {
-		{path: "cmd/pprof/internal/driver", dir: "/go/src/cmd/pprof/internal/driver"},
-		{path: "database/sql/driver", dir: "/go/src/database/sql/driver"},
-	},
-	"sha1": {
-		{path: "crypto/sha1", dir: "/go/src/crypto/sha1"},
-	},
-	"printer": {
-		{path: "go/printer", dir: "/go/src/go/printer"},
-	},
-	"cgi": {
-		{path: "net/http/cgi", dir: "/go/src/net/http/cgi"},
-	},
-	"gcprog": {
-		{path: "cmd/internal/gcprog", dir: "/go/src/cmd/internal/gcprog"},
-	},
 	"rc4": {
 		{path: "crypto/rc4", dir: "/go/src/crypto/rc4"},
 	},
-	"iotest": {
-		{path: "testing/iotest", dir: "/go/src/testing/iotest"},
+	"constant": {
+		{path: "go/constant", dir: "/go/src/go/constant"},
 	},
-	"arch": {
-		{path: "cmd/asm/internal/arch", dir: "/go/src/cmd/asm/internal/arch"},
-	},
-	"symbolz": {
-		{path: "cmd/pprof/internal/symbolz", dir: "/go/src/cmd/pprof/internal/symbolz"},
-	},
-	"bzip2": {
-		{path: "compress/bzip2", dir: "/go/src/compress/bzip2"},
-	},
-	"flate": {
-		{path: "compress/flate", dir: "/go/src/compress/flate"},
+	"fnv": {
+		{path: "hash/fnv", dir: "/go/src/hash/fnv"},
 	},
 	"draw": {
 		{path: "image/draw", dir: "/go/src/image/draw"},
 	},
-	"syslog": {
-		{path: "log/syslog", dir: "/go/src/log/syslog"},
+	"index": {
+		{path: "index", dir: "/go/src/index"},
 	},
-	"os": {
-		{path: "os", dir: "/go/src/os"},
+	"cgi": {
+		{path: "net/http/cgi", dir: "/go/src/net/http/cgi"},
 	},
-	"atomic": {
-		{path: "sync/atomic", dir: "/go/src/sync/atomic"},
-	},
-	"armasm": {
-		{path: "cmd/internal/rsc.io/arm/armasm", dir: "/go/src/cmd/internal/rsc.io/arm/armasm"},
-	},
-	"crypto": {
-		{path: "crypto", dir: "/go/src/crypto"},
-	},
-	"database": {
-		{path: "database", dir: "/go/src/database"},
-	},
-	"expvar": {
-		{path: "expvar", dir: "/go/src/expvar"},
-	},
-	"runtime": {
-		{path: "runtime", dir: "/go/src/runtime"},
-	},
-	"strconv": {
-		{path: "strconv", dir: "/go/src/strconv"},
-	},
-	"zip": {
-		{path: "archive/zip", dir: "/go/src/archive/zip"},
-	},
-	"plugin": {
-		{path: "cmd/pprof/internal/plugin", dir: "/go/src/cmd/pprof/internal/plugin"},
-	},
-	"sha512": {
-		{path: "crypto/sha512", dir: "/go/src/crypto/sha512"},
-	},
-	"smtp": {
-		{path: "net/smtp", dir: "/go/src/net/smtp"},
+	"url": {
+		{path: "net/url", dir: "/go/src/net/url"},
 	},
 	"big": {
 		{path: "cmd/compile/internal/big", dir: "/go/src/cmd/compile/internal/big"},
 		{path: "math/big", dir: "/go/src/math/big"},
 	},
-	"doc": {
-		{path: "cmd/doc", dir: "/go/src/cmd/doc"},
-		{path: "go/doc", dir: "/go/src/go/doc"},
-	},
-	"commands": {
-		{path: "cmd/pprof/internal/commands", dir: "/go/src/cmd/pprof/internal/commands"},
-	},
-	"gosym": {
-		{path: "debug/gosym", dir: "/go/src/debug/gosym"},
-	},
-	"fcgi": {
-		{path: "net/http/fcgi", dir: "/go/src/net/http/fcgi"},
-	},
-	"jsonrpc": {
-		{path: "net/rpc/jsonrpc", dir: "/go/src/net/rpc/jsonrpc"},
-	},
-	"addr2line": {
-		{path: "cmd/addr2line", dir: "/go/src/cmd/addr2line"},
-	},
-	"token": {
-		{path: "go/token", dir: "/go/src/go/token"},
-	},
-	"index": {
-		{path: "index", dir: "/go/src/index"},
-	},
-	"objfile": {
-		{path: "cmd/internal/objfile", dir: "/go/src/cmd/internal/objfile"},
-	},
-	"x86asm": {
-		{path: "cmd/internal/rsc.io/x86/x86asm", dir: "/go/src/cmd/internal/rsc.io/x86/x86asm"},
-	},
-	"rand": {
-		{path: "crypto/rand", dir: "/go/src/crypto/rand"},
-		{path: "math/rand", dir: "/go/src/math/rand"},
-	},
-	"pkix": {
-		{path: "crypto/x509/pkix", dir: "/go/src/crypto/x509/pkix"},
-	},
-	"macho": {
-		{path: "debug/macho", dir: "/go/src/debug/macho"},
-	},
-	"gob": {
-		{path: "encoding/gob", dir: "/go/src/encoding/gob"},
-	},
-	"parser": {
-		{path: "go/parser", dir: "/go/src/go/parser"},
-	},
-	"adler32": {
-		{path: "hash/adler32", dir: "/go/src/hash/adler32"},
-	},
-	"png": {
-		{path: "image/png", dir: "/go/src/image/png"},
-	},
-	"sort": {
-		{path: "sort", dir: "/go/src/sort"},
-	},
-	"text": {
-		{path: "text", dir: "/go/src/text"},
-	},
-	"bytes": {
-		{path: "bytes", dir: "/go/src/bytes"},
-	},
-	"pack": {
-		{path: "cmd/pack", dir: "/go/src/cmd/pack"},
-	},
-	"pprof": {
-		{path: "cmd/pprof", dir: "/go/src/cmd/pprof"},
-		{path: "net/http/pprof", dir: "/go/src/net/http/pprof"},
-		{path: "runtime/pprof", dir: "/go/src/runtime/pprof"},
-	},
-	"tempfile": {
-		{path: "cmd/pprof/internal/tempfile", dir: "/go/src/cmd/pprof/internal/tempfile"},
-	},
-	"elliptic": {
-		{path: "crypto/elliptic", dir: "/go/src/crypto/elliptic"},
-	},
-	"gif": {
-		{path: "image/gif", dir: "/go/src/image/gif"},
-	},
-	"syscall": {
-		{path: "internal/syscall", dir: "/go/src/internal/syscall"},
-		{path: "syscall", dir: "/go/src/syscall"},
-	},
-	"log": {
-		{path: "log", dir: "/go/src/log"},
-	},
-	"net": {
-		{path: "net", dir: "/go/src/net"},
-	},
-	"filepath": {
-		{path: "path/filepath", dir: "/go/src/path/filepath"},
-	},
-	"ld": {
-		{path: "cmd/link/internal/ld", dir: "/go/src/cmd/link/internal/ld"},
-	},
-	"dsa": {
-		{path: "crypto/dsa", dir: "/go/src/crypto/dsa"},
-	},
-	"md5": {
-		{path: "crypto/md5", dir: "/go/src/crypto/md5"},
-	},
-	"rsa": {
-		{path: "crypto/rsa", dir: "/go/src/crypto/rsa"},
-	},
-	"elf": {
-		{path: "debug/elf", dir: "/go/src/debug/elf"},
-	},
-	"errors": {
-		{path: "errors", dir: "/go/src/errors"},
-	},
-	"format": {
-		{path: "go/format", dir: "/go/src/go/format"},
-		{path: "internal/format", dir: "/go/src/internal/format"},
-	},
-	"fnv": {
-		{path: "hash/fnv", dir: "/go/src/hash/fnv"},
-	},
-	"appengine": {
-		{path: "appengine", dir: ""},
-	},
-	"api": {
-		{path: "cmd/api", dir: "/go/src/cmd/api"},
-	},
-	"zlib": {
-		{path: "compress/zlib", dir: "/go/src/compress/zlib"},
-	},
-	"debug": {
-		{path: "debug", dir: "/go/src/debug"},
-		{path: "runtime/debug", dir: "/go/src/runtime/debug"},
-	},
-	"plan9obj": {
-		{path: "debug/plan9obj", dir: "/go/src/debug/plan9obj"},
-	},
-	"base64": {
-		{path: "encoding/base64", dir: "/go/src/encoding/base64"},
-	},
-	"binary": {
-		{path: "encoding/binary", dir: "/go/src/encoding/binary"},
-	},
-	"importer": {
-		{path: "go/importer", dir: "/go/src/go/importer"},
-	},
-	"gcimporter": {
-		{path: "go/internal/gcimporter", dir: "/go/src/go/internal/gcimporter"},
-	},
-	"imageutil": {
-		{path: "image/internal/imageutil", dir: "/go/src/image/internal/imageutil"},
-	},
-	"quotedprintable": {
-		{path: "mime/quotedprintable", dir: "/go/src/mime/quotedprintable"},
-	},
-	"http": {
-		{path: "net/http", dir: "/go/src/net/http"},
-	},
-	"nm": {
-		{path: "cmd/nm", dir: "/go/src/cmd/nm"},
-	},
-	"lzw": {
-		{path: "compress/lzw", dir: "/go/src/compress/lzw"},
-	},
-	"ring": {
-		{path: "container/ring", dir: "/go/src/container/ring"},
-	},
-	"palette": {
-		{path: "image/color/palette", dir: "/go/src/image/color/palette"},
-	},
-	"testing": {
-		{path: "testing", dir: "/go/src/testing"},
-	},
-	"archive": {
-		{path: "archive", dir: "/go/src/archive"},
-	},
-	"encoding": {
-		{path: "encoding", dir: "/go/src/encoding"},
-	},
-	"signal": {
-		{path: "os/signal", dir: "/go/src/os/signal"},
-	},
-	"dist": {
-		{path: "cmd/dist", dir: "/go/src/cmd/dist"},
-	},
-	"report": {
-		{path: "cmd/pprof/internal/report", dir: "/go/src/cmd/pprof/internal/report"},
-	},
-	"yacc": {
-		{path: "cmd/yacc", dir: "/go/src/cmd/yacc"},
-	},
-	"subtle": {
-		{path: "crypto/subtle", dir: "/go/src/crypto/subtle"},
-	},
-	"math": {
-		{path: "math", dir: "/go/src/math"},
-	},
-	"lex": {
-		{path: "cmd/asm/internal/lex", dir: "/go/src/cmd/asm/internal/lex"},
-	},
-	"pe": {
-		{path: "debug/pe", dir: "/go/src/debug/pe"},
-	},
-	"testenv": {
-		{path: "internal/testenv", dir: "/go/src/internal/testenv"},
-	},
-	"ppc64": {
-		{path: "cmd/compile/internal/ppc64", dir: "/go/src/cmd/compile/internal/ppc64"},
-		{path: "cmd/internal/obj/ppc64", dir: "/go/src/cmd/internal/obj/ppc64"},
-		{path: "cmd/link/internal/ppc64", dir: "/go/src/cmd/link/internal/ppc64"},
-	},
-	"goobj": {
-		{path: "cmd/internal/goobj", dir: "/go/src/cmd/internal/goobj"},
-	},
-	"svg": {
-		{path: "cmd/pprof/internal/svg", dir: "/go/src/cmd/pprof/internal/svg"},
-	},
-	"cipher": {
-		{path: "crypto/cipher", dir: "/go/src/crypto/cipher"},
-	},
-	"pem": {
-		{path: "encoding/pem", dir: "/go/src/encoding/pem"},
-	},
-	"crc32": {
-		{path: "hash/crc32", dir: "/go/src/hash/crc32"},
-	},
-	"image": {
-		{path: "image", dir: "/go/src/image"},
-	},
-	"suffixarray": {
-		{path: "index/suffixarray", dir: "/go/src/index/suffixarray"},
-	},
-	"ioutil": {
-		{path: "io/ioutil", dir: "/go/src/io/ioutil"},
-	},
-	"httputil": {
-		{path: "net/http/httputil", dir: "/go/src/net/http/httputil"},
-	},
-	"gc": {
-		{path: "cmd/compile/internal/gc", dir: "/go/src/cmd/compile/internal/gc"},
-	},
-	"csv": {
-		{path: "encoding/csv", dir: "/go/src/encoding/csv"},
-	},
-	"json": {
-		{path: "encoding/json", dir: "/go/src/encoding/json"},
-	},
-	"sync": {
-		{path: "sync", dir: "/go/src/sync"},
-	},
-	"go": {
-		{path: "cmd/go", dir: "/go/src/cmd/go"},
-		{path: "go", dir: "/go/src/go"},
-	},
-	"gzip": {
-		{path: "compress/gzip", dir: "/go/src/compress/gzip"},
+	"database": {
+		{path: "database", dir: "/go/src/database"},
 	},
 	"sql": {
 		{path: "database/sql", dir: "/go/src/database/sql"},
 	},
-	"xml": {
-		{path: "encoding/xml", dir: "/go/src/encoding/xml"},
+	"unsafe": {
+		{path: "unsafe", dir: "/go/src/unsafe"},
 	},
-	"tabwriter": {
-		{path: "text/tabwriter", dir: "/go/src/text/tabwriter"},
+	"encoding": {
+		{path: "encoding", dir: "/go/src/encoding"},
+	},
+	"errors": {
+		{path: "errors", dir: "/go/src/errors"},
+	},
+	"image": {
+		{path: "image", dir: "/go/src/image"},
+	},
+	"testenv": {
+		{path: "internal/testenv", dir: "/go/src/internal/testenv"},
+	},
+	"math": {
+		{path: "math", dir: "/go/src/math"},
+	},
+	"cmd": {
+		{path: "cmd", dir: "/go/src/cmd"},
+	},
+	"arch": {
+		{path: "cmd/asm/internal/arch", dir: "/go/src/cmd/asm/internal/arch"},
+	},
+	"sha512": {
+		{path: "crypto/sha512", dir: "/go/src/crypto/sha512"},
+	},
+	"textproto": {
+		{path: "net/textproto", dir: "/go/src/net/textproto"},
 	},
 	"time": {
 		{path: "time", dir: "/go/src/time"},
 	},
-	"hmac": {
-		{path: "crypto/hmac", dir: "/go/src/crypto/hmac"},
+	"fmt": {
+		{path: "fmt", dir: "/go/src/fmt"},
 	},
-	"exec": {
-		{path: "os/exec", dir: "/go/src/os/exec"},
+	"html": {
+		{path: "html", dir: "/go/src/html"},
+	},
+	"ioutil": {
+		{path: "io/ioutil", dir: "/go/src/io/ioutil"},
+	},
+	"socktest": {
+		{path: "net/internal/socktest", dir: "/go/src/net/internal/socktest"},
+	},
+	"jsonrpc": {
+		{path: "net/rpc/jsonrpc", dir: "/go/src/net/rpc/jsonrpc"},
+	},
+	"cover": {
+		{path: "cmd/cover", dir: "/go/src/cmd/cover"},
+	},
+	"vet": {
+		{path: "cmd/vet", dir: "/go/src/cmd/vet"},
+	},
+	"rsa": {
+		{path: "crypto/rsa", dir: "/go/src/crypto/rsa"},
+	},
+	"x86asm": {
+		{path: "cmd/internal/rsc.io/x86/x86asm", dir: "/go/src/cmd/internal/rsc.io/x86/x86asm"},
+	},
+	"expvar": {
+		{path: "expvar", dir: "/go/src/expvar"},
+	},
+	"ast": {
+		{path: "go/ast", dir: "/go/src/go/ast"},
+	},
+	"signal": {
+		{path: "os/signal", dir: "/go/src/os/signal"},
+	},
+	"parse": {
+		{path: "text/template/parse", dir: "/go/src/text/template/parse"},
+	},
+	"bufio": {
+		{path: "bufio", dir: "/go/src/bufio"},
 	},
 	"builtin": {
 		{path: "builtin", dir: "/go/src/builtin"},
 		{path: "cmd/compile/internal/gc/builtin", dir: "/go/src/cmd/compile/internal/gc/builtin"},
 	},
-	"profile": {
-		{path: "cmd/pprof/internal/profile", dir: "/go/src/cmd/pprof/internal/profile"},
+	"addr2line": {
+		{path: "cmd/addr2line", dir: "/go/src/cmd/addr2line"},
 	},
-	"tls": {
-		{path: "crypto/tls", dir: "/go/src/crypto/tls"},
+	"syscall": {
+		{path: "internal/syscall", dir: "/go/src/internal/syscall"},
+		{path: "syscall", dir: "/go/src/syscall"},
 	},
-	"singleflight": {
-		{path: "internal/singleflight", dir: "/go/src/internal/singleflight"},
+	"rpc": {
+		{path: "net/rpc", dir: "/go/src/net/rpc"},
+	},
+	"goobj": {
+		{path: "cmd/internal/goobj", dir: "/go/src/cmd/internal/goobj"},
+	},
+	"commands": {
+		{path: "cmd/pprof/internal/commands", dir: "/go/src/cmd/pprof/internal/commands"},
+	},
+	"hmac": {
+		{path: "crypto/hmac", dir: "/go/src/crypto/hmac"},
+	},
+	"pem": {
+		{path: "encoding/pem", dir: "/go/src/encoding/pem"},
+	},
+	"printer": {
+		{path: "go/printer", dir: "/go/src/go/printer"},
+	},
+	"net": {
+		{path: "net", dir: "/go/src/net"},
+	},
+	"cookiejar": {
+		{path: "net/http/cookiejar", dir: "/go/src/net/http/cookiejar"},
+	},
+	"exec": {
+		{path: "os/exec", dir: "/go/src/os/exec"},
+	},
+	"list": {
+		{path: "container/list", dir: "/go/src/container/list"},
+	},
+	"dwarf": {
+		{path: "debug/dwarf", dir: "/go/src/debug/dwarf"},
+	},
+	"hex": {
+		{path: "encoding/hex", dir: "/go/src/encoding/hex"},
 	},
 	"strings": {
 		{path: "strings", dir: "/go/src/strings"},
 	},
+	"flag": {
+		{path: "flag", dir: "/go/src/flag"},
+	},
+	"crc32": {
+		{path: "hash/crc32", dir: "/go/src/hash/crc32"},
+	},
+	"text": {
+		{path: "text", dir: "/go/src/text"},
+	},
+	"unicode": {
+		{path: "unicode", dir: "/go/src/unicode"},
+	},
+	"utf8": {
+		{path: "unicode/utf8", dir: "/go/src/unicode/utf8"},
+	},
+	"driver": {
+		{path: "cmd/pprof/internal/driver", dir: "/go/src/cmd/pprof/internal/driver"},
+		{path: "database/sql/driver", dir: "/go/src/database/sql/driver"},
+	},
+	"pkix": {
+		{path: "crypto/x509/pkix", dir: "/go/src/crypto/x509/pkix"},
+	},
+	"debug": {
+		{path: "debug", dir: "/go/src/debug"},
+		{path: "runtime/debug", dir: "/go/src/runtime/debug"},
+	},
+	"httputil": {
+		{path: "net/http/httputil", dir: "/go/src/net/http/httputil"},
+	},
+	"smtp": {
+		{path: "net/smtp", dir: "/go/src/net/smtp"},
+	},
+	"filepath": {
+		{path: "path/filepath", dir: "/go/src/path/filepath"},
+	},
+	"compress": {
+		{path: "compress", dir: "/go/src/compress"},
+	},
+	"elf": {
+		{path: "debug/elf", dir: "/go/src/debug/elf"},
+	},
+	"template": {
+		{path: "html/template", dir: "/go/src/html/template"},
+		{path: "text/template", dir: "/go/src/text/template"},
+	},
+	"doc": {
+		{path: "cmd/doc", dir: "/go/src/cmd/doc"},
+		{path: "go/doc", dir: "/go/src/go/doc"},
+	},
+	"imageutil": {
+		{path: "image/internal/imageutil", dir: "/go/src/image/internal/imageutil"},
+	},
+	"atomic": {
+		{path: "sync/atomic", dir: "/go/src/sync/atomic"},
+	},
+	"format": {
+		{path: "go/format", dir: "/go/src/go/format"},
+		{path: "internal/format", dir: "/go/src/internal/format"},
+	},
+	"adler32": {
+		{path: "hash/adler32", dir: "/go/src/hash/adler32"},
+	},
+	"dist": {
+		{path: "cmd/dist", dir: "/go/src/cmd/dist"},
+	},
+	"pe": {
+		{path: "debug/pe", dir: "/go/src/debug/pe"},
+	},
+	"csv": {
+		{path: "encoding/csv", dir: "/go/src/encoding/csv"},
+	},
+	"tls": {
+		{path: "crypto/tls", dir: "/go/src/crypto/tls"},
+	},
+	"importer": {
+		{path: "go/importer", dir: "/go/src/go/importer"},
+	},
+	"os": {
+		{path: "os", dir: "/go/src/os"},
+	},
+	"archive": {
+		{path: "archive", dir: "/go/src/archive"},
+	},
+	"svg": {
+		{path: "cmd/pprof/internal/svg", dir: "/go/src/cmd/pprof/internal/svg"},
+	},
+	"ring": {
+		{path: "container/ring", dir: "/go/src/container/ring"},
+	},
 	"quick": {
 		{path: "testing/quick", dir: "/go/src/testing/quick"},
 	},
-	"cloudsql": {
-		{path: "appengine/cloudsql", dir: ""},
+	"subtle": {
+		{path: "crypto/subtle", dir: "/go/src/crypto/subtle"},
 	},
 	"x509": {
 		{path: "crypto/x509", dir: "/go/src/crypto/x509"},
 	},
-	"color": {
-		{path: "image/color", dir: "/go/src/image/color"},
+	"runtime": {
+		{path: "runtime", dir: "/go/src/runtime"},
+	},
+	"zlib": {
+		{path: "compress/zlib", dir: "/go/src/compress/zlib"},
+	},
+	"cipher": {
+		{path: "crypto/cipher", dir: "/go/src/crypto/cipher"},
+	},
+	"syntax": {
+		{path: "regexp/syntax", dir: "/go/src/regexp/syntax"},
+	},
+	"profile": {
+		{path: "cmd/pprof/internal/profile", dir: "/go/src/cmd/pprof/internal/profile"},
+	},
+	"symbolz": {
+		{path: "cmd/pprof/internal/symbolz", dir: "/go/src/cmd/pprof/internal/symbolz"},
+	},
+	"cmplx": {
+		{path: "math/cmplx", dir: "/go/src/math/cmplx"},
+	},
+	"x86": {
+		{path: "cmd/compile/internal/x86", dir: "/go/src/cmd/compile/internal/x86"},
+		{path: "cmd/internal/obj/x86", dir: "/go/src/cmd/internal/obj/x86"},
+		{path: "cmd/internal/rsc.io/x86", dir: "/go/src/cmd/internal/rsc.io/x86"},
+		{path: "cmd/link/internal/x86", dir: "/go/src/cmd/link/internal/x86"},
+	},
+	"fetch": {
+		{path: "cmd/pprof/internal/fetch", dir: "/go/src/cmd/pprof/internal/fetch"},
+	},
+	"log": {
+		{path: "log", dir: "/go/src/log"},
+	},
+	"macho": {
+		{path: "debug/macho", dir: "/go/src/debug/macho"},
+	},
+	"unix": {
+		{path: "internal/syscall/unix", dir: "/go/src/internal/syscall/unix"},
+	},
+	"registry": {
+		{path: "internal/syscall/windows/registry", dir: "/go/src/internal/syscall/windows/registry"},
+	},
+	"race": {
+		{path: "runtime/race", dir: "/go/src/runtime/race"},
+	},
+	"asm": {
+		{path: "cmd/asm", dir: "/go/src/cmd/asm"},
+		{path: "cmd/asm/internal/asm", dir: "/go/src/cmd/asm/internal/asm"},
+	},
+	"gcprog": {
+		{path: "cmd/internal/gcprog", dir: "/go/src/cmd/internal/gcprog"},
+	},
+	"gzip": {
+		{path: "compress/gzip", dir: "/go/src/compress/gzip"},
 	},
 	"jpeg": {
 		{path: "image/jpeg", dir: "/go/src/image/jpeg"},
 	},
-	"windows": {
-		{path: "internal/syscall/windows", dir: "/go/src/internal/syscall/windows"},
+	"mail": {
+		{path: "net/mail", dir: "/go/src/net/mail"},
 	},
-	"cookiejar": {
-		{path: "net/http/cookiejar", dir: "/go/src/net/http/cookiejar"},
+	"lzw": {
+		{path: "compress/lzw", dir: "/go/src/compress/lzw"},
+	},
+	"gosym": {
+		{path: "debug/gosym", dir: "/go/src/debug/gosym"},
+	},
+	"gcimporter": {
+		{path: "go/internal/gcimporter", dir: "/go/src/go/internal/gcimporter"},
+	},
+	"md5": {
+		{path: "crypto/md5", dir: "/go/src/crypto/md5"},
+	},
+	"png": {
+		{path: "image/png", dir: "/go/src/image/png"},
+	},
+	"suffixarray": {
+		{path: "index/suffixarray", dir: "/go/src/index/suffixarray"},
+	},
+	"singleflight": {
+		{path: "internal/singleflight", dir: "/go/src/internal/singleflight"},
+	},
+	"iotest": {
+		{path: "testing/iotest", dir: "/go/src/testing/iotest"},
+	},
+	"lex": {
+		{path: "cmd/asm/internal/lex", dir: "/go/src/cmd/asm/internal/lex"},
+	},
+	"tempfile": {
+		{path: "cmd/pprof/internal/tempfile", dir: "/go/src/cmd/pprof/internal/tempfile"},
+	},
+	"bzip2": {
+		{path: "compress/bzip2", dir: "/go/src/compress/bzip2"},
+	},
+	"gccgoimporter": {
+		{path: "go/internal/gccgoimporter", dir: "/go/src/go/internal/gccgoimporter"},
+	},
+	"gif": {
+		{path: "image/gif", dir: "/go/src/image/gif"},
+	},
+	"reflect": {
+		{path: "reflect", dir: "/go/src/reflect"},
+	},
+	"utf16": {
+		{path: "unicode/utf16", dir: "/go/src/unicode/utf16"},
+	},
+	"api": {
+		{path: "cmd/api", dir: "/go/src/cmd/api"},
+	},
+	"nm": {
+		{path: "cmd/nm", dir: "/go/src/cmd/nm"},
+	},
+	"whitelist": {
+		{path: "cmd/vet/whitelist", dir: "/go/src/cmd/vet/whitelist"},
+	},
+	"mime": {
+		{path: "mime", dir: "/go/src/mime"},
+	},
+	"bytes": {
+		{path: "bytes", dir: "/go/src/bytes"},
+	},
+	"flate": {
+		{path: "compress/flate", dir: "/go/src/compress/flate"},
+	},
+	"dsa": {
+		{path: "crypto/dsa", dir: "/go/src/crypto/dsa"},
 	},
 	"internal": {
 		{path: "cmd/asm/internal", dir: "/go/src/cmd/asm/internal"},
@@ -516,123 +460,170 @@ var stdpkgs = map[string][]stdpkg{
 		{path: "net/http/internal", dir: "/go/src/net/http/internal"},
 		{path: "net/internal", dir: "/go/src/net/internal"},
 	},
-	"link": {
-		{path: "cmd/link", dir: "/go/src/cmd/link"},
+	"ld": {
+		{path: "cmd/link/internal/ld", dir: "/go/src/cmd/link/internal/ld"},
+	},
+	"strconv": {
+		{path: "strconv", dir: "/go/src/strconv"},
+	},
+	"asn1": {
+		{path: "encoding/asn1", dir: "/go/src/encoding/asn1"},
+	},
+	"build": {
+		{path: "go/build", dir: "/go/src/go/build"},
+	},
+	"zip": {
+		{path: "archive/zip", dir: "/go/src/archive/zip"},
+	},
+	"gofmt": {
+		{path: "cmd/gofmt", dir: "/go/src/cmd/gofmt"},
+	},
+	"container": {
+		{path: "container", dir: "/go/src/container"},
+	},
+	"fix": {
+		{path: "cmd/fix", dir: "/go/src/cmd/fix"},
+	},
+	"xml": {
+		{path: "encoding/xml", dir: "/go/src/encoding/xml"},
 	},
 	"types": {
 		{path: "go/types", dir: "/go/src/go/types"},
 	},
-	"crc64": {
-		{path: "hash/crc64", dir: "/go/src/hash/crc64"},
+	"hash": {
+		{path: "hash", dir: "/go/src/hash"},
 	},
-	"registry": {
-		{path: "internal/syscall/windows/registry", dir: "/go/src/internal/syscall/windows/registry"},
+	"io": {
+		{path: "io", dir: "/go/src/io"},
 	},
-	"path": {
-		{path: "path", dir: "/go/src/path"},
+	"fcgi": {
+		{path: "net/http/fcgi", dir: "/go/src/net/http/fcgi"},
 	},
-	"asm": {
-		{path: "cmd/asm", dir: "/go/src/cmd/asm"},
-		{path: "cmd/asm/internal/asm", dir: "/go/src/cmd/asm/internal/asm"},
+	"sha256": {
+		{path: "crypto/sha256", dir: "/go/src/crypto/sha256"},
 	},
-	"flags": {
-		{path: "cmd/asm/internal/flags", dir: "/go/src/cmd/asm/internal/flags"},
+	"json": {
+		{path: "encoding/json", dir: "/go/src/encoding/json"},
 	},
-	"x86": {
-		{path: "cmd/compile/internal/x86", dir: "/go/src/cmd/compile/internal/x86"},
-		{path: "cmd/internal/obj/x86", dir: "/go/src/cmd/internal/obj/x86"},
-		{path: "cmd/internal/rsc.io/x86", dir: "/go/src/cmd/internal/rsc.io/x86"},
-		{path: "cmd/link/internal/x86", dir: "/go/src/cmd/link/internal/x86"},
+	"scanner": {
+		{path: "go/scanner", dir: "/go/src/go/scanner"},
+		{path: "text/scanner", dir: "/go/src/text/scanner"},
 	},
-	"dwarf": {
-		{path: "debug/dwarf", dir: "/go/src/debug/dwarf"},
+	"gob": {
+		{path: "encoding/gob", dir: "/go/src/encoding/gob"},
 	},
-	"hex": {
-		{path: "encoding/hex", dir: "/go/src/encoding/hex"},
+	"tabwriter": {
+		{path: "text/tabwriter", dir: "/go/src/text/tabwriter"},
 	},
-	"cmplx": {
-		{path: "math/cmplx", dir: "/go/src/math/cmplx"},
+	"objdump": {
+		{path: "cmd/objdump", dir: "/go/src/cmd/objdump"},
 	},
-	"rpc": {
-		{path: "net/rpc", dir: "/go/src/net/rpc"},
+	"yacc": {
+		{path: "cmd/yacc", dir: "/go/src/cmd/yacc"},
 	},
-	"user": {
-		{path: "os/user", dir: "/go/src/os/user"},
+	"heap": {
+		{path: "container/heap", dir: "/go/src/container/heap"},
 	},
-	"utf16": {
-		{path: "unicode/utf16", dir: "/go/src/unicode/utf16"},
+	"report": {
+		{path: "cmd/pprof/internal/report", dir: "/go/src/cmd/pprof/internal/report"},
 	},
-	"cmd": {
-		{path: "cmd", dir: "/go/src/cmd"},
-	},
-	"amd64": {
-		{path: "cmd/compile/internal/amd64", dir: "/go/src/cmd/compile/internal/amd64"},
-		{path: "cmd/link/internal/amd64", dir: "/go/src/cmd/link/internal/amd64"},
-	},
-	"rsc.io": {
-		{path: "cmd/internal/rsc.io", dir: "/go/src/cmd/internal/rsc.io"},
-	},
-	"fetch": {
-		{path: "cmd/pprof/internal/fetch", dir: "/go/src/cmd/pprof/internal/fetch"},
-	},
-	"whitelist": {
-		{path: "cmd/vet/whitelist", dir: "/go/src/cmd/vet/whitelist"},
-	},
-	"list": {
-		{path: "container/list", dir: "/go/src/container/list"},
-	},
-	"gccgoimporter": {
-		{path: "go/internal/gccgoimporter", dir: "/go/src/go/internal/gccgoimporter"},
-	},
-	"socktest": {
-		{path: "net/internal/socktest", dir: "/go/src/net/internal/socktest"},
-	},
-	"reflect": {
-		{path: "reflect", dir: "/go/src/reflect"},
-	},
-	"parse": {
-		{path: "text/template/parse", dir: "/go/src/text/template/parse"},
+	"symbolizer": {
+		{path: "cmd/pprof/internal/symbolizer", dir: "/go/src/cmd/pprof/internal/symbolizer"},
 	},
 	"trace": {
 		{path: "cmd/trace", dir: "/go/src/cmd/trace"},
 		{path: "internal/trace", dir: "/go/src/internal/trace"},
 		{path: "runtime/trace", dir: "/go/src/runtime/trace"},
 	},
-	"heap": {
-		{path: "container/heap", dir: "/go/src/container/heap"},
+	"crypto": {
+		{path: "crypto", dir: "/go/src/crypto"},
 	},
-	"ecdsa": {
-		{path: "crypto/ecdsa", dir: "/go/src/crypto/ecdsa"},
+	"sha1": {
+		{path: "crypto/sha1", dir: "/go/src/crypto/sha1"},
 	},
-	"io": {
-		{path: "io", dir: "/go/src/io"},
+	"obj": {
+		{path: "cmd/internal/obj", dir: "/go/src/cmd/internal/obj"},
+	},
+	"objfile": {
+		{path: "cmd/internal/objfile", dir: "/go/src/cmd/internal/objfile"},
+	},
+	"plugin": {
+		{path: "cmd/pprof/internal/plugin", dir: "/go/src/cmd/pprof/internal/plugin"},
+	},
+	"binary": {
+		{path: "encoding/binary", dir: "/go/src/encoding/binary"},
+	},
+	"sort": {
+		{path: "sort", dir: "/go/src/sort"},
+	},
+	"plan9obj": {
+		{path: "debug/plan9obj", dir: "/go/src/debug/plan9obj"},
+	},
+	"base32": {
+		{path: "encoding/base32", dir: "/go/src/encoding/base32"},
+	},
+	"parser": {
+		{path: "go/parser", dir: "/go/src/go/parser"},
 	},
 	"multipart": {
 		{path: "mime/multipart", dir: "/go/src/mime/multipart"},
 	},
-	"url": {
-		{path: "net/url", dir: "/go/src/net/url"},
+	"http": {
+		{path: "net/http", dir: "/go/src/net/http"},
 	},
-	"vet": {
-		{path: "cmd/vet", dir: "/go/src/cmd/vet"},
+	"cgo": {
+		{path: "cmd/cgo", dir: "/go/src/cmd/cgo"},
+		{path: "runtime/cgo", dir: "/go/src/runtime/cgo"},
 	},
-	"compress": {
-		{path: "compress", dir: "/go/src/compress"},
+	"compile": {
+		{path: "cmd/compile", dir: "/go/src/cmd/compile"},
 	},
-	"asn1": {
-		{path: "encoding/asn1", dir: "/go/src/encoding/asn1"},
-	},
-	"fmt": {
-		{path: "fmt", dir: "/go/src/fmt"},
-	},
-	"unix": {
-		{path: "internal/syscall/unix", dir: "/go/src/internal/syscall/unix"},
-	},
-	"mime": {
-		{path: "mime", dir: "/go/src/mime"},
+	"go": {
+		{path: "cmd/go", dir: "/go/src/cmd/go"},
+		{path: "go", dir: "/go/src/go"},
 	},
 	"httptest": {
 		{path: "net/http/httptest", dir: "/go/src/net/http/httptest"},
+	},
+	"path": {
+		{path: "path", dir: "/go/src/path"},
+	},
+	"testing": {
+		{path: "testing", dir: "/go/src/testing"},
+	},
+	"elliptic": {
+		{path: "crypto/elliptic", dir: "/go/src/crypto/elliptic"},
+	},
+	"rand": {
+		{path: "crypto/rand", dir: "/go/src/crypto/rand"},
+		{path: "math/rand", dir: "/go/src/math/rand"},
+	},
+	"ascii85": {
+		{path: "encoding/ascii85", dir: "/go/src/encoding/ascii85"},
+	},
+	"base64": {
+		{path: "encoding/base64", dir: "/go/src/encoding/base64"},
+	},
+	"syslog": {
+		{path: "log/syslog", dir: "/go/src/log/syslog"},
+	},
+	"armasm": {
+		{path: "cmd/internal/rsc.io/arm/armasm", dir: "/go/src/cmd/internal/rsc.io/arm/armasm"},
+	},
+	"link": {
+		{path: "cmd/link", dir: "/go/src/cmd/link"},
+	},
+	"ecdsa": {
+		{path: "crypto/ecdsa", dir: "/go/src/crypto/ecdsa"},
+	},
+	"flags": {
+		{path: "cmd/asm/internal/flags", dir: "/go/src/cmd/asm/internal/flags"},
+	},
+	"gc": {
+		{path: "cmd/compile/internal/gc", dir: "/go/src/cmd/compile/internal/gc"},
+	},
+	"rsc.io": {
+		{path: "cmd/internal/rsc.io", dir: "/go/src/cmd/internal/rsc.io"},
 	},
 }
 

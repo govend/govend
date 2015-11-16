@@ -1,13 +1,7 @@
 package commands
 
-import (
-	"log"
-
-	"github.com/gophersaurus/govend/repo"
-	"github.com/spf13/cobra"
-)
-
 // InstallCMD describes the install command.
+/*
 var InstallCMD = &cobra.Command{
 	Use:   "install",
 	Short: "Download a project's external package dependencies.",
@@ -18,3 +12,4 @@ var InstallCMD = &cobra.Command{
 		}
 	},
 }
+*/

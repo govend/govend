@@ -28,10 +28,11 @@ var ListCMD = &cobra.Command{
 	Long:  "List external package dependencies in a golang project directory.",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		if len(args) > 1 {
+		if len(args) > 0 {
 			if err := packages.ListCMD(args[0], vendorDir, listWrite, listFormat, listAll, listVendor); err != nil {
 				log.Fatal(err)
 			}
+			return
 		}
 
 		if err := packages.ListCMD(".", vendorDir, listWrite, listFormat, listAll, listVendor); err != nil {

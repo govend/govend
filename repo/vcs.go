@@ -23,17 +23,6 @@ type VCS struct {
 	ExistsCmd string
 }
 
-// Repo RepoRoot
-type Repo struct {
-	VCS *VCS
-
-	// URL is the repository URL, including scheme
-	URL string
-
-	// ImportPath is the import path corresponding to the root of the repository
-	ImportPath string
-}
-
 // NewVCS
 func NewVCS(v *vcs.Cmd) (*VCS, error) {
 	switch v.Cmd {
@@ -65,15 +54,6 @@ func NewVCS(v *vcs.Cmd) (*VCS, error) {
 	}
 }
 
-// New returns a new Repo.
-func New(v *VCS, url, importpath string) *Repo {
-	return &Repo{
-		VCS:        v,
-		URL:        url,
-		ImportPath: importpath,
-	}
-}
-
 // Dir inspects dir and its parents to determine the version control
 // system and code repository to use. On return, root is the import path
 // corresponding to the root of the repository
@@ -88,32 +68,6 @@ func Dir(dir, srcRoot string) (*VCS, string, error) {
 		return nil, "", err
 	}
 	return vcsext, reporoot, nil
-}
-
-// ImportPath returns a new Repo.
-func ImportPath(importpath string, verbose bool) (*Repo, error) {
-	rr, err := vcs.RepoRootForImportPath(importpath, verbose)
-	if err != nil {
-		return nil, err
-	}
-	vcs, err := NewVCS(rr.VCS)
-	if err != nil {
-		return nil, err
-	}
-	return New(vcs, rr.Repo, rr.Root), nil
-}
-
-// ImportDynamic returns a new Repo.
-func ImportDynamic(importpath string, verbose bool) (*Repo, error) {
-	rr, err := vcs.RepoRootForImportDynamic(importpath, verbose)
-	if err != nil {
-		return nil, err
-	}
-	vcs, err := NewVCS(rr.VCS)
-	if err != nil {
-		return nil, err
-	}
-	return New(vcs, rr.Repo, rr.Root), nil
 }
 
 // Identify

@@ -1,19 +1,49 @@
-# Cobra
+![cobra logo](https://cloud.githubusercontent.com/assets/173412/10886352/ad566232-814f-11e5-9cd0-aa101788c117.png)
 
-A Commander for modern go CLI interactions
+Cobra is both a library for creating powerful modern CLI applications as well as a program to generate applications and command files.
+
+Many of the most widely used Go projects are built using Cobra including:
+
+* [Kubernetes](http://kubernetes.io/)
+* [Hugo](http://gohugo.io)
+* [rkt](https://github.com/coreos/rkt)
+* [Docker (distribution)](https://github.com/docker/distribution)
+* [OpenShift](https://www.openshift.com/)
+* [Delve](https://github.com/derekparker/delve)
+* [GopherJS](http://www.gopherjs.org/)
+* [CockroachDB](http://www.cockroachlabs.com/)
+* [Bleve](http://www.blevesearch.com/)
+* [ProjectAtomic (enterprise)](http://www.projectatomic.io/)
+* [Parse (CLI)](https://parse.com/)
+
 
 [![Build Status](https://travis-ci.org/spf13/cobra.svg)](https://travis-ci.org/spf13/cobra)
 
+![cobra](https://cloud.githubusercontent.com/assets/173412/10911369/84832a8e-8212-11e5-9f82-cc96660a4794.gif)
+
 ## Overview
 
-Cobra is a commander providing a simple interface to create powerful modern CLI
-interfaces similar to git & go tools. In addition to providing an interface, Cobra
-simultaneously provides a controller to organize your application code.
+Cobra is a library providing a simple interface to create powerful modern CLI
+interfaces similar to git & go tools.
 
-Inspired by go, go-Commander, gh and subcommand, Cobra improves on these by
-providing **fully posix compliant flags** (including short & long versions),
-**nesting commands**, and the ability to **define your own help and usage** for any or
-all commands.
+Cobra is also an application that will generate your application scaffolding to rapidly
+develop a Cobra based application.
+
+Cobra provides:
+* Easy sub-command based CLIs: `app server`, `app fetch`, etc.
+* Fully posix compliant flags (including short & long versions)
+* Nested sub commands
+* Global, local and cascading flags
+* Easy generation of applications & commands with `cobra create appname` & `cobra add cmdname`
+* Intelligent suggestions (`app srver`.. did you mean `app server`)
+* Automatic help generation for commands and flags
+* Automatic detailed help for `app help [command]`
+* Automatic help flag recognition of `-h`, `--help`, etc.
+* Automatically generated bash autocomplete for your application
+* Automatically generated man pages for your application
+* Command aliases so you can change things without breaking them
+* The flexibilty to define your own help, usage, etc
+* Optional tight integration with [viper](http://github.com/spf13/viper) for 12 factor apps
 
 Cobra has an exceptionally clean interface and simple design without needless
 constructors or initialization methods.
@@ -55,7 +85,7 @@ A Command has the following structure:
 ### Flags
 
 A Flag is a way to modify the behavior of an command. Cobra supports
-fully posix compliant flags as well as the go flag package. 
+fully posix compliant flags as well as the go flag package.
 A Cobra command can define flags that persist through to children commands
 and flags that are only available to that command.
 
@@ -89,29 +119,33 @@ The root command represents your binary itself.
 
 Cobra doesn't require any special constructors. Simply create your commands.
 
-    var HugoCmd = &cobra.Command{
-        Use:   "hugo",
-        Short: "Hugo is a very fast static site generator",
-        Long: `A Fast and Flexible Static Site Generator built with
+```go
+var HugoCmd = &cobra.Command{
+	Use:   "hugo",
+	Short: "Hugo is a very fast static site generator",
+	Long: `A Fast and Flexible Static Site Generator built with
                 love by spf13 and friends in Go.
                 Complete documentation is available at http://hugo.spf13.com`,
-        Run: func(cmd *cobra.Command, args []string) {
-            // Do Stuff Here
-        },
-    }
+	Run: func(cmd *cobra.Command, args []string) {
+		// Do Stuff Here
+	},
+}
+```
 
 ### Create additional commands
 
 Additional commands can be defined.
 
-    var versionCmd = &cobra.Command{
-        Use:   "version",
-        Short: "Print the version number of Hugo",
-        Long:  `All software has versions. This is Hugo's`,
-        Run: func(cmd *cobra.Command, args []string) {
-            fmt.Println("Hugo Static Site Generator v0.9 -- HEAD")
-        },
-    }
+```go
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print the version number of Hugo",
+	Long:  `All software has versions. This is Hugo's`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Hugo Static Site Generator v0.9 -- HEAD")
+	},
+}
+```
 
 ### Attach command to its parent
 In this example we are attaching it to the root, but commands can be attached at any level.
@@ -168,59 +202,62 @@ by not providing a 'Run' for the 'rootCmd'.
 We have only defined one flag for a single command.
 
 More documentation about flags is available at https://github.com/spf13/pflag
+```go
+package main
 
-    import(
-        "github.com/spf13/cobra"
-        "fmt"
-        "strings"
-    )
+import (
+	"fmt"
+	"strings"
 
-    func main() {
+	"github.com/spf13/cobra"
+)
 
-        var echoTimes int
+func main() {
 
-        var cmdPrint = &cobra.Command{
-            Use:   "print [string to print]",
-            Short: "Print anything to the screen",
-            Long:  `print is for printing anything back to the screen.
+	var echoTimes int
+
+	var cmdPrint = &cobra.Command{
+		Use:   "print [string to print]",
+		Short: "Print anything to the screen",
+		Long: `print is for printing anything back to the screen.
             For many years people have printed back to the screen.
             `,
-            Run: func(cmd *cobra.Command, args []string) {
-                fmt.Println("Print: " + strings.Join(args, " "))
-            },
-        }
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("Print: " + strings.Join(args, " "))
+		},
+	}
 
-        var cmdEcho = &cobra.Command{
-            Use:   "echo [string to echo]",
-            Short: "Echo anything to the screen",
-            Long:  `echo is for echoing anything back.
+	var cmdEcho = &cobra.Command{
+		Use:   "echo [string to echo]",
+		Short: "Echo anything to the screen",
+		Long: `echo is for echoing anything back.
             Echo works a lot like print, except it has a child command.
             `,
-            Run: func(cmd *cobra.Command, args []string) {
-                fmt.Println("Print: " + strings.Join(args, " "))
-            },
-        }
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("Print: " + strings.Join(args, " "))
+		},
+	}
 
-        var cmdTimes = &cobra.Command{
-            Use:   "times [# times] [string to echo]",
-            Short: "Echo anything to the screen more times",
-            Long:  `echo things multiple times back to the user by providing
+	var cmdTimes = &cobra.Command{
+		Use:   "times [# times] [string to echo]",
+		Short: "Echo anything to the screen more times",
+		Long: `echo things multiple times back to the user by providing
             a count and a string.`,
-            Run: func(cmd *cobra.Command, args []string) {
-                for i:=0; i < echoTimes; i++ {
-                    fmt.Println("Echo: " + strings.Join(args, " "))
-                }
-            },
-        }
+		Run: func(cmd *cobra.Command, args []string) {
+			for i := 0; i < echoTimes; i++ {
+				fmt.Println("Echo: " + strings.Join(args, " "))
+			}
+		},
+	}
 
-        cmdTimes.Flags().IntVarP(&echoTimes, "times", "t", 1, "times to echo the input")
+	cmdTimes.Flags().IntVarP(&echoTimes, "times", "t", 1, "times to echo the input")
 
-        var rootCmd = &cobra.Command{Use: "app"}
-        rootCmd.AddCommand(cmdPrint, cmdEcho)
-        cmdEcho.AddCommand(cmdTimes)
-        rootCmd.Execute()
-    }
-
+	var rootCmd = &cobra.Command{Use: "app"}
+	rootCmd.AddCommand(cmdPrint, cmdEcho)
+	cmdEcho.AddCommand(cmdTimes)
+	rootCmd.Execute()
+}
+```
 For a more complete example of a larger application, please checkout [Hugo](http://hugo.spf13.com)
 
 ## The Help Command
@@ -276,20 +313,22 @@ around it. In fact you can provide your own if you want.
 
 You can provide your own Help command or you own template for the default command to use.
 
-The default help command is 
+The default help command is
 
-    func (c *Command) initHelp() {
-        if c.helpCommand == nil {
-            c.helpCommand = &Command{
-                Use:   "help [command]",
-                Short: "Help about any command",
-                Long: `Help provides help for any command in the application.
+```go
+func (c *Command) initHelp() {
+	if c.helpCommand == nil {
+		c.helpCommand = &Command{
+			Use:   "help [command]",
+			Short: "Help about any command",
+			Long: `Help provides help for any command in the application.
         Simply type ` + c.Name() + ` help [path to command] for full details.`,
-                Run: c.HelpFunc(),
-            }
-        }
-        c.AddCommand(c.helpCommand)
-    }
+			Run: c.HelpFunc(),
+		}
+	}
+	c.AddCommand(c.helpCommand)
+}
+```
 
 You can provide your own command, function or template through the following methods.
 
@@ -350,13 +389,13 @@ Like help the function and template are over ridable through public methods.
 
 ## PreRun or PostRun Hooks
 
-It is possible to run functions before or after the main `Run` function of your command. The `PersistentPreRun` and `PreRun` functions will be executed before `Run`. `PersistendPostRun` and `PostRun` will be executed after `Run`.  The `Persistent*Run` functions will be inherrited by children if they do not declare their own.  These function are run in the following order:
+It is possible to run functions before or after the main `Run` function of your command. The `PersistentPreRun` and `PreRun` functions will be executed before `Run`. `PersistentPostRun` and `PostRun` will be executed after `Run`.  The `Persistent*Run` functions will be inherrited by children if they do not declare their own.  These function are run in the following order:
 
 - `PersistentPreRun`
 - `PreRun`
 - `Run`
 - `PostRun`
-- `PersistenPostRun`
+- `PersistentPostRun`
 
 And example of two commands which use all of these features is below.  When the subcommand in executed it will run the root command's `PersistentPreRun` but not the root command's `PersistentPostRun`
 
@@ -418,6 +457,48 @@ func main() {
 }
 ```
 
+
+## Alternative Error Handling
+
+Cobra also has functions where the return signature is an error. This allows for errors to bubble up to the top, providing a way to handle the  errors in one location. The current list of functions that return an error is:
+
+* PersistentPreRunE
+* PreRunE
+* RunE
+* PostRunE
+* PersistentPostRunE
+
+**Example Usage using RunE:**
+
+```go
+package main
+
+import (
+	"errors"
+	"log"
+
+	"github.com/spf13/cobra"
+)
+
+func main() {
+	var rootCmd = &cobra.Command{
+		Use:   "hugo",
+		Short: "Hugo is a very fast static site generator",
+		Long: `A Fast and Flexible Static Site Generator built with
+                love by spf13 and friends in Go.
+                Complete documentation is available at http://hugo.spf13.com`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			// Do Stuff Here
+			return errors.New("some random error")
+		},
+	}
+
+	if err := rootCmd.Execute(); err != nil {
+		log.Fatal(err)
+	}
+}
+```
+
 ## Suggestions when "unknown command" happens
 
 Cobra will print automatic suggestions when "unknown command" errors happen. This allows Cobra to behavior similarly to the `git` command when a typo happens. For example:
@@ -438,7 +519,7 @@ If you need to disable suggestions or tweak the string distance in your command,
 
     command.DisableSuggestions = true
 
-or 
+or
 
     command.SuggestionsMinimumDistance = 1
 
@@ -499,6 +580,12 @@ out everything Cobra knows about the flags for each command
 * **0.1.0** Sept 3, 2013
   * Implement first draft
 
+## Extensions
+
+Libraries for extending Cobra:
+
+* [cmdns](https://github.com/gosuri/cmdns): Enables name spacing a command's immediate children. It provides an alternative way to structure sub commands, similar to `heroku apps:create` and `ovrclk clusters:launch`.
+
 ## ToDo
 * Launch proper documentation site
 
@@ -522,4 +609,3 @@ Cobra is released under the Apache 2.0 license. See [LICENSE.txt](https://github
 
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/spf13/cobra/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-

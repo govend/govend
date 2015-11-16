@@ -28,7 +28,7 @@ var RootCMD = &cobra.Command{
 	Short: "Vendor external packages.",
 	Long:  "Vendor a Go project's external dependent packages.",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := repo.VendCMD(vendorDir, vendorFile, verbose, recursive); err != nil {
+		if err := repo.VendCMD(verbose); err != nil {
 			log.Fatal(err)
 		}
 	},
