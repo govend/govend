@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gophersaurus/govend/strutil"
 	"github.com/kr/fs"
 )
 
@@ -22,7 +23,8 @@ func ScanProject(dir string) ([]string, error) {
 		if fstat.IsDir() {
 
 			// check if that directory is "_vendor"
-			if fstat.Name() == "vendor" || fstat.Name() == "testdata" {
+			n := fstat.Name()
+			if n == "vendor" || n == "testdata" || []rune(n)[0] == '_' {
 				w.SkipDir()
 				continue
 			}
@@ -91,6 +93,16 @@ func ScanProject(dir string) ([]string, error) {
 			paths = append(paths, path)
 		}
 	}
+
+	paths = FilterStdPkgs(paths)
+
+	projectpath, err := ImportPath(".")
+	if err != nil {
+		return nil, err
+	}
+
+	// filter out packages internal to the project
+	paths = strutil.RemovePrefixInStringSlice(projectpath, paths)
 
 	return paths, nil
 }

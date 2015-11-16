@@ -3,16 +3,9 @@ package manifest
 import (
 	"os"
 	"path/filepath"
-
-	"github.com/spf13/viper"
 )
 
 const file = "vendor"
-
-func init() {
-	viper.SetConfigName(file)
-	viper.AddConfigPath(".")
-}
 
 // Manifest describes the vendors manifest file used save repository
 // dependencies and their versions. The file is written as JSON, YAML or TOML.

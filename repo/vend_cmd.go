@@ -9,11 +9,12 @@ import (
 	"github.com/gophersaurus/govend/go15experiment"
 	"github.com/gophersaurus/govend/manifest"
 	"github.com/gophersaurus/govend/packages"
+	"github.com/gophersaurus/govend/strutil"
 )
 
 var badimports = map[string]string{}
 
-// VendCMD
+// VendCMD takes
 func VendCMD(verbose bool) error {
 
 	// check that the current version of go supports vendoring
@@ -88,6 +89,10 @@ func VendCMD(verbose bool) error {
 		fmt.Printf("%d deps scanned, %d packages skipped, %d repositories found\n", len(deps), len(badimports), len(repos))
 	}
 
+	if err := m.Write(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -131,6 +136,16 @@ func download(dep string, m *manifest.Manifest, verbose bool) error {
 		if err != nil {
 			return err
 		}
+
+		depdeps = packages.FilterStdPkgs(depdeps)
+
+		projectpath, err := packages.ImportPath(filepath.Join("vendor", dep))
+		if err != nil {
+			return err
+		}
+
+		// filter out packages internal to the project
+		depdeps = strutil.RemovePrefixInStringSlice(projectpath, depdeps)
 
 		for _, d := range depdeps {
 			if err := download(d, m, verbose); err != nil {

@@ -30,7 +30,9 @@ func Load() (*Manifest, error) {
 	m := &Manifest{}
 
 	// if no format has been specified, no valid manifest file is present
+	// default to yaml
 	if format == "" {
+		format = "yml"
 		return m, nil
 	}
 

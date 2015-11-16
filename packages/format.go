@@ -6,7 +6,7 @@ import (
 	"encoding/xml"
 	"fmt"
 
-	"gopkg.in/yaml.v1"
+	"gopkg.in/yaml.v2"
 )
 
 func Format(pkgs []string, format string) ([]byte, error) {

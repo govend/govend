@@ -49,15 +49,9 @@ func (m *Manifest) Write() error {
 	}
 
 	// cleanup any previous file formats
-	if err := os.Remove(file + ".yml"); err != nil {
-		return err
-	}
-	if err := os.Remove(file + ".json"); err != nil {
-		return err
-	}
-	if err := os.Remove(file + ".toml"); err != nil {
-		return err
-	}
+	os.Remove(file + ".yml")
+	os.Remove(file + ".json")
+	os.Remove(file + ".toml")
 
 	// write manifest file bytes to disk
 	if err := ioutil.WriteFile(fpath, b, 0644); err != nil {

@@ -1,0 +1,13 @@
+vendors:
+- path: github.com/BurntSushi/toml
+  rev: 056c9bc7be7190eaa7715723883caffa5f8fa3e4
+- path: github.com/jackspirou/importsplus
+  rev: 7f84f4286a52ec63260adeb8398ca7814ae19422
+- path: github.com/kr/fs
+  rev: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
+- path: github.com/spf13/cobra
+  rev: f06ae19d963461c7450894c62a798986cc1dd385
+- path: golang.org/x/tools
+  rev: d94e6fe0fd36ddeac451f8ed1987b55db35bca35
+- path: gopkg.in/yaml.v2
+  rev: 53feefa2559fb8dfa8d81baad31be332c97d6c77
