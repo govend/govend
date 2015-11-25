@@ -13,6 +13,7 @@ import (
 )
 
 var badimports = map[string]string{}
+var m *manifest.Manifest
 
 // VendCMD takes
 func VendCMD(verbose bool) error {
@@ -26,7 +27,8 @@ func VendCMD(verbose bool) error {
 	}
 
 	// load the manifest file
-	m, err := manifest.Load()
+	var err error
+	m, err = manifest.Load()
 	if err != nil {
 		return err
 	}
@@ -52,37 +54,43 @@ func VendCMD(verbose bool) error {
 			continue
 		}
 
-		// use the network to gather some metadata on this repo
-		repo, err := Ping(dep)
-		if err != nil {
-			if strings.Contains(err.Error(), "unrecognized import path") {
-				badimports[dep] = "unable to ping"
-				if verbose {
-					fmt.Printf(" ✖ %s (bad ping)\n", dep)
-				}
-				continue
-			}
+		if err := download(dep, verbose); err != nil {
 			return err
 		}
 
-		// check if the repo is missing from the manifest file
-		if !m.Contains(repo.ImportPath) {
-
-			if verbose {
-				fmt.Printf(" ↓ %s (%s)\n", repo.ImportPath, "latest")
-			}
-
-			// download the repo
-			rev, err := Download(repo, "vendor", "latest")
+		/*
+			// use the network to gather some metadata on this repo
+			repo, err := Ping(dep)
 			if err != nil {
+				if strings.Contains(err.Error(), "unrecognized import path") {
+					badimports[dep] = "unable to ping"
+					if verbose {
+						fmt.Printf(" ✖ %s (bad ping)\n", dep)
+					}
+					continue
+				}
 				return err
 			}
 
-			// append the repo the manifest file
-			m.Append(manifest.NewVendor(repo.ImportPath, rev))
-		}
+			// check if the repo is missing from the manifest file
+			if !m.Contains(repo.ImportPath) {
 
-		repos[repo.ImportPath] = repo
+				if verbose {
+					fmt.Printf(" ↓ %s (%s)\n", repo.ImportPath, "latest")
+				}
+
+				// download the repo
+				rev, err := Download(repo, "vendor", "latest")
+				if err != nil {
+					return err
+				}
+
+				// append the repo the manifest file
+				m.Append(manifest.NewVendor(repo.ImportPath, rev))
+			}
+
+			repos[repo.ImportPath] = repo
+		*/
 	}
 
 	if verbose {
@@ -102,7 +110,7 @@ if verbose {
 }
 */
 
-func download(dep string, m *manifest.Manifest, verbose bool) error {
+func download(dep string, verbose bool) error {
 
 	// use the network to gather some metadata on this repo
 	repo, err := Ping(dep)
@@ -132,12 +140,18 @@ func download(dep string, m *manifest.Manifest, verbose bool) error {
 		// append the repo the manifest file
 		m.Append(manifest.NewVendor(repo.ImportPath, rev))
 
+		fmt.Println(filepath.Join("vendor", dep))
+
 		depdeps, err := packages.Scan(filepath.Join("vendor", dep))
 		if err != nil {
 			return err
 		}
 
 		depdeps = packages.FilterStdPkgs(depdeps)
+
+		fmt.Println(depdeps)
+
+		fmt.Println(filepath.Join("vendor", dep))
 
 		projectpath, err := packages.ImportPath(filepath.Join("vendor", dep))
 		if err != nil {
@@ -148,7 +162,7 @@ func download(dep string, m *manifest.Manifest, verbose bool) error {
 		depdeps = strutil.RemovePrefixInStringSlice(projectpath, depdeps)
 
 		for _, d := range depdeps {
-			if err := download(d, m, verbose); err != nil {
+			if err := download(d, verbose); err != nil {
 				return err
 			}
 		}

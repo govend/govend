@@ -1,6 +1,6 @@
 package repo
 
-import "golang.org/x/tools/go/vcs"
+import "github.com/gophersaurus/govend/vcs"
 
 // Repo RepoRoot
 type Repo struct {
