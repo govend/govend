@@ -100,7 +100,12 @@ func (v *VCS) Exists(dir, rev string) bool {
 // RevSync checks out the revision given by rev in dir.
 // The dir must exist and rev must be a valid revision.
 func (v *VCS) RevSync(dir, rev string) error {
-	return v.run(dir, v.TagSyncCmd, "tag", rev)
+	for _, cmd := range v.CreateCmd {
+		if err := v.run(dir, cmd, "dir", dir, "tag", rev); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // run runs the command line cmd in the given directory.

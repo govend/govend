@@ -12,11 +12,9 @@ vendors:
 - path: github.com/shurcooL/sanitized_anchor_name
   rev: 10ef21a441db47d8b13ebcc5fd2310f636973c77
 - path: github.com/spf13/cobra
-  rev: 9324f3657d033e6978fed178989ef71418e6a9a6
+  rev: 1c44ec8d3f1552cac48999f9306da23c4d8a288b
 - path: github.com/spf13/pflag
   rev: 08b1a584251b5b62f458943640fc8ebd4d50aaa5
-- path: golang.org/x/tools
-  rev: 5bc19071d3cdfcc1c95102384201d9074c4dc645
 - path: gopkg.in/check.v1
   rev: 11d3bc7aa68e238947792f30573146a3231fc0f1
 - path: gopkg.in/yaml.v2

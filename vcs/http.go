@@ -11,11 +11,25 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 // httpClient is the default HTTP client, but a variable so it can be
 // changed by tests, without modifying http.DefaultClient.
 var httpClient = http.DefaultClient
+var impatientHTTPClient = &http.Client{
+	Timeout: time.Duration(5 * time.Second),
+}
+
+type httpError struct {
+	status     string
+	statusCode int
+	url        string
+}
+
+func (e *httpError) Error() string {
+	return fmt.Sprintf("%s: %s", e.url, e.status)
+}
 
 // httpGET returns the data from an HTTP GET request for the given URL.
 func httpGET(url string) ([]byte, error) {
@@ -25,7 +39,9 @@ func httpGET(url string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("%s: %s", url, resp.Status)
+		err := &httpError{status: resp.Status, statusCode: resp.StatusCode, url: url}
+
+		return nil, err
 	}
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -36,7 +52,7 @@ func httpGET(url string) ([]byte, error) {
 
 // httpsOrHTTP returns the body of either the importPath's
 // https resource or, if unavailable, the http resource.
-func httpsOrHTTP(importPath string) (urlStr string, body io.ReadCloser, err error) {
+func httpsOrHTTP(importPath string, security securityMode, verbose bool) (urlStr string, body io.ReadCloser, err error) {
 	fetch := func(scheme string) (urlStr string, res *http.Response, err error) {
 		u, err := url.Parse(scheme + "://" + importPath)
 		if err != nil {
@@ -44,10 +60,14 @@ func httpsOrHTTP(importPath string) (urlStr string, body io.ReadCloser, err erro
 		}
 		u.RawQuery = "go-get=1"
 		urlStr = u.String()
-		if Verbose {
+		if verbose {
 			log.Printf("Fetching %s", urlStr)
 		}
-		res, err = httpClient.Get(urlStr)
+		if security == Insecure && scheme == "https" { // fail earlier
+			res, err = impatientHTTPClient.Get(urlStr)
+		} else {
+			res, err = httpClient.Get(urlStr)
+		}
 		return
 	}
 	closeBody := func(res *http.Response) {
@@ -57,7 +77,7 @@ func httpsOrHTTP(importPath string) (urlStr string, body io.ReadCloser, err erro
 	}
 	urlStr, res, err := fetch("https")
 	if err != nil || res.StatusCode != 200 {
-		if Verbose {
+		if verbose {
 			if err != nil {
 				log.Printf("https fetch failed.")
 			} else {
@@ -65,7 +85,9 @@ func httpsOrHTTP(importPath string) (urlStr string, body io.ReadCloser, err erro
 			}
 		}
 		closeBody(res)
-		urlStr, res, err = fetch("http")
+		if security == Insecure {
+			urlStr, res, err = fetch("http")
+		}
 	}
 	if err != nil {
 		closeBody(res)
@@ -73,7 +95,7 @@ func httpsOrHTTP(importPath string) (urlStr string, body io.ReadCloser, err erro
 	}
 	// Note: accepting a non-200 OK here, so people can serve a
 	// meta import in their http 404 page.
-	if Verbose {
+	if verbose {
 		log.Printf("Parsing meta tags from %s (status code %d)", urlStr, res.StatusCode)
 	}
 	return urlStr, res.Body, nil

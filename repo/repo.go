@@ -24,7 +24,7 @@ func New(v *VCS, url, importpath string) *Repo {
 
 // ImportPath returns a new Repo.
 func ImportPath(importpath string, verbose bool) (*Repo, error) {
-	rr, err := vcs.RepoRootForImportPath(importpath, verbose)
+	rr, err := vcs.RepoRootForImportPath(importpath, vcs.Secure, verbose)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func ImportPath(importpath string, verbose bool) (*Repo, error) {
 
 // ImportDynamic returns a new Repo.
 func ImportDynamic(importpath string, verbose bool) (*Repo, error) {
-	rr, err := vcs.RepoRootForImportDynamic(importpath, verbose)
+	rr, err := vcs.RepoRootForImportDynamic(importpath, vcs.Secure, verbose)
 	if err != nil {
 		return nil, err
 	}
