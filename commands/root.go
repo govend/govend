@@ -19,6 +19,7 @@ func init() {
 	vfile := filepath.Join("vendor", "vendor.yml")
 	RootCMD.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Print verbose output to os.Stdout.")
 	RootCMD.PersistentFlags().BoolVarP(&recursive, "recursive", "r", true, "Execute the command recurively.")
+	RootCMD.PersistentFlags().BoolVarP(&recursive, "commands", "x", false, "Printout commands as they are executed.")
 	RootCMD.PersistentFlags().StringVar(&vendorDir, "vendorDir", "vendor", "Define the vendor directory location on disk.")
 	RootCMD.PersistentFlags().StringVar(&vendorFile, "vendorFile", vfile, "Define the vendor manifest file location on disk.")
 }

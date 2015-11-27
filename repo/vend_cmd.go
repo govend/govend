@@ -57,40 +57,6 @@ func VendCMD(verbose bool) error {
 		if err := download(dep, verbose); err != nil {
 			return err
 		}
-
-		/*
-			// use the network to gather some metadata on this repo
-			repo, err := Ping(dep)
-			if err != nil {
-				if strings.Contains(err.Error(), "unrecognized import path") {
-					badimports[dep] = "unable to ping"
-					if verbose {
-						fmt.Printf(" ✖ %s (bad ping)\n", dep)
-					}
-					continue
-				}
-				return err
-			}
-
-			// check if the repo is missing from the manifest file
-			if !m.Contains(repo.ImportPath) {
-
-				if verbose {
-					fmt.Printf(" ↓ %s (%s)\n", repo.ImportPath, "latest")
-				}
-
-				// download the repo
-				rev, err := Download(repo, "vendor", "latest")
-				if err != nil {
-					return err
-				}
-
-				// append the repo the manifest file
-				m.Append(manifest.NewVendor(repo.ImportPath, rev))
-			}
-
-			repos[repo.ImportPath] = repo
-		*/
 	}
 
 	if verbose {
@@ -140,18 +106,12 @@ func download(dep string, verbose bool) error {
 		// append the repo the manifest file
 		m.Append(manifest.NewVendor(repo.ImportPath, rev))
 
-		fmt.Println(filepath.Join("vendor", dep))
-
 		depdeps, err := packages.Scan(filepath.Join("vendor", dep))
 		if err != nil {
 			return err
 		}
 
 		depdeps = packages.FilterStdPkgs(depdeps)
-
-		fmt.Println(depdeps)
-
-		fmt.Println(filepath.Join("vendor", dep))
 
 		projectpath, err := packages.ImportPath(filepath.Join("vendor", dep))
 		if err != nil {
