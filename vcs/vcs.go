@@ -316,7 +316,7 @@ func (c *Cmd) String() string {
 // command's combined stdout+stderr to standard error.
 // Otherwise run discards the command's output.
 func (c *Cmd) run(dir string, cmd string, keyval ...string) error {
-	_, err := c.run1(dir, cmd, keyval, true, true)
+	_, err := c.run1(dir, cmd, keyval, true, false)
 	return err
 }
 
@@ -872,6 +872,13 @@ var vcsPaths = []*vcsPath{
 	{
 		prefix: "github.com/",
 		re:     `^(?P<root>github\.com/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)(/[A-Za-z0-9_.\-]+)*$`,
+		vcs:    "git",
+		repo:   "https://{root}",
+		check:  noVCSSuffix,
+	},
+	{
+		prefix: "git.target.com/",
+		re:     `^(?P<root>git.target\.com/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)(/[A-Za-z0-9_.\-]+)*$`,
 		vcs:    "git",
 		repo:   "https://{root}",
 		check:  noVCSSuffix,

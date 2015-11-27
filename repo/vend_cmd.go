@@ -9,11 +9,7 @@ import (
 	"github.com/gophersaurus/govend/go15experiment"
 	"github.com/gophersaurus/govend/manifest"
 	"github.com/gophersaurus/govend/packages"
-	"github.com/gophersaurus/govend/strutil"
 )
-
-var badimports = map[string]string{}
-var m *manifest.Manifest
 
 // VendCMD takes
 func VendCMD(verbose bool) error {
@@ -27,8 +23,7 @@ func VendCMD(verbose bool) error {
 	}
 
 	// load the manifest file
-	var err error
-	m, err = manifest.Load()
+	m, err := manifest.Load()
 	if err != nil {
 		return err
 	}
@@ -54,7 +49,8 @@ func VendCMD(verbose bool) error {
 			continue
 		}
 
-		if err := download(dep, verbose); err != nil {
+		// download that dependency and any external deps it has
+		if err := downloadDeps(dep, m, badimports, verbose); err != nil {
 			return err
 		}
 	}
@@ -76,7 +72,7 @@ if verbose {
 }
 */
 
-func download(dep string, verbose bool) error {
+func downloadDeps(dep string, m *manifest.Manifest, badimports map[string]string, verbose bool) error {
 
 	// use the network to gather some metadata on this repo
 	repo, err := Ping(dep)
@@ -103,7 +99,7 @@ func download(dep string, verbose bool) error {
 			return err
 		}
 
-		// append the repo the manifest file
+		// append the repo to the manifest file
 		m.Append(manifest.NewVendor(repo.ImportPath, rev))
 
 		depdeps, err := packages.Scan(filepath.Join("vendor", dep))
@@ -113,16 +109,8 @@ func download(dep string, verbose bool) error {
 
 		depdeps = packages.FilterStdPkgs(depdeps)
 
-		projectpath, err := packages.ImportPath(filepath.Join("vendor", dep))
-		if err != nil {
-			return err
-		}
-
-		// filter out packages internal to the project
-		depdeps = strutil.RemovePrefixInStringSlice(projectpath, depdeps)
-
 		for _, d := range depdeps {
-			if err := download(d, verbose); err != nil {
+			if err := downloadDeps(d, m, badimports, verbose); err != nil {
 				return err
 			}
 		}
