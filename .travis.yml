@@ -9,13 +9,13 @@ go:
 env:
   - GO15VENDOREXPERIMENT=1
 
-install:
-  - go install
-
 script:
+  - go install
   - go vet -v $(go list ./...|grep -v vendor)
   - go test -v $(go list ./...|grep -v vendor)
   - rm -rf vendor
   - govend -v
+  - go install
   - rm -rf vendor && rm vendor.yml
   - govend -v
+  - go install
