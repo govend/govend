@@ -26,7 +26,7 @@ func Scan(dir string) ([]string, error) {
 	}
 
 	if !fileInfo.IsDir() {
-		fmt.Errorf("'%s' is a file, directories contain packages")
+		return nil, fmt.Errorf("'%s' is a file, directories contain packages", fileInfo.Name())
 	}
 
 	imports := map[string]bool{}
