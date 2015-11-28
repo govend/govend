@@ -34,32 +34,17 @@ To vendor dependencies run `govend -v` while in the project root directory.
 
 ```bash
 → govend -v
-5 packages scanned, 5 repositories found
- ↓ gopkg.in/yaml.v2 (latest)
- ↓ github.com/jackspirou/importsplus (latest)
- ↓ golang.org/x/tools (latest)
  ↓ github.com/spf13/cobra (latest)
- ↓ github.com/kr/fs (latest)
-
-downloading recursive dependencies...
-
-55 packages scanned, 10 repositories found
  ↓ github.com/inconshreveable/mousetrap (latest)
- ↓ golang.org/x/net (latest)
- ↓ github.com/spf13/pflag (latest)
  ↓ github.com/cpuguy83/go-md2man (latest)
- ↓ gopkg.in/check.v1 (latest)
-
-downloading recursive dependencies...
-
-74 packages scanned, 12 repositories found
- ↓ golang.org/x/text (latest)
  ↓ github.com/russross/blackfriday (latest)
-
-downloading recursive dependencies...
-
-95 packages scanned, 13 repositories found
  ↓ github.com/shurcooL/sanitized_anchor_name (latest)
+ ↓ github.com/spf13/pflag (latest)
+ ↓ github.com/BurntSushi/toml (latest)
+ ↓ gopkg.in/yaml.v2 (latest)
+ ↓ gopkg.in/check.v1 (latest)
+ ↓ github.com/kr/fs (latest)
+4 packages scanned, 0 skipped
 ```
 
 ### `vendors.yml`
@@ -67,32 +52,27 @@ downloading recursive dependencies...
 The `vendors.yml` file contains an array of import paths and commit revisions.
 
 ```yaml
-- path: gopkg.in/yaml.v2
-  rev: 7ad95dd0798a40da1ccdff6dff35fd177b5edf40
-- path: github.com/jackspirou/importsplus
-  rev: 7f84f4286a52ec63260adeb8398ca7814ae19422
-- path: golang.org/x/tools
-  rev: 1330b289ad6d59313d86910fa35d5022cd871e7f
-- path: github.com/spf13/cobra
-  rev: 4b86c66ef25470e678a4d6a372711d7050344ccc
-- path: github.com/kr/fs
-  rev: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
-- path: github.com/inconshreveable/mousetrap
-  rev: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
-- path: golang.org/x/net
-  rev: db8e4de5b2d6653f66aea53094624468caad15d2
-- path: github.com/spf13/pflag
-  rev: f735fdff4ffb34299727eb2e3c9abab588742d41
+vendors:
+- path: github.com/BurntSushi/toml
+  rev: 056c9bc7be7190eaa7715723883caffa5f8fa3e4
 - path: github.com/cpuguy83/go-md2man
   rev: 71acacd42f85e5e82f70a55327789582a5200a90
+- path: github.com/inconshreveable/mousetrap
+  rev: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- path: github.com/kr/fs
+  rev: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
+- path: github.com/russross/blackfriday
+  rev: 300106c228d52c8941d4b3de6054a6062a86dda3
+- path: github.com/shurcooL/sanitized_anchor_name
+  rev: 10ef21a441db47d8b13ebcc5fd2310f636973c77
+- path: github.com/spf13/cobra
+  rev: 1c44ec8d3f1552cac48999f9306da23c4d8a288b
+- path: github.com/spf13/pflag
+  rev: 08b1a584251b5b62f458943640fc8ebd4d50aaa5
 - path: gopkg.in/check.v1
   rev: 11d3bc7aa68e238947792f30573146a3231fc0f1
-- path: golang.org/x/text
-  rev: 6368131e2e9977b23aa20c631034cb98d65461a7
-- path: github.com/russross/blackfriday
-  rev: 8cec3a854e68dba10faabbe31c089abf4a3e57a6
-- path: github.com/shurcooL/sanitized_anchor_name
-  rev: 244f5ac324cb97e1987ef901a0081a77bfd8e845
+- path: gopkg.in/yaml.v2
+  rev: 53feefa2559fb8dfa8d81baad31be332c97d6c77
 ```
 
 ### List Dependencies
