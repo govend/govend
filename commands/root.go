@@ -2,34 +2,48 @@ package commands
 
 import (
 	"log"
-	"path/filepath"
 
-	"github.com/gophersaurus/govend/repo"
+	"github.com/gophersaurus/govend/govend"
 	"github.com/spf13/cobra"
 )
 
 var (
-	verbose    bool
-	recursive  bool
-	vendorDir  string
-	vendorFile string
+	verbose  bool
+	update   bool
+	commands bool
+	format   string
+)
+
+const (
+	rootDesc = `Govend downloads and vendors the packages named by the import
+paths, along with their dependencies.`
+	verboseDesc = `The -v flag prints the names of packages as they are vendored.
+	`
+	updateDesc = `The -u flag uses the network to update the named packages and
+	their dependencies.  By default, the network is used to check out missing
+	packages but does not use it to look for updates to existing packages.
+	`
+	commandsDesc = `The -x flag prints commands as they are executed for vendoring
+	such as 'git init'.
+	`
+	formatDesc = `The -f flag defines the format of manifest vendor file on disk.
+	By default, the file format is YAML but also supports JSON and TOML formats.
+	`
 )
 
 func init() {
-	vfile := filepath.Join("vendor", "vendor.yml")
-	RootCMD.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Print verbose output to os.Stdout.")
-	RootCMD.PersistentFlags().BoolVarP(&recursive, "recursive", "r", true, "Execute the command recurively.")
-	RootCMD.PersistentFlags().BoolVarP(&recursive, "commands", "x", false, "Printout commands as they are executed.")
-	RootCMD.PersistentFlags().StringVar(&vendorDir, "vendorDir", "vendor", "Define the vendor directory location on disk.")
-	RootCMD.PersistentFlags().StringVar(&vendorFile, "vendorFile", vfile, "Define the vendor manifest file location on disk.")
+	RootCMD.Flags().BoolVarP(&commands, "commands", "x", false, commandsDesc)
+	RootCMD.Flags().StringVarP(&format, "format", "f", "YAML", formatDesc)
+	RootCMD.Flags().BoolVarP(&update, "update", "u", false, updateDesc)
+	RootCMD.Flags().BoolVarP(&verbose, "verbose", "v", false, verboseDesc)
 }
 
 // RootCMD describes the root command.
 var RootCMD = &cobra.Command{
-	Short: "Vendor external packages.",
-	Long:  "Vendor a Go project's external dependent packages.",
+	Short: "Govend vendors external packages.",
+	Long:  rootDesc,
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := repo.VendCMD(verbose); err != nil {
+		if err := govend.Vendor(args, update, verbose, commands, format); err != nil {
 			log.Fatal(err)
 		}
 	},

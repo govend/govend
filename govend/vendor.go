@@ -1,4 +1,4 @@
-package repo
+package govend
 
 import (
 	"errors"
@@ -10,14 +10,15 @@ import (
 	"github.com/gophersaurus/govend/go15experiment"
 	"github.com/gophersaurus/govend/manifest"
 	"github.com/gophersaurus/govend/packages"
+	"github.com/gophersaurus/govend/repo"
 )
 
 var m *manifest.Manifest
 var badimports map[string]string
 var lastdep string
 
-// VendCMD takes
-func VendCMD(verbose bool) error {
+// Vendor takes
+func Vendor(pkgs []string, update, verbose, commands bool, format string) error {
 
 	// check that the current version of go supports vendoring
 	if !go15experiment.Version() {
@@ -45,7 +46,6 @@ func VendCMD(verbose bool) error {
 
 	// setting some state
 	badimports = map[string]string{} // bad package imports
-	repos := make(map[string]*Repo)  // repositories
 
 	// range over the external dependencies
 	for _, dep := range deps {
@@ -63,7 +63,7 @@ func VendCMD(verbose bool) error {
 	}
 
 	if verbose {
-		fmt.Printf("%d deps scanned, %d packages skipped, %d repositories found\n", len(deps), len(badimports), len(repos))
+		fmt.Printf("%d packages scanned, %d skipped\n", len(deps), len(badimports))
 	}
 
 	if err := m.Write(); err != nil {
@@ -73,16 +73,10 @@ func VendCMD(verbose bool) error {
 	return nil
 }
 
-/*
-if verbose {
-	fmt.Printf(" ↓ %s (%s)\n", repo.ImportPath, vendorRev)
-}
-*/
-
 func downloadDeps(dep string, verbose bool) error {
 
 	// use the network to gather some metadata on this repo
-	repo, err := Ping(dep)
+	r, err := repo.Ping(dep)
 	if err != nil {
 		if strings.Contains(err.Error(), "unrecognized import path") {
 			badimports[dep] = "unable to ping"
@@ -94,20 +88,20 @@ func downloadDeps(dep string, verbose bool) error {
 	}
 
 	// check if the repo is missing from the manifest file
-	if !m.Contains(repo.ImportPath) {
+	if !m.Contains(r.ImportPath) {
 
 		if verbose {
-			fmt.Printf(" ↓ %s (%s)\n", repo.ImportPath, "latest")
+			fmt.Printf(" ↓ %s (%s)\n", r.ImportPath, "latest")
 		}
 
 		// download the repo
-		rev, err := Download(repo, "vendor", "latest")
+		rev, err := repo.Download(r, "vendor", "latest")
 		if err != nil {
 			return err
 		}
 
 		// append the repo to the manifest file
-		m.Append(manifest.NewVendor(repo.ImportPath, rev))
+		m.Append(manifest.NewVendor(r.ImportPath, rev))
 	}
 
 	depdeps, err := packages.Scan(filepath.Join("vendor", dep))

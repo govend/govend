@@ -1,4 +1,4 @@
-package repo
+package govend
 
 // The update command.
 //
