@@ -3,6 +3,7 @@ package repo
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -10,6 +11,10 @@ import (
 	"github.com/gophersaurus/govend/manifest"
 	"github.com/gophersaurus/govend/packages"
 )
+
+var m *manifest.Manifest
+var badimports map[string]string
+var lastdep string
 
 // VendCMD takes
 func VendCMD(verbose bool) error {
@@ -23,7 +28,8 @@ func VendCMD(verbose bool) error {
 	}
 
 	// load the manifest file
-	m, err := manifest.Load()
+	var err error
+	m, err = manifest.Load()
 	if err != nil {
 		return err
 	}
@@ -38,8 +44,8 @@ func VendCMD(verbose bool) error {
 	}
 
 	// setting some state
-	badimports := map[string]string{} // bad package imports
-	repos := make(map[string]*Repo)   // repositories
+	badimports = map[string]string{} // bad package imports
+	repos := make(map[string]*Repo)  // repositories
 
 	// range over the external dependencies
 	for _, dep := range deps {
@@ -50,7 +56,8 @@ func VendCMD(verbose bool) error {
 		}
 
 		// download that dependency and any external deps it has
-		if err := downloadDeps(dep, m, badimports, verbose); err != nil {
+		lastdep = dep
+		if err := downloadDeps(dep, verbose); err != nil {
 			return err
 		}
 	}
@@ -72,7 +79,7 @@ if verbose {
 }
 */
 
-func downloadDeps(dep string, m *manifest.Manifest, badimports map[string]string, verbose bool) error {
+func downloadDeps(dep string, verbose bool) error {
 
 	// use the network to gather some metadata on this repo
 	repo, err := Ping(dep)
@@ -101,16 +108,22 @@ func downloadDeps(dep string, m *manifest.Manifest, badimports map[string]string
 
 		// append the repo to the manifest file
 		m.Append(manifest.NewVendor(repo.ImportPath, rev))
+	}
 
-		depdeps, err := packages.Scan(filepath.Join("vendor", dep))
-		if err != nil {
-			return err
+	depdeps, err := packages.Scan(filepath.Join("vendor", dep))
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
 		}
+		return err
+	}
 
-		depdeps = packages.FilterStdPkgs(depdeps)
+	depdeps = packages.FilterStdPkgs(depdeps)
 
-		for _, d := range depdeps {
-			if err := downloadDeps(d, m, badimports, verbose); err != nil {
+	for _, d := range depdeps {
+		if d != dep && d != lastdep {
+			lastdep = dep
+			if err := downloadDeps(d, verbose); err != nil {
 				return err
 			}
 		}

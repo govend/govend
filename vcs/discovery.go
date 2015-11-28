@@ -26,9 +26,9 @@ func charsetReader(charset string, input io.Reader) (io.Reader, error) {
 	}
 }
 
-// parseMetaGoImports returns meta imports from the HTML in r.
+// ParseMetaGoImports returns meta imports from the HTML in r.
 // Parsing ends at the end of the <head> section or the beginning of the <body>.
-func parseMetaGoImports(r io.Reader) (imports []metaImport, err error) {
+func ParseMetaGoImports(r io.Reader) (imports []MetaImport, err error) {
 	d := xml.NewDecoder(r)
 	d.CharsetReader = charsetReader
 	d.Strict = false
@@ -55,7 +55,7 @@ func parseMetaGoImports(r io.Reader) (imports []metaImport, err error) {
 			continue
 		}
 		if f := strings.Fields(attrValue(e.Attr, "content")); len(f) == 3 {
-			imports = append(imports, metaImport{
+			imports = append(imports, MetaImport{
 				Prefix:   f[0],
 				VCS:      f[1],
 				RepoRoot: f[2],

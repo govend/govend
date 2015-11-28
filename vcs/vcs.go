@@ -316,13 +316,13 @@ func (c *Cmd) String() string {
 // command's combined stdout+stderr to standard error.
 // Otherwise run discards the command's output.
 func (c *Cmd) run(dir string, cmd string, keyval ...string) error {
-	_, err := c.run1(dir, cmd, keyval, true, false)
+	_, err := c.run1(dir, cmd, keyval, false, false)
 	return err
 }
 
 // runVerboseOnly is like run but only generates error output to standard error in verbose mode.
 func (c *Cmd) runVerboseOnly(dir string, cmd string, keyval ...string) error {
-	_, err := c.run1(dir, cmd, keyval, false, false)
+	_, err := c.run1(dir, cmd, keyval, true, false)
 	return err
 }
 
@@ -697,7 +697,7 @@ func RepoRootForImportDynamic(importPath string, security securityMode, verbose 
 	if !strings.Contains(host, ".") {
 		return nil, errors.New("import path does not begin with hostname")
 	}
-	urlStr, body, err := httpsOrHTTP(importPath, security, verbose)
+	urlStr, body, err := HttpsOrHTTP(importPath, security, verbose)
 	if err != nil {
 		msg := "https fetch: %v"
 		if security == Insecure {
@@ -706,7 +706,7 @@ func RepoRootForImportDynamic(importPath string, security securityMode, verbose 
 		return nil, fmt.Errorf(msg, err)
 	}
 	defer body.Close()
-	imports, err := parseMetaGoImports(body)
+	imports, err := ParseMetaGoImports(body)
 	if err != nil {
 		return nil, fmt.Errorf("parsing %s: %v", importPath, err)
 	}
@@ -732,7 +732,7 @@ func RepoRootForImportDynamic(importPath string, security securityMode, verbose 
 			log.Printf("get %q: verifying non-authoritative meta tag", importPath)
 		}
 		urlStr0 := urlStr
-		var imports []metaImport
+		var imports []MetaImport
 		urlStr, imports, err = MetaImportsForPrefix(mmi.Prefix, security, verbose)
 		if err != nil {
 			return nil, err
@@ -771,7 +771,7 @@ var (
 // It is an error if no imports are found.
 // urlStr will still be valid if err != nil.
 // The returned urlStr will be of the form "https://golang.org/x/tools?go-get=1"
-func MetaImportsForPrefix(importPrefix string, security securityMode, verbose bool) (urlStr string, imports []metaImport, err error) {
+func MetaImportsForPrefix(importPrefix string, security securityMode, verbose bool) (urlStr string, imports []MetaImport, err error) {
 	setCache := func(res fetchResult) (fetchResult, error) {
 		fetchCacheMu.Lock()
 		defer fetchCacheMu.Unlock()
@@ -787,11 +787,11 @@ func MetaImportsForPrefix(importPrefix string, security securityMode, verbose bo
 		}
 		fetchCacheMu.Unlock()
 
-		urlStr, body, err := httpsOrHTTP(importPrefix, security, verbose)
+		urlStr, body, err := HttpsOrHTTP(importPrefix, security, verbose)
 		if err != nil {
 			return setCache(fetchResult{urlStr: urlStr, err: fmt.Errorf("fetch %s: %v", urlStr, err)})
 		}
-		imports, err := parseMetaGoImports(body)
+		imports, err := ParseMetaGoImports(body)
 		if err != nil {
 			return setCache(fetchResult{urlStr: urlStr, err: fmt.Errorf("parsing %s: %v", urlStr, err)})
 		}
@@ -806,13 +806,13 @@ func MetaImportsForPrefix(importPrefix string, security securityMode, verbose bo
 
 type fetchResult struct {
 	urlStr  string // e.g. "https://foo.com/x/bar?go-get=1"
-	imports []metaImport
+	imports []MetaImport
 	err     error
 }
 
-// metaImport represents the parsed <meta name="go-import"
+// MetaImport represents the parsed <meta name="go-import"
 // content="prefix vcs reporoot" /> tags from HTML files.
-type metaImport struct {
+type MetaImport struct {
 	Prefix, VCS, RepoRoot string
 }
 
@@ -822,7 +822,7 @@ var errNoMatch = errors.New("no import match")
 // matchGoImport returns the metaImport from imports matching importPath.
 // An error is returned if there are multiple matches.
 // errNoMatch is returned if none match.
-func matchGoImport(imports []metaImport, importPath string) (_ metaImport, err error) {
+func matchGoImport(imports []MetaImport, importPath string) (_ MetaImport, err error) {
 	match := -1
 	for i, im := range imports {
 		if !strings.HasPrefix(importPath, im.Prefix) {
