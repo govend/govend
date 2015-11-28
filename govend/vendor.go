@@ -13,9 +13,10 @@ import (
 	"github.com/gophersaurus/govend/repo"
 )
 
-var m *manifest.Manifest
-var badimports map[string]string
-var lastdep string
+var (
+	badimports map[string]string
+	lastimport string
+)
 
 // Vendor takes
 func Vendor(pkgs []string, update, verbose, commands bool, format string) error {
@@ -29,8 +30,7 @@ func Vendor(pkgs []string, update, verbose, commands bool, format string) error 
 	}
 
 	// load the manifest file
-	var err error
-	m, err = manifest.Load()
+	m, err := manifest.Load()
 	if err != nil {
 		return err
 	}
@@ -56,8 +56,8 @@ func Vendor(pkgs []string, update, verbose, commands bool, format string) error 
 		}
 
 		// download that dependency and any external deps it has
-		lastdep = dep
-		if err := downloadDeps(dep, verbose); err != nil {
+		lastimport = dep
+		if err := downloadDeps(dep, m, verbose); err != nil {
 			return err
 		}
 	}
@@ -73,7 +73,7 @@ func Vendor(pkgs []string, update, verbose, commands bool, format string) error 
 	return nil
 }
 
-func downloadDeps(dep string, verbose bool) error {
+func downloadDeps(dep string, m *manifest.Manifest, verbose bool) error {
 
 	// use the network to gather some metadata on this repo
 	r, err := repo.Ping(dep)
@@ -115,9 +115,9 @@ func downloadDeps(dep string, verbose bool) error {
 	depdeps = packages.FilterStdPkgs(depdeps)
 
 	for _, d := range depdeps {
-		if d != dep && d != lastdep {
-			lastdep = dep
-			if err := downloadDeps(d, verbose); err != nil {
+		if d != dep && d != lastimport {
+			lastimport = dep
+			if err := downloadDeps(d, m, verbose); err != nil {
 				return err
 			}
 		}
