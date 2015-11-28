@@ -35,17 +35,16 @@ To vendor dependencies run `govend -v` while in the project root directory.
 
 ```bash
 → govend -v
- ↓ github.com/spf13/cobra (latest)
- ↓ github.com/inconshreveable/mousetrap (latest)
- ↓ github.com/cpuguy83/go-md2man (latest)
- ↓ github.com/russross/blackfriday (latest)
- ↓ github.com/shurcooL/sanitized_anchor_name (latest)
- ↓ github.com/spf13/pflag (latest)
- ↓ github.com/BurntSushi/toml (latest)
- ↓ gopkg.in/yaml.v2 (latest)
- ↓ gopkg.in/check.v1 (latest)
- ↓ github.com/kr/fs (latest)
-4 packages scanned, 0 skipped
+github.com/kr/fs
+github.com/spf13/cobra
+github.com/spf13/pflag
+github.com/inconshreveable/mousetrap
+github.com/cpuguy83/go-md2man
+github.com/russross/blackfriday
+github.com/shurcooL/sanitized_anchor_name
+gopkg.in/yaml.v2
+gopkg.in/check.v1
+github.com/BurntSushi/toml
 ```
 
 ### `vendors.yml`
