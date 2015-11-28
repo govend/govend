@@ -7,13 +7,13 @@ govend [![GoDoc](http://godoc.org/github.com/gophersaurus/govend?status.png)](ht
 * try to be compatible with any project
 * take a both note and code from `go get`
 * vendor the nested dependency tree to the `nth` degree
-* use the `vendor` directory as specified in golang version 1.5
+* utilize the `GO15VENDOREXPERIMENT` and `vendor` directory as specified in golang version 1.5
 
 **it does not:**
 * wrap the `go` command
-* create a new project for you
+* try to create a new project
 * generate temporary directories or files
-* alter any environment variables, including `$GOPATH`
+* alter any go environment variables, including `$GOPATH`
 
 Install
 =======
@@ -31,7 +31,7 @@ $ cd project/root
 $ govend -v
 ```
 
-To vendor dependencies run `govend -v` while in the project root directory.
+To vendor external package dependencies run `govend -v` while inside the project root directory.
 
 ```bash
 → govend -v
