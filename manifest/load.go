@@ -10,42 +10,41 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-var format string
-
 // Load reads a vendor manifest file and returns a Manifest object.
-func Load() (*Manifest, error) {
+// It also takes an optional format to default the manifest to when written.
+func Load(format string) (*Manifest, error) {
 
-	// check if a yml, json, or toml manifest file exists
-	if _, err := os.Stat(file + ".yml"); err == nil {
-		format = "yml"
-	}
-	if _, err := os.Stat(file + ".json"); err == nil {
-		format = "json"
-	}
-	if _, err := os.Stat(file + ".xml"); err == nil {
-		format = "xml"
-	}
-
-	// define an empty Manifest file to use as state
-	m := &Manifest{}
-
-	// if no format has been specified, no valid manifest file is present
-	// default to yaml
+	// if the format is not specified default to YAML
 	if format == "" {
 		format = "yml"
+	}
+
+	// create a new manifest and set the format
+	m := &Manifest{}
+	if err := m.SetFormat(format); err != nil {
+		return nil, err
+	}
+
+	// check if a yml, json, or toml manifest file exists on disk
+	var f string
+	for _, ext := range extensions {
+		if _, err := os.Stat(file + ext); err == nil {
+			f = string([]rune(ext)[1:])
+		}
+	}
+
+	// if no format has been specified, no valid manifest file is present
+	if f == "" {
 		return m, nil
 	}
 
-	// define the file path
-	fpath := file + "." + format
-
 	// read the manifest file on disk
-	bytes, err := ioutil.ReadFile(fpath)
+	bytes, err := ioutil.ReadFile(file + "." + m.format)
 	if err != nil {
 		return m, err
 	}
 
-	switch format {
+	switch m.format {
 	case "json":
 		if err := json.Unmarshal(bytes, m); err != nil {
 			return nil, err
@@ -59,7 +58,7 @@ func Load() (*Manifest, error) {
 			return nil, err
 		}
 	default:
-		return nil, fmt.Errorf("vendor manifest file type %s not supported", format)
+		return nil, fmt.Errorf("file type %s not supported", format)
 	}
 
 	return m, nil

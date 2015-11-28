@@ -1,4 +1,4 @@
-package packages
+package govend
 
 // ScanCMD executes the scan command
 import (
@@ -6,11 +6,17 @@ import (
 	"io/ioutil"
 	"path"
 
+	"github.com/gophersaurus/govend/packages"
 	"github.com/gophersaurus/govend/strutil"
 )
 
-// ListCMD
-func ListCMD(dir, vendorDir, file, format string, all bool, vendors bool) error {
+// List
+func List(args []string, file, format string, all bool, vendors bool) error {
+
+	dir := "."
+	if len(args) > 0 {
+		dir = args[0]
+	}
 
 	// check if any result format has been specified
 	if len(format) == 0 {
@@ -26,17 +32,17 @@ func ListCMD(dir, vendorDir, file, format string, all bool, vendors bool) error 
 	}
 
 	// scan the project directory provided
-	pkgs, err := Scan(dir)
+	pkgs, err := packages.Scan(dir)
 	if err != nil {
 		return err
 	}
 
 	// remove standard packages
 	if !all {
-		pkgs = FilterStdPkgs(pkgs)
+		pkgs = packages.FilterStdPkgs(pkgs)
 	}
 
-	projectpath, err := ImportPath(dir)
+	projectpath, err := packages.ImportPath(dir)
 	if err != nil {
 		return err
 	}
@@ -44,7 +50,7 @@ func ListCMD(dir, vendorDir, file, format string, all bool, vendors bool) error 
 	// filter out packages internal to the project
 	pkgs = strutil.RemovePrefixInStringSlice(projectpath, pkgs)
 
-	b, err := Format(pkgs, format)
+	b, err := packages.Format(pkgs, format)
 	if err != nil {
 		return err
 	}

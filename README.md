@@ -5,13 +5,14 @@ govend [![GoDoc](http://godoc.org/github.com/gophersaurus/govend?status.png)](ht
 
 **it does:**
 * try to be compatible with any project
-* vendor nested dependencies to the `nth` degree
+* take a both note and code from `go get`
+* vendor the nested dependency tree to the `nth` degree
 * use the `vendor` directory as specified in golang version 1.5
-* provide `goimports` functionality, while prioritizing vendored packages via `govend imports`
 
 **it does not:**
 * wrap the `go` command
 * create a new project for you
+* generate temporary directories or files
 * alter any environment variables, including `$GOPATH`
 
 Install
