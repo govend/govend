@@ -18,7 +18,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gophersaurus/govend/go15experiment"
+	"github.com/gophersaurus/govend/go15vendorexperiment"
 	"github.com/gophersaurus/govend/vcs/internal/singleflight"
 )
 
@@ -381,7 +381,7 @@ func (c *Cmd) Ping(scheme, repo string) error {
 // The parent of dir must exist; dir must not.
 func (c *Cmd) Create(dir, repo string) error {
 	for _, cmd := range c.CreateCmd {
-		if !go15experiment.On() && strings.Contains(cmd, "submodule") {
+		if !go15vendorexperiment.On() && strings.Contains(cmd, "submodule") {
 			continue
 		}
 		if err := c.run(".", cmd, "dir", dir, "repo", repo); err != nil {
@@ -412,7 +412,7 @@ func (c *Cmd) Download(dir string, verbose bool) error {
 		return err
 	}
 	for _, cmd := range c.DownloadCmd {
-		if !go15experiment.On() && strings.Contains(cmd, "submodule") {
+		if !go15vendorexperiment.On() && strings.Contains(cmd, "submodule") {
 			continue
 		}
 		if err := c.run(dir, cmd); err != nil {
@@ -485,7 +485,7 @@ func (c *Cmd) TagSync(dir, tag string) error {
 
 	if tag == "" && c.TagSyncDefault != nil {
 		for _, cmd := range c.TagSyncDefault {
-			if !go15experiment.On() && strings.Contains(cmd, "submodule") {
+			if !go15vendorexperiment.On() && strings.Contains(cmd, "submodule") {
 				continue
 			}
 			if err := c.run(dir, cmd); err != nil {
@@ -496,7 +496,7 @@ func (c *Cmd) TagSync(dir, tag string) error {
 	}
 
 	for _, cmd := range c.TagSyncCmd {
-		if !go15experiment.On() && strings.Contains(cmd, "submodule") {
+		if !go15vendorexperiment.On() && strings.Contains(cmd, "submodule") {
 			continue
 		}
 		if err := c.run(dir, cmd, "tag", tag); err != nil {

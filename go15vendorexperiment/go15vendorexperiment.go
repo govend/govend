@@ -1,4 +1,4 @@
-package go15experiment
+package go15vendorexperiment
 
 import (
 	"os"

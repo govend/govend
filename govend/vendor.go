@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gophersaurus/govend/go15experiment"
+	"github.com/gophersaurus/govend/go15vendorexperiment"
 	"github.com/gophersaurus/govend/manifest"
 	"github.com/gophersaurus/govend/packages"
 	"github.com/gophersaurus/govend/repo"
@@ -19,12 +19,12 @@ var lastimport string
 func Vendor(pkgs []string, update, verbose, tree, results, commands bool, format string) error {
 
 	// ensure that the locally installed version of go supports vendoring
-	if !go15experiment.Version() {
+	if !go15vendorexperiment.Version() {
 		return errors.New("govend requires go versions 1.5+")
 	}
 
 	// ensure that the GO15VENDOREXPERIMENT env var is set to '1'
-	if !go15experiment.On() {
+	if !go15vendorexperiment.On() {
 		return errors.New("govend requires 'GO15VENDOREXPERIMENT=1'")
 	}
 
