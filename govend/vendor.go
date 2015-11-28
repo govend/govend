@@ -16,7 +16,7 @@ import (
 var lastimport string
 
 // Vendor
-func Vendor(pkgs []string, update, verbose, tree, commands bool, format string) error {
+func Vendor(pkgs []string, update, verbose, tree, results, commands bool, format string) error {
 
 	// ensure that the locally installed version of go supports vendoring
 	if !go15experiment.Version() {
@@ -60,7 +60,7 @@ func Vendor(pkgs []string, update, verbose, tree, commands bool, format string) 
 		numOfpkgs += n
 	}
 
-	if verbose {
+	if verbose && results {
 		fmt.Printf("\npackages scanned: %d\n", numOfpkgs)
 		fmt.Printf("packages skipped: %d\n", bpkgs.len())
 		fmt.Printf("repos downloaded: %d\n", m.Len())

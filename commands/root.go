@@ -11,6 +11,7 @@ var (
 	verbose  bool
 	tree     bool
 	update   bool
+	results  bool
 	commands bool
 	format   string
 )
@@ -22,6 +23,9 @@ paths, along with their dependencies.`
 	`
 	treeDesc = `The -t flag works with the -v flag to print the names of packages
 	as an indented tree to visualize the dependency tree.
+	`
+	resultsDesc = `The -r flag works with the -v flag to print a summary of the
+	number of packages scanned, packages skipped, and repositories downloaded.
 	`
 	updateDesc = `The -u flag uses the network to update the named packages and
 	their dependencies.  By default, the network is used to check out missing
@@ -41,6 +45,7 @@ func init() {
 	RootCMD.Flags().BoolVarP(&update, "update", "u", false, updateDesc)
 	RootCMD.Flags().BoolVarP(&verbose, "verbose", "v", false, verboseDesc)
 	RootCMD.Flags().BoolVarP(&tree, "tree", "t", false, treeDesc)
+	RootCMD.Flags().BoolVarP(&results, "results", "r", false, resultsDesc)
 }
 
 // RootCMD describes the root command.
@@ -48,7 +53,7 @@ var RootCMD = &cobra.Command{
 	Short: "Govend vendors external packages.",
 	Long:  rootDesc,
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := govend.Vendor(args, update, verbose, tree, commands, format); err != nil {
+		if err := govend.Vendor(args, update, verbose, tree, results, commands, format); err != nil {
 			log.Fatal(err)
 		}
 	},
