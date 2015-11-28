@@ -12,6 +12,7 @@ govend [![GoDoc](http://godoc.org/github.com/gophersaurus/govend?status.png)](ht
 **it does not:**
 * wrap the `go` command
 * create a new project for you
+* generate temporary directories or files
 * alter any environment variables, including `$GOPATH`
 
 Install

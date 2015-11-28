@@ -13,57 +13,57 @@ import (
 	"github.com/gophersaurus/govend/repo"
 )
 
-var (
-	badimports map[string]string
-	lastimport string
-)
+var lastimport string
 
-// Vendor takes
-func Vendor(pkgs []string, update, verbose, commands bool, format string) error {
+// Vendor
+func Vendor(pkgs []string, update, verbose, tree, commands bool, format string) error {
 
-	// check that the current version of go supports vendoring
+	// ensure that the locally installed version of go supports vendoring
 	if !go15experiment.Version() {
-		return errors.New("govend only works with go version 1.5+")
-	}
-	if !go15experiment.On() {
-		return errors.New("govend currently requires the 'GO15VENDOREXPERIMENT' environment variable set to '1'")
+		return errors.New("govend requires go versions 1.5+")
 	}
 
-	// load the manifest file
-	m, err := manifest.Load()
+	// ensure that the GO15VENDOREXPERIMENT env var is set to '1'
+	if !go15experiment.On() {
+		return errors.New("govend requires 'GO15VENDOREXPERIMENT=1'")
+	}
+
+	// attempt to load the manifest file
+	m, err := manifest.Load(format)
 	if err != nil {
 		return err
 	}
 
-	// ensure the manifest file and vendor dir is in sync
+	// sync ensures that if a vendor is specified in the manifest, that
+	// repository root is also currently present in the vendor directory, this
+	// allows us to trust the manifest file
 	m.Sync()
 
-	// scan the current project for external package dependencies
-	deps, err := packages.ScanProject(".")
-	if err != nil {
-		return err
-	}
-
-	// setting some state
-	badimports = map[string]string{} // bad package imports
-
-	// range over the external dependencies
-	for _, dep := range deps {
-
-		// check if the dep is a known bad import
-		if _, ok := badimports[dep]; ok {
-			continue
-		}
-
-		// download that dependency and any external deps it has
-		lastimport = dep
-		if err := downloadDeps(dep, m, verbose); err != nil {
+	// if no packages were provided as arguments, assume the current directory is
+	// a go project and scan it for external pacakges.
+	if len(pkgs) == 0 {
+		pkgs, err = packages.ScanProject(".")
+		if err != nil {
 			return err
 		}
 	}
 
+	// download that dependency and any external deps it has
+	bpkgs := &badpkgs{}
+	numOfpkgs := 0
+	for _, pkg := range pkgs {
+		lastimport = pkg
+		n, err := deptree(pkg, m, bpkgs, 0, verbose, tree)
+		if err != nil {
+			return err
+		}
+		numOfpkgs += n
+	}
+
 	if verbose {
-		fmt.Printf("%d packages scanned, %d skipped\n", len(deps), len(badimports))
+		fmt.Printf("\npackages scanned: %d\n", numOfpkgs)
+		fmt.Printf("packages skipped: %d\n", bpkgs.len())
+		fmt.Printf("repos downloaded: %d\n", m.Len())
 	}
 
 	if err := m.Write(); err != nil {
@@ -73,55 +73,106 @@ func Vendor(pkgs []string, update, verbose, commands bool, format string) error 
 	return nil
 }
 
-func downloadDeps(dep string, m *manifest.Manifest, verbose bool) error {
+// deptree downloads a dependency and the entire tree of dependencies/packages
+// that dependency requries as well.
+//
+// deptree takes a manifest as well as map of badimports to avoid as much
+// rework as possible.
+//
+// as well as an error, deptree returns the number of external package nodes
+// scanned in the dependecy tree excluding the root node/pkg.
+func deptree(pkg string, m *manifest.Manifest, bpkgs *badpkgs, level int, verbose bool, tree bool) (int, error) {
 
 	// use the network to gather some metadata on this repo
-	r, err := repo.Ping(dep)
+	r, err := repo.Ping(pkg)
 	if err != nil {
 		if strings.Contains(err.Error(), "unrecognized import path") {
-			badimports[dep] = "unable to ping"
+			bpkgs.append(pkg)
 			if verbose {
-				fmt.Printf(" ✖ %s (bad ping)\n", dep)
+				if tree {
+					writeBlanks(level)
+				}
+				fmt.Printf("%s (bad ping)\n", pkg)
 			}
 		}
-		return err
+		return 0, err
 	}
 
 	// check if the repo is missing from the manifest file
 	if !m.Contains(r.ImportPath) {
 
 		if verbose {
-			fmt.Printf(" ↓ %s (%s)\n", r.ImportPath, "latest")
+			if tree {
+				writeBlanks(level)
+			}
+			fmt.Printf("%s\n", r.ImportPath)
 		}
 
 		// download the repo
 		rev, err := repo.Download(r, "vendor", "latest")
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 		// append the repo to the manifest file
-		m.Append(manifest.NewVendor(r.ImportPath, rev))
+		m.Append(r.ImportPath, rev)
 	}
 
-	depdeps, err := packages.Scan(filepath.Join("vendor", dep))
+	pkgdeps, err := packages.Scan(filepath.Join("vendor", pkg))
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil
+			return 0, nil
 		}
-		return err
+		return 0, err
 	}
 
-	depdeps = packages.FilterStdPkgs(depdeps)
+	// exclude standard packages
+	pkgdeps = packages.FilterStdPkgs(pkgdeps)
+	num := len(pkgdeps)
+	level++
 
-	for _, d := range depdeps {
-		if d != dep && d != lastimport {
-			lastimport = dep
-			if err := downloadDeps(d, m, verbose); err != nil {
-				return err
+	for _, pkgdep := range pkgdeps {
+		if pkgdep != pkg && pkgdep != lastimport {
+
+			lastimport = pkg
+			n, err := deptree(pkgdep, m, bpkgs, level, verbose, tree)
+			if err != nil {
+				return num + n, err
 			}
+
+			// add num nodes scanned to the total tree n
+			num += n
 		}
 	}
 
-	return nil
+	return num, nil
+}
+
+type badpkgs struct {
+	pkgs []string
+}
+
+func (b *badpkgs) append(pkg string) {
+	b.pkgs = append(b.pkgs, pkg)
+}
+
+func (b *badpkgs) contains(pkg string) bool {
+	for _, p := range b.pkgs {
+		if p == pkg {
+			return true
+		}
+	}
+	return false
+}
+
+func (b *badpkgs) len() int {
+	return len(b.pkgs)
+}
+
+// writeBlanks writes a number of blank spaces.
+func writeBlanks(num int) {
+	for num > 0 {
+		fmt.Printf(" ")
+		num--
+	}
 }

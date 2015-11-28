@@ -16,45 +16,41 @@ import (
 // Write writes the vendors to the manifest file on disk.
 func (m *Manifest) Write() error {
 
-	var b []byte
-	var err error
-	var fpath string
-
 	// sort the manfiest vendors to fixate ordering
 	sort.Sort(m)
 
-	switch format {
+	// set a slice of bytes aside for the manifest formatted contents
+	b := []byte{}
+
+	var err error
+	switch m.format {
 	case "json":
-		fpath = file + "." + format
 		b, err = json.Marshal(m)
 		if err != nil {
 			return err
 		}
-	case "yml", "yaml":
-		format = "yml"
-		fpath = file + "." + format
+	case "yml":
 		b, err = yaml.Marshal(m)
 		if err != nil {
 			return err
 		}
 	case "toml":
-		fpath = file + "." + format
 		buf := new(bytes.Buffer)
 		if err := toml.NewEncoder(buf).Encode(m); err != nil {
 			log.Fatal(err)
 		}
 		b = buf.Bytes()
 	default:
-		return fmt.Errorf("vendor manifest file format type '%s' is not supported", format)
+		return fmt.Errorf("format type '%s' not supported", m.format)
 	}
 
 	// cleanup any previous file formats
-	os.Remove(file + ".yml")
-	os.Remove(file + ".json")
-	os.Remove(file + ".toml")
+	for _, ext := range extensions {
+		os.Remove(file + ext)
+	}
 
 	// write manifest file bytes to disk
-	if err := ioutil.WriteFile(fpath, b, 0644); err != nil {
+	if err := ioutil.WriteFile(file+"."+m.format, b, 0644); err != nil {
 		return err
 	}
 

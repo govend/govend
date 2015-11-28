@@ -9,6 +9,7 @@ import (
 
 var (
 	verbose  bool
+	tree     bool
 	update   bool
 	commands bool
 	format   string
@@ -18,6 +19,9 @@ const (
 	rootDesc = `Govend downloads and vendors the packages named by the import
 paths, along with their dependencies.`
 	verboseDesc = `The -v flag prints the names of packages as they are vendored.
+	`
+	treeDesc = `The -t flag works with the -v flag to print the names of packages
+	as an indented tree to visualize the dependency tree.
 	`
 	updateDesc = `The -u flag uses the network to update the named packages and
 	their dependencies.  By default, the network is used to check out missing
@@ -36,6 +40,7 @@ func init() {
 	RootCMD.Flags().StringVarP(&format, "format", "f", "YAML", formatDesc)
 	RootCMD.Flags().BoolVarP(&update, "update", "u", false, updateDesc)
 	RootCMD.Flags().BoolVarP(&verbose, "verbose", "v", false, verboseDesc)
+	RootCMD.Flags().BoolVarP(&tree, "tree", "t", false, treeDesc)
 }
 
 // RootCMD describes the root command.
@@ -43,7 +48,7 @@ var RootCMD = &cobra.Command{
 	Short: "Govend vendors external packages.",
 	Long:  rootDesc,
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := govend.Vendor(args, update, verbose, commands, format); err != nil {
+		if err := govend.Vendor(args, update, verbose, tree, commands, format); err != nil {
 			log.Fatal(err)
 		}
 	},

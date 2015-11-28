@@ -1,21 +1,64 @@
 package manifest
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 const file = "vendor"
 
+var extensions = []string{".json", ".yml", ".yaml", ".toml"}
+
 // Manifest describes the vendors manifest file used save repository
 // dependencies and their versions. The file is written as JSON, YAML or TOML.
 type Manifest struct {
-	Vendors []Vendor `json:"vendors" yml:"vendors" toml:"vendors"`
+	format  string
+	Vendors []vendor `json:"vendors" yml:"vendors" toml:"vendors"`
 }
 
-// Append takes a Vendor and appends it to the Manifest object.
-func (m *Manifest) Append(v Vendor) {
-	m.Vendors = append(m.Vendors, v)
+// vendor describes a dependecy with its import path and revision hash.
+type vendor struct {
+	Path string `json:"path" yaml:"path"`
+	Rev  string `json:"rev,omitempty" yaml:"rev,omitempty"`
+}
+
+// SetFormat takes a string format and sets it, if it is valid.
+// If the format provided is not a valid or supported format an error is
+// returned.
+//
+// Currently YAML, JSON, and TOML are supported formats.
+func (m *Manifest) SetFormat(format string) error {
+
+	if format == "" {
+		return errors.New("cannot set empty format")
+	}
+
+	format = strings.ToLower(format)
+	for _, ext := range extensions {
+		if format == string([]rune(ext)[1:]) {
+			if format == "yaml" {
+				format = "yml"
+			}
+			m.format = format
+			return nil
+		}
+	}
+
+	return fmt.Errorf("format type '%s' not supported", m.format)
+}
+
+// Format returns the manifest's set format.
+func (m *Manifest) Format() string {
+	return m.format
+}
+
+// Append creates a vendor object from a path and revision and
+// appends it to the Manifest.
+func (m *Manifest) Append(path, rev string) {
+	m.Vendors = append(m.Vendors, vendor{path, rev})
 }
 
 // Remove takes a package import string, and removes it from the manifest file.
@@ -38,23 +81,22 @@ func (m Manifest) Contains(pkg string) bool {
 	return false
 }
 
-// InSync check if the manifest file's list of vendored directories are on disk.
-func (m Manifest) InSync() ([]Vendor, bool) {
+// inSync check if the manifest file's list of vendored directories are on disk.
+func (m Manifest) inSync() ([]vendor, bool) {
 	inSync := true
-	var orphans []Vendor
-	for _, vendor := range m.Vendors {
-		if _, err := os.Stat(filepath.Join("vendor", vendor.Path)); os.IsNotExist(err) {
-			orphans = append(orphans, vendor)
+	orphans := []vendor{}
+	for _, v := range m.Vendors {
+		if _, err := os.Stat(filepath.Join("vendor", v.Path)); os.IsNotExist(err) {
+			orphans = append(orphans, v)
 			inSync = false
 		}
 	}
 	return orphans, inSync
 }
 
-// Sync acts like InSync, but removes orphaned vendored packages from the
-// Manifest object.
+// Sync removes orphaned vendored packages from the Manifest.
 func (m *Manifest) Sync() {
-	vendors, ok := m.InSync()
+	vendors, ok := m.inSync()
 	if !ok {
 		for _, vendor := range vendors {
 			m.Remove(vendor.Path)
@@ -75,15 +117,4 @@ func (m *Manifest) Swap(i, j int) {
 // Less allows Manifest to satisfy the sort.Interface.
 func (m *Manifest) Less(i, j int) bool {
 	return m.Vendors[i].Path < m.Vendors[j].Path
-}
-
-// Vendor describes an external vendored dependecy with its import path and
-// revision hash.
-type Vendor struct {
-	Path string `json:"path" yaml:"path"`
-	Rev  string `json:"rev,omitempty" yaml:"rev,omitempty"`
-}
-
-func NewVendor(path, rev string) Vendor {
-	return Vendor{path, rev}
 }
