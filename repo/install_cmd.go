@@ -1,16 +1,7 @@
 package repo
 
-import (
-	"errors"
-	"fmt"
-	"os"
-	"path/filepath"
-
-	"github.com/gophersaurus/govend/go15experiment"
-	"github.com/gophersaurus/govend/manifest"
-)
-
 // InstallCMD
+/*
 func InstallCMD(vendorDir, vendorFile string, verbose bool) error {
 
 	if !go15experiment.Version() {
@@ -62,3 +53,4 @@ func InstallCMD(vendorDir, vendorFile string, verbose bool) error {
 
 	return nil
 }
+*/

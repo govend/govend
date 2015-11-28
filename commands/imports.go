@@ -1,12 +1,5 @@
 package commands
 
-import (
-	"log"
-
-	"github.com/gophersaurus/govend/packages"
-	"github.com/spf13/cobra"
-)
-
 var (
 	importsPriority string
 	importsDisplay  bool
@@ -14,6 +7,8 @@ var (
 	importsList     bool
 	importsWrite    bool
 )
+
+/*
 
 func init() {
 	ImportsCMD.Flags().StringVarP(&importsPriority, "priority", "p", "", "Comma seperated import path prefixes that if matched, take priority")
@@ -41,3 +36,4 @@ var ImportsCMD = &cobra.Command{
 		}
 	},
 }
+*/

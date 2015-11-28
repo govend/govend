@@ -3,9 +3,10 @@ package packages
 //go:generate go run generate_std_pkgs.go
 
 import (
+	"fmt"
 	"go/parser"
 	"go/token"
-	"log"
+	"os"
 	"strconv"
 	"strings"
 
@@ -17,41 +18,34 @@ const (
 	importPathError = "invalid import path:"
 )
 
-var (
-	rootExceptions = []string{"appengine/"}
-	scannedFiles   = map[string][]string{}
-)
+func Scan(dir string) ([]string, error) {
 
-// Scan scans a directory to collect external package imports.
-func Scan(dir, vendorDir string, skipVendor, verbose bool) ([]string, map[string]string, error) {
+	fileInfo, err := os.Stat(dir)
+	if err != nil {
+		return nil, err
+	}
 
-	pkglist := []string{}
-	badpkgs := map[string]string{}
+	if !fileInfo.IsDir() {
+		return nil, fmt.Errorf("'%s' is a file, directories contain packages", fileInfo.Name())
+	}
+
+	imports := map[string]bool{}
 
 	w := fs.Walk(dir)
+	w.Step()
+
 	for w.Step() {
 
 		fstat := w.Stat()
 
 		if fstat.IsDir() {
-
-			if fstat.Name() == "testdata" {
-				w.SkipDir()
-				continue
-			}
-
-			// check if that directory is "_vendor"
-			if fstat.Name() == vendorDir && skipVendor {
-				w.SkipDir()
-				continue
-			}
+			w.SkipDir()
 			continue
 		}
 
 		// check for errors
 		if w.Err() != nil {
-			log.Println("govend scan:", w.Err())
-			continue
+			return nil, w.Err()
 		}
 
 		fpath := w.Path()
@@ -59,67 +53,59 @@ func Scan(dir, vendorDir string, skipVendor, verbose bool) ([]string, map[string
 		// check the file is a .go file
 		if strings.HasSuffix(fpath, ".go") {
 
-			var imports []string
+			fset := token.NewFileSet()
 
-			if pkgs, ok := scannedFiles[fpath]; ok {
-				imports = pkgs
-			} else {
+			// parse only the import declarations in the .go file
+			f, err := parser.ParseFile(fset, w.Path(), nil, parser.ImportsOnly)
+			if err != nil {
 
-				fset := token.NewFileSet()
+				e := err.Error()
+				if strings.Contains(e, eofError) {
+					continue
+				}
 
-				// parse only the import declarations in the .go file
-				f, err := parser.ParseFile(fset, w.Path(), nil, parser.ImportsOnly)
-				if err != nil {
-
-					e := err.Error()
-
-					if strings.Contains(e, eofError) {
-						continue
-					}
-
-					if strings.Contains(e, importPathError) {
-						for _, i := range f.Imports {
-							badpkgs[i.Path.Value] = "invalid import path"
+				if strings.Contains(e, importPathError) {
+					for _, i := range f.Imports {
+						if Valid(i.Path.Value) {
+							path, err := strconv.Unquote(i.Path.Value)
+							if err != nil {
+								return nil, err
+							}
+							imports[path] = true
+							continue
 						}
-						continue
 					}
-
-					return nil, badpkgs, err
+					continue
 				}
 
-				// unquote the import path value
-				for _, i := range f.Imports {
-					importpath, err := strconv.Unquote(i.Path.Value)
-					if err != nil {
-						return nil, badpkgs, err
-					}
-					imports = append(imports, importpath)
-				}
+				return nil, err
 			}
 
-			// iterate over import paths
-			for _, importpath := range imports {
-
-				// iterate through the known external packages
-				for _, pkg := range pkglist {
-					if importpath == pkg {
-						goto SKIP
-					}
+			// unquote the import path value
+			for _, i := range f.Imports {
+				path, err := strconv.Unquote(i.Path.Value)
+				if err != nil {
+					return nil, err
 				}
-
-				for _, root := range rootExceptions {
-					if len(importpath) >= len(root) {
-						if importpath[:len(root)] == root {
-							goto SKIP
-						}
-					}
-				}
-
-				pkglist = append(pkglist, importpath)
-			SKIP: // skips the appending of packages that are already present
+				imports[path] = true
 			}
 		}
 	}
 
-	return pkglist, badpkgs, nil
+	for path, _ := range imports {
+		for _, exception := range Exceptions {
+			if Match(path, exception) {
+				imports[path] = false
+			}
+		}
+	}
+
+	paths := []string{}
+	for path, ok := range imports {
+		if ok {
+			paths = append(paths, path)
+		}
+	}
+
+	return paths, nil
 }

@@ -14,6 +14,7 @@
 package blackfriday
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -1065,6 +1066,118 @@ func TestFencedCodeBlock(t *testing.T) {
 	doTestsBlock(t, tests, EXTENSION_FENCED_CODE)
 }
 
+func TestFencedCodeInsideBlockquotes(t *testing.T) {
+	cat := func(s ...string) string { return strings.Join(s, "\n") }
+	var tests = []string{
+		cat("> ```go",
+			"package moo",
+			"",
+			"```",
+			""),
+		`<blockquote>
+<pre><code class="language-go">package moo
+
+</code></pre>
+</blockquote>
+`,
+		// -------------------------------------------
+		cat("> foo",
+			"> ",
+			"> ```go",
+			"package moo",
+			"```",
+			"> ",
+			"> goo.",
+			""),
+		`<blockquote>
+<p>foo</p>
+
+<pre><code class="language-go">package moo
+</code></pre>
+
+<p>goo.</p>
+</blockquote>
+`,
+		// -------------------------------------------
+		cat("> foo",
+			"> ",
+			"> quote",
+			"continues",
+			"```",
+			""),
+		`<blockquote>
+<p>foo</p>
+
+<p>quote
+continues
+` + "```" + `</p>
+</blockquote>
+`,
+		// -------------------------------------------
+		cat("> foo",
+			"> ",
+			"> ```go",
+			"package moo",
+			"```",
+			"> ",
+			"> goo.",
+			"> ",
+			"> ```go",
+			"package zoo",
+			"```",
+			"> ",
+			"> woo.",
+			""),
+		`<blockquote>
+<p>foo</p>
+
+<pre><code class="language-go">package moo
+</code></pre>
+
+<p>goo.</p>
+
+<pre><code class="language-go">package zoo
+</code></pre>
+
+<p>woo.</p>
+</blockquote>
+`,
+	}
+
+	// These 2 alternative forms of blockquoted fenced code blocks should produce same output.
+	forms := [2]string{
+		cat("> plain quoted text",
+			"> ```fenced",
+			"code",
+			" with leading single space correctly preserved",
+			"okay",
+			"```",
+			"> rest of quoted text"),
+		cat("> plain quoted text",
+			"> ```fenced",
+			"> code",
+			">  with leading single space correctly preserved",
+			"> okay",
+			"> ```",
+			"> rest of quoted text"),
+	}
+	want := `<blockquote>
+<p>plain quoted text</p>
+
+<pre><code class="language-fenced">code
+ with leading single space correctly preserved
+okay
+</code></pre>
+
+<p>rest of quoted text</p>
+</blockquote>
+`
+	tests = append(tests, forms[0], want)
+	tests = append(tests, forms[1], want)
+
+	doTestsBlock(t, tests, EXTENSION_FENCED_CODE)
+}
+
 func TestTable(t *testing.T) {
 	var tests = []string{
 		"a | b\n---|---\nc | d\n",
@@ -1401,7 +1514,19 @@ func TestTitleBlock_EXTENSION_TITLEBLOCK(t *testing.T) {
 			"Yep, more here too\n" +
 			"</h1>",
 	}
-
 	doTestsBlock(t, tests, EXTENSION_TITLEBLOCK)
+}
 
+func TestBlockComments(t *testing.T) {
+	var tests = []string{
+		"Some text\n\n<!-- comment -->\n",
+		"<p>Some text</p>\n\n<!-- comment -->\n",
+
+		"Some text\n\n<!--\n\nmultiline\ncomment\n-->\n",
+		"<p>Some text</p>\n\n<!--\n\nmultiline\ncomment\n-->\n",
+
+		"Some text\n\n<!--\n\n<div><p>Commented</p>\n<span>html</span></div>\n-->\n",
+		"<p>Some text</p>\n\n<!--\n\n<div><p>Commented</p>\n<span>html</span></div>\n-->\n",
+	}
+	doTestsBlock(t, tests, 0)
 }
