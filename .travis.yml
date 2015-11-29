@@ -18,6 +18,3 @@ script:
   - rm -rf vendor
   - govend -v
   - go install
-  - rm -rf vendor && rm vendor.yml
-  - govend -v
-  - go install
