@@ -47,7 +47,7 @@ The command `govend -v` only scans for external packages and downloads them to t
 
 `govend` can save the path and commit revisions of each package dependency in a `vendor.yml` file in the root directory of your project. The format of the file can be `JSON` or `TOML` as well.
 
-To lock in dependency version run `govend -l` for `lock`.  An example `vendor.yml` file is shown below:
+To lock in dependency versions run `govend -l` for `lock`.  An example `vendor.yml` file is shown below:
 
 ```yaml
 vendors:
