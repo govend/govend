@@ -15,26 +15,20 @@ govend [![GoDoc](http://godoc.org/github.com/gophersaurus/govend?status.png)](ht
 * generate temporary directories or files
 * alter any go environment variables, including `$GOPATH`
 
-Install
-=======
+# Install
 
 ```bash
 $ go get -u github.com/gophersaurus/govend
 ```
 
-Vendor Dependencies
-===================
+# Vendor
+
+To vendor external package dependencies run `govend` while inside the root directory of the project.  If you would like to see more verbose output run `govend -v`.
 
 ```bash
 $ cd project/root
 
 $ govend -v
-```
-
-To vendor external package dependencies run `govend -v` while inside the project root directory.
-
-```bash
-→ govend -v
 github.com/kr/fs
 github.com/spf13/cobra
 github.com/spf13/pflag
@@ -47,9 +41,13 @@ gopkg.in/check.v1
 github.com/BurntSushi/toml
 ```
 
-### `vendors.yml`
+# Vendor Lock
 
-The `vendors.yml` file contains an array of import paths and commit revisions.
+The command `govend -v` only scans for external packages and downloads them to the `vendor` directory in your project. You may need more control over versioning your dependencies so that reliable reproducible builds are possible.
+
+`govend` can save the path and commit revisions of each package dependency in a `vendor.yml` file in the root directory of your project. The format of the file can be `JSON` or `TOML` as well.
+
+To lock in dependency version run `govend -l` for `lock`.  An example `vendor.yml` file is shown below:
 
 ```yaml
 vendors:
@@ -75,48 +73,37 @@ vendors:
   rev: 53feefa2559fb8dfa8d81baad31be332c97d6c77
 ```
 
-### List Dependencies
-If you want to scan your code to find out how many third party dependencies are
-in your project run `govend list`. You can specify a path and output formats.
+# Scan
+You may want to scan your code to determine how many third party dependencies are
+in your project. To do so run `govend -s <path/to/dir>`. You can also specify different output formats.
 
-Here is an example of a path: `govend list some/project/path`
+**TXT**
 ```bash
-github.com/spf13/cobra
+$ govend -s packages
 github.com/kr/fs
 gopkg.in/yaml.v2
-github.com/jackspirou/importsplus
-golang.org/x/tools/go/vcs
 ```
 
 **JSON**
-`govend list -f json`
 ```bash
+$ govend -s -f json packages
 [
-  "github.com/spf13/cobra",
   "github.com/kr/fs",
-  "gopkg.in/yaml.v2",
-  "github.com/jackspirou/importsplus",
-  "golang.org/x/tools/go/vcs"
-]%  
+  "gopkg.in/yaml.v2"
+]
 ```
 
 **YAML**
-`govend list -f yml`
 ```bash
-- github.com/spf13/cobra
+$ govend -s -f yaml packages
 - github.com/kr/fs
 - gopkg.in/yaml.v2
-- github.com/jackspirou/importsplus
-- golang.org/x/tools/go/vcs
 ```
 **XML**
-`govend list -f xml`
 ```bash
-<string>github.com/spf13/cobra</string>
-<string>github.com/kr/fs</string>
+$ govend -s -f xml packages
 <string>gopkg.in/yaml.v2</string>
-<string>github.com/jackspirou/importsplus</string>
-<string>golang.org/x/tools/go/vcs</string>%
+<string>github.com/kr/fs</string>
 ```
 
 Windows Support
