@@ -16,7 +16,7 @@ import (
 var lastimport string
 
 // Vendor
-func Vendor(pkgs []string, update, verbose, tree, results, commands bool, format string) error {
+func Vendor(pkgs []string, update, verbose, tree, results, commands, lock bool, format string) error {
 
 	// ensure that the locally installed version of go supports vendoring
 	if !go15vendorexperiment.Version() {
@@ -38,6 +38,7 @@ func Vendor(pkgs []string, update, verbose, tree, results, commands bool, format
 	// repository root is also currently present in the vendor directory, this
 	// allows us to trust the manifest file
 	m.Sync()
+	initManifestLen := m.Len()
 
 	// if no packages were provided as arguments, assume the current directory is
 	// a go project and scan it for external pacakges.
@@ -66,8 +67,10 @@ func Vendor(pkgs []string, update, verbose, tree, results, commands bool, format
 		fmt.Printf("repos downloaded: %d\n", m.Len())
 	}
 
-	if err := m.Write(); err != nil {
-		return err
+	if lock || initManifestLen > 0 {
+		if err := m.Write(); err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -13,6 +13,7 @@ var (
 	update   bool
 	results  bool
 	commands bool
+	lock     bool
 	format   string
 )
 
@@ -34,8 +35,12 @@ paths, along with their dependencies.`
 	commandsDesc = `The -x flag prints commands as they are executed for vendoring
 	such as 'git init'.
 	`
-	formatDesc = `The -f flag defines the format of manifest vendor file on disk.
-	By default, the file format is YAML but also supports JSON and TOML formats.
+	lockDesc = `The -l flag writes a manifest vendor file on disk to lock in the
+	versions of vendored dependencies.  This only needs to be done once.
+	`
+	formatDesc = `The -f flag works with the -m flag to define the format of the
+	manifest vendor file on disk.  By default, the file format is YAML but also
+	supports JSON and TOML formats.
 	`
 )
 
@@ -46,6 +51,7 @@ func init() {
 	RootCMD.Flags().BoolVarP(&verbose, "verbose", "v", false, verboseDesc)
 	RootCMD.Flags().BoolVarP(&tree, "tree", "t", false, treeDesc)
 	RootCMD.Flags().BoolVarP(&results, "results", "r", false, resultsDesc)
+	RootCMD.Flags().BoolVarP(&lock, "lock", "l", false, lockDesc)
 }
 
 // RootCMD describes the root command.
@@ -53,7 +59,7 @@ var RootCMD = &cobra.Command{
 	Short: "Govend vendors external packages.",
 	Long:  rootDesc,
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := govend.Vendor(args, update, verbose, tree, results, commands, format); err != nil {
+		if err := govend.Vendor(args, update, verbose, tree, results, commands, lock, format); err != nil {
 			log.Fatal(err)
 		}
 	},
