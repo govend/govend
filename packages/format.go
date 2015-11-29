@@ -5,11 +5,17 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 )
 
 func Format(pkgs []string, format string) ([]byte, error) {
+
+	if format == "YAML" {
+		format = ""
+	}
+	format = strings.ToLower(format)
 
 	// create an slice of bytes to print or write results
 	b := []byte{}
@@ -18,7 +24,7 @@ func Format(pkgs []string, format string) ([]byte, error) {
 	// switch on format
 	switch format {
 
-	case "txt": // if text, use a byte.Buffer to format package paths
+	case "txt", "": // if text, use a byte.Buffer to format package paths
 		var buff bytes.Buffer
 		for _, pkg := range pkgs {
 			buff.WriteString(pkg + "\n")
