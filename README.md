@@ -73,6 +73,48 @@ vendors:
   rev: 53feefa2559fb8dfa8d81baad31be332c97d6c77
 ```
 
+# Report Summary
+If you would like to get a report summary of the number of unique packages scanned, skipped and how many repositories were downloaded, run `govend -v -r`.
+
+```bash
+→ govend -v -r
+github.com/BurntSushi/toml
+gopkg.in/yaml.v2
+gopkg.in/check.v1
+github.com/kr/fs
+github.com/spf13/cobra
+github.com/spf13/pflag
+github.com/cpuguy83/go-md2man
+github.com/russross/blackfriday
+github.com/shurcooL/sanitized_anchor_name
+github.com/inconshreveable/mousetrap
+
+packages scanned: 12
+packages skipped: 0
+repos downloaded: 10
+```
+
+# Dependency Tree
+As `govend` vendors dependencies, it follows the dep tree.  If you would like to see a visual representation of that tree run `govend -v -t`.
+
+```bash
+→ govend -v -t -r
+github.com/spf13/cobra
+ github.com/inconshreveable/mousetrap
+ github.com/spf13/pflag
+ github.com/cpuguy83/go-md2man
+  github.com/russross/blackfriday
+   github.com/shurcooL/sanitized_anchor_name
+github.com/kr/fs
+github.com/BurntSushi/toml
+gopkg.in/yaml.v2
+ gopkg.in/check.v1
+
+packages scanned: 12
+packages skipped: 0
+repos downloaded: 10
+```
+
 # Scan
 You may want to scan your code to determine how many third party dependencies are
 in your project. To do so run `govend -s <path/to/dir>`. You can also specify different output formats.
@@ -106,16 +148,52 @@ $ govend -s -f xml packages
 <string>github.com/kr/fs</string>
 ```
 
-Windows Support
-===============
+# More Flags
 
-Does `govend` work on Windows platforms?
+You can run `govend -h` to find more flags and options.
 
-> It does, we have tested it, but some bugs may exist.
+```bash
+$ govend -h  
+Govend downloads and vendors the packages named by the import
+paths, along with their dependencies.
 
-Contributing
-============
+Usage:
+  govend [flags]
 
-### Can I Contribute?
+Flags:
+  -a, --all[=false]: The -a flag works with the -s flag to show all packages, not just
+	external packages.
 
-> Please do! Simply fork the code and send a pull request.
+  -x, --commands[=false]: The -x flag prints commands as they are executed for vendoring
+	such as 'git init'.
+
+  -f, --format="YAML": The -f flag works with the -m flag and -s flag to define the
+	format when writing files to disk.  By default, the file format is YAML but
+	also supports JSON and TOML formats.
+
+  -l, --lock[=false]: The -l flag writes a manifest vendor file on disk to lock in the
+	versions of vendored dependencies.  This only needs to be done once.
+
+  -r, --results[=false]: The -r flag works with the -v flag to print a summary of the
+	number of packages scanned, packages skipped, and repositories downloaded.
+
+  -s, --scan[=false]: The -s flag scans the current or provided directory for external
+	packages.
+
+  -t, --tree[=false]: The -t flag works with the -v flag to print the names of packages
+	as an indented tree to visualize the dependency tree.
+
+  -u, --update[=false]: The -u flag uses the network to update the named packages and
+	their dependencies.  By default, the network is used to check out missing
+	packages but does not use it to look for updates to existing packages.
+
+  -v, --verbose[=false]: The -v flag prints the names of packages as they are vendored.
+
+      --version[=false]: The --version flag prints the current version.
+```
+
+# Windows Support
+`govend` works on Windows, but it may have some bugs.
+
+# Contributing
+Simply fork the code and send a pull request.
