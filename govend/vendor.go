@@ -34,11 +34,15 @@ func Vendor(pkgs []string, update, verbose, tree, results, commands, lock bool, 
 		return err
 	}
 
+	// it is important to save the manifest length before syncing, so that
+	// if a manifest file existed previously it continues to update even if
+	// no current vendors are valid.
+	initManifestLen := m.Len()
+
 	// sync ensures that if a vendor is specified in the manifest, that
 	// repository root is also currently present in the vendor directory, this
 	// allows us to trust the manifest file
 	m.Sync()
-	initManifestLen := m.Len()
 
 	// if no packages were provided as arguments, assume the current directory is
 	// a go project and scan it for external pacakges.

@@ -1,11 +1,7 @@
 package main
 
-import "github.com/gophersaurus/govend/commands"
+import "github.com/gophersaurus/govend/cmd"
 
 func main() {
-	commands.RootCMD.AddCommand(commands.ListCMD)
-	commands.RootCMD.AddCommand(commands.VersionCMD)
-	//	commands.RootCMD.AddCommand(commands.ImportsCMD)
-	//	commands.RootCMD.AddCommand(commands.InstallCMD)
-	commands.RootCMD.Execute()
+	cmd.RootCMD.Execute()
 }
