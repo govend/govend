@@ -1,6 +1,8 @@
 govend [![GoDoc](http://godoc.org/github.com/govend/govend?status.png)](http://godoc.org/github.com/govend/govend) [![Build Status](https://travis-ci.org/govend/govend.svg?branch=master)](https://travis-ci.org/govend/govend) [![Go Report Card](http://goreportcard.com/badge/govend/govend?)](http://goreportcard.com/report/govend/govend)
 ============================================================================================================================
 
+[![Join the chat at https://gitter.im/govend/govend](https://badges.gitter.im/govend/govend.svg)](https://gitter.im/govend/govend?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 `govend` leverages the `GO15VENDOREXPERIMENT` to vendor external package dependencies.
 
 **it does:**
