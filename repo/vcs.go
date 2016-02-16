@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gophersaurus/govend/vcs"
+	"github.com/govend/govend/vcs"
 )
 
 // VCS

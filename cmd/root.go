@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gophersaurus/govend/govend"
+	"github.com/govend/govend/govend"
 	"github.com/spf13/cobra"
 )
 

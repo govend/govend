@@ -4,8 +4,8 @@ package govend
 import (
 	"fmt"
 
-	"github.com/gophersaurus/govend/packages"
-	"github.com/gophersaurus/govend/strutil"
+	"github.com/govend/govend/packages"
+	"github.com/govend/govend/strutil"
 )
 
 // List

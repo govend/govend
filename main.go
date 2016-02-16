@@ -1,6 +1,6 @@
 package main
 
-import "github.com/gophersaurus/govend/cmd"
+import "github.com/govend/govend/cmd"
 
 func main() {
 	cmd.RootCMD.Execute()

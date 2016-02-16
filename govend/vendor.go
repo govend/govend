@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gophersaurus/govend/go15vendorexperiment"
-	"github.com/gophersaurus/govend/manifest"
-	"github.com/gophersaurus/govend/packages"
-	"github.com/gophersaurus/govend/repo"
+	"github.com/govend/govend/go15vendorexperiment"
+	"github.com/govend/govend/manifest"
+	"github.com/govend/govend/packages"
+	"github.com/govend/govend/repo"
 )
 
 var lastimport string

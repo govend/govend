@@ -18,8 +18,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gophersaurus/govend/go15vendorexperiment"
-	"github.com/gophersaurus/govend/vcs/internal/singleflight"
+	"github.com/govend/govend/go15vendorexperiment"
+	"github.com/govend/govend/vcs/internal/singleflight"
 )
 
 // Verbose enables verbose operation logging.

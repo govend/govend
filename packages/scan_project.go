@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gophersaurus/govend/strutil"
+	"github.com/govend/govend/strutil"
 	"github.com/kr/fs"
 )
 
