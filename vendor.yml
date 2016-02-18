@@ -1,0 +1,15 @@
+vendors:
+- path: github.com/BurntSushi/toml
+  rev: 5c4df71dfe9ac89ef6287afc05e4c1b16ae65a1e
+- path: github.com/inconshreveable/mousetrap
+  rev: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- path: github.com/kr/fs
+  rev: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
+- path: github.com/spf13/cobra
+  rev: 65a708cee0a4424f4e353d031ce440643e312f92
+- path: github.com/spf13/pflag
+  rev: 7f60f83a2c81bc3c3c0d5297f61ddfa68da9d3b7
+- path: gopkg.in/check.v1
+  rev: 4f90aeace3a26ad7021961c297b22c42160c7b25
+- path: gopkg.in/yaml.v2
+  rev: f7716cbe52baa25d2e9b0d0da546fcf909fc16b4
