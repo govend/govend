@@ -7,7 +7,6 @@ go:
   - 1.5.2
   - 1.5.3
   - 1.6
-  - tip
 
 env:
   - GO15VENDOREXPERIMENT=1
