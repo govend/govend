@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
-	"github.com/govend/govend/go15vendorexperiment"
 	"github.com/govend/govend/manifest"
 	"github.com/govend/govend/packages"
 	"github.com/govend/govend/repo"
+	"github.com/govend/govend/semver"
 )
 
 var lastimport string
@@ -18,14 +19,22 @@ var lastimport string
 // Vendor
 func Vendor(pkgs []string, update, verbose, tree, results, commands, lock bool, format string) error {
 
-	// ensure that the locally installed version of go supports vendoring
-	if !go15vendorexperiment.Version() {
+	go15, _ := semver.New("1.5.0")
+	go16, _ := semver.New("1.6.0")
+
+	version, err := semver.New(strings.TrimPrefix(runtime.Version(), "go"))
+	if err != nil {
+		return err
+	}
+
+	if version.LessThan(go15) {
 		return errors.New("govend requires go versions 1.5+")
 	}
 
-	// ensure that the GO15VENDOREXPERIMENT env var is set to '1'
-	if !go15vendorexperiment.On() {
-		return errors.New("govend requires 'GO15VENDOREXPERIMENT=1'")
+	if version.GreaterThanEqual(go15) && version.LessThan(go16) {
+		if os.Getenv("GO15VENDOREXPERIMENT") != "1" {
+			return errors.New("govend requires the env var 'GO15VENDOREXPERIMENT' to be set")
+		}
 	}
 
 	// attempt to load the manifest file

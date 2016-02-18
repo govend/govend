@@ -36,7 +36,7 @@ func ParseMetaGoImports(r io.Reader) (imports []MetaImport, err error) {
 	for {
 		t, err = d.RawToken()
 		if err != nil {
-			if err == io.EOF {
+			if err == io.EOF || len(imports) > 0 {
 				err = nil
 			}
 			return

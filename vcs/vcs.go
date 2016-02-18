@@ -18,7 +18,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/govend/govend/go15vendorexperiment"
 	"github.com/govend/govend/vcs/internal/singleflight"
 )
 
@@ -130,7 +129,7 @@ var Git = &Cmd{
 	Name: "Git",
 	Cmd:  "git",
 
-	CreateCmd:   []string{"clone {repo} {dir}", "--git-dir={dir}/.git submodule update --init --recursive"},
+	CreateCmd:   []string{"clone {repo} {dir}", "-go-internal-cd {dir} submodule update --init --recursive"},
 	DownloadCmd: []string{"pull --ff-only", "submodule update --init --recursive"},
 
 	TagCmd: []TagCmd{
@@ -145,8 +144,9 @@ var Git = &Cmd{
 	// both createCmd and downloadCmd update the working dir.
 	// No need to do more here. We used to 'checkout master'
 	// but that doesn't work if the default branch is not named master.
+	// DO NOT add 'checkout master' here.
 	// See golang.org/issue/9032.
-	TagSyncDefault: []string{"checkout master", "submodule update --init --recursive"},
+	TagSyncDefault: []string{"submodule update --init --recursive"},
 
 	Scheme:     []string{"git", "https", "http", "git+ssh", "ssh"},
 	PingCmd:    "ls-remote {scheme}://{repo}",
@@ -342,6 +342,15 @@ func (c *Cmd) run1(dir string, cmdline string, keyval []string, verbose bool, co
 		args[i] = expand(m, arg)
 	}
 
+	if len(args) >= 2 && args[0] == "-go-internal-cd" {
+		if filepath.IsAbs(args[1]) {
+			dir = args[1]
+		} else {
+			dir = filepath.Join(dir, args[1])
+		}
+		args = args[2:]
+	}
+
 	_, err := exec.LookPath(c.Cmd)
 	if err != nil {
 		fmt.Fprintf(os.Stderr,
@@ -381,9 +390,11 @@ func (c *Cmd) Ping(scheme, repo string) error {
 // The parent of dir must exist; dir must not.
 func (c *Cmd) Create(dir, repo string) error {
 	for _, cmd := range c.CreateCmd {
-		if !go15vendorexperiment.On() && strings.Contains(cmd, "submodule") {
-			continue
-		}
+		/*
+			if !go15vendorexperiment.On() && strings.Contains(cmd, "submodule") {
+				continue
+			}
+		*/
 		if err := c.run(".", cmd, "dir", dir, "repo", repo); err != nil {
 			return err
 		}
@@ -408,13 +419,12 @@ func (c *Cmd) CreateAtRev(dir, repo, rev string) error {
 
 // Download downloads any new changes for the repo in dir.
 func (c *Cmd) Download(dir string, verbose bool) error {
-	if err := c.fixDetachedHead(dir, verbose); err != nil {
-		return err
-	}
 	for _, cmd := range c.DownloadCmd {
-		if !go15vendorexperiment.On() && strings.Contains(cmd, "submodule") {
-			continue
-		}
+		/*
+			if !go15vendorexperiment.On() && strings.Contains(cmd, "submodule") {
+				continue
+			}
+		*/
 		if err := c.run(dir, cmd); err != nil {
 			return err
 		}
@@ -485,9 +495,11 @@ func (c *Cmd) TagSync(dir, tag string) error {
 
 	if tag == "" && c.TagSyncDefault != nil {
 		for _, cmd := range c.TagSyncDefault {
-			if !go15vendorexperiment.On() && strings.Contains(cmd, "submodule") {
-				continue
-			}
+			/*
+				if !go15vendorexperiment.On() && strings.Contains(cmd, "submodule") {
+					continue
+				}
+			*/
 			if err := c.run(dir, cmd); err != nil {
 				return err
 			}
@@ -496,9 +508,11 @@ func (c *Cmd) TagSync(dir, tag string) error {
 	}
 
 	for _, cmd := range c.TagSyncCmd {
-		if !go15vendorexperiment.On() && strings.Contains(cmd, "submodule") {
-			continue
-		}
+		/*
+			if !go15vendorexperiment.On() && strings.Contains(cmd, "submodule") {
+				continue
+			}
+		*/
 		if err := c.run(dir, cmd, "tag", tag); err != nil {
 			return err
 		}
@@ -912,7 +926,7 @@ var vcsPaths = []*vcsPath{
 	// General syntax for any server.
 	// Must be last.
 	{
-		re:   `^(?P<root>(?P<repo>([a-z0-9.\-]+\.)+[a-z0-9.\-]+(:[0-9]+)?/[A-Za-z0-9_.\-/]*?)\.(?P<vcs>bzr|git|hg|svn))(/[A-Za-z0-9_.\-]+)*$`,
+		re:   `^(?P<root>(?P<repo>([a-z0-9.\-]+\.)+[a-z0-9.\-]+(:[0-9]+)?(/~?[A-Za-z0-9_.\-]+)+?)\.(?P<vcs>bzr|git|hg|svn))(/~?[A-Za-z0-9_.\-]+)*$`,
 		ping: true,
 	},
 }
