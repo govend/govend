@@ -14,8 +14,8 @@ import (
 	"github.com/govend/govend/semver"
 )
 
-// Vendor
-func Vendor(pkgs []string, update, verbose, tree, results, commands, lock bool, format string) error {
+// Vend
+func Vend(pkgs []string, update, verbose, results, commands, lock bool, format string) error {
 
 	go15, _ := semver.New("1.5.0")
 	go16, _ := semver.New("1.6.0")
@@ -63,15 +63,20 @@ func Vendor(pkgs []string, update, verbose, tree, results, commands, lock bool, 
 	pkglist := map[string]bool{}
 	for i := len(pkgs) - 1; i >= 0; i-- {
 		if _, ok := pkglist[pkgs[i]]; ok {
+			pkgs = pkgs[:i]
 			continue
 		}
-		deps, err := deptree(pkgs[i], m, 0, verbose, tree)
+		deps, err := deptree(pkgs[i], m, verbose)
 		if err != nil {
 			pkglist[pkgs[i]] = false
+			pkgs = pkgs[:i]
 			continue
 		}
 		pkglist[pkgs[i]] = true
-		pkgs = append(append(pkgs[:i], pkgs[i+1:]...), deps...)
+		pkgs = append(pkgs[:i], pkgs[i+1:]...)
+		if len(deps) > 0 {
+			pkgs = append(pkgs, deps...)
+		}
 		i += len(deps)
 	}
 
@@ -103,16 +108,13 @@ func Vendor(pkgs []string, update, verbose, tree, results, commands, lock bool, 
 //
 // as well as an error, deptree returns the number of external package nodes
 // scanned in the dependecy tree excluding the root node/pkg.
-func deptree(pkg string, m *manifest.Manifest, level int, verbose bool, tree bool) ([]string, error) {
+func deptree(pkg string, m *manifest.Manifest, verbose bool) ([]string, error) {
 
 	// use the network to gather some metadata on this repo
 	r, err := repo.Ping(pkg)
 	if err != nil {
 		if strings.Contains(err.Error(), "unrecognized import path") {
 			if verbose {
-				if tree {
-					writeBlanks(level)
-				}
 				fmt.Printf("%s (bad ping)\n", pkg)
 			}
 		}
@@ -122,9 +124,6 @@ func deptree(pkg string, m *manifest.Manifest, level int, verbose bool, tree boo
 	// check if the repo is missing from the manifest file
 	if !m.Contains(r.ImportPath) {
 		if verbose {
-			if tree {
-				writeBlanks(level)
-			}
 			fmt.Printf("%s\n", r.ImportPath)
 		}
 		rev, err := repo.Download(r, "vendor", "latest")

@@ -11,7 +11,6 @@ import (
 var (
 	version  bool
 	verbose  bool
-	tree     bool
 	update   bool
 	results  bool
 	commands bool
@@ -27,9 +26,6 @@ paths, along with their dependencies.`
 	verboseDesc = `The -v flag prints the names of packages as they are vendored.
 	`
 	versionDesc = `The --version flag prints the current version.
-	`
-	treeDesc = `The -t flag works with the -v flag to print the names of packages
-	as an indented tree to visualize the dependency tree.
 	`
 	resultsDesc = `The -r flag works with the -v flag to print a summary of the
 	number of packages scanned, packages skipped, and repositories downloaded.
@@ -62,7 +58,6 @@ func init() {
 	RootCMD.Flags().BoolVarP(&update, "update", "u", false, updateDesc)
 	RootCMD.Flags().BoolVarP(&verbose, "verbose", "v", false, verboseDesc)
 	RootCMD.Flags().BoolVar(&version, "version", false, versionDesc)
-	RootCMD.Flags().BoolVarP(&tree, "tree", "t", false, treeDesc)
 	RootCMD.Flags().BoolVarP(&results, "results", "r", false, resultsDesc)
 	RootCMD.Flags().BoolVarP(&lock, "lock", "l", false, lockDesc)
 	RootCMD.Flags().BoolVarP(&scan, "scan", "s", false, scanDesc)
@@ -88,7 +83,7 @@ var RootCMD = &cobra.Command{
 			return
 		}
 
-		if err := govend.Vendor(args, update, verbose, tree, results, commands, lock, format); err != nil {
+		if err := govend.Vend(args, update, verbose, results, commands, lock, format); err != nil {
 			log.Fatal(err)
 		}
 	},

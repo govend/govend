@@ -94,27 +94,6 @@ packages skipped: 0
 repos downloaded: 10
 ```
 
-# Dependency Tree
-As `govend` vendors dependencies, it follows the dep tree.  If you would like to see a visual representation of that tree run `govend -v -t`.
-
-```bash
-→ govend -v -t -r
-github.com/spf13/cobra
- github.com/inconshreveable/mousetrap
- github.com/spf13/pflag
- github.com/cpuguy83/go-md2man
-  github.com/russross/blackfriday
-   github.com/shurcooL/sanitized_anchor_name
-github.com/kr/fs
-github.com/BurntSushi/toml
-gopkg.in/yaml.v2
- gopkg.in/check.v1
-
-packages scanned: 12
-packages skipped: 0
-repos downloaded: 10
-```
-
 # Scan
 You may want to scan your code to determine how many third party dependencies are
 in your project. To do so run `govend -s <path/to/dir>`. You can also specify different output formats.
@@ -179,9 +158,6 @@ Flags:
 
   -s, --scan[=false]: The -s flag scans the current or provided directory for external
 	packages.
-
-  -t, --tree[=false]: The -t flag works with the -v flag to print the names of packages
-	as an indented tree to visualize the dependency tree.
 
   -u, --update[=false]: The -u flag uses the network to update the named packages and
 	their dependencies.  By default, the network is used to check out missing
