@@ -115,7 +115,7 @@ func deptree(pkg string, m *manifest.Manifest, verbose bool) ([]string, error) {
 	if err != nil {
 		if strings.Contains(err.Error(), "unrecognized import path") {
 			if verbose {
-				fmt.Printf("%s (bad ping)\n", pkg)
+				fmt.Printf("%s (bad ping): %s\n", pkg, err)
 			}
 		}
 		return nil, err
