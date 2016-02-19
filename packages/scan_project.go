@@ -22,7 +22,7 @@ func ScanProject(dir string) ([]string, error) {
 
 		if fstat.IsDir() {
 
-			// check if that directory is "_vendor"
+			// check if that directory is "vendor"
 			n := fstat.Name()
 			if n == "vendor" || n == "testdata" || []rune(n)[0] == '_' {
 				w.SkipDir()

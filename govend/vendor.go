@@ -14,8 +14,6 @@ import (
 	"github.com/govend/govend/semver"
 )
 
-var lastimport string
-
 // Vendor
 func Vendor(pkgs []string, update, verbose, tree, results, commands, lock bool, format string) error {
 
@@ -44,13 +42,12 @@ func Vendor(pkgs []string, update, verbose, tree, results, commands, lock bool, 
 	}
 
 	// it is important to save the manifest length before syncing, so that
-	// if a manifest file existed previously it continues to update even if
-	// no current vendors are valid.
-	initManifestLen := m.Len()
+	// we can tell the difference and update the manifest file
+	manifestLen := m.Len()
 
-	// sync ensures that if a vendor is specified in the manifest, that
-	// repository root is also currently present in the vendor directory, this
-	// allows us to trust the manifest file
+	// sync ensures that if a vendor is specified in the manifest, that the
+	// repository structure is also currently present in the vendor directory,
+	// this allows us to trust the manifest file
 	m.Sync()
 
 	// if no packages were provided as arguments, assume the current directory is
@@ -63,24 +60,33 @@ func Vendor(pkgs []string, update, verbose, tree, results, commands, lock bool, 
 	}
 
 	// download that dependency and any external deps it has
-	bpkgs := &badpkgs{}
-	numOfpkgs := 0
-	for _, pkg := range pkgs {
-		lastimport = pkg
-		n, err := deptree(pkg, m, bpkgs, 0, verbose, tree)
-		if err != nil {
-			return err
+	pkglist := map[string]bool{}
+	for i := len(pkgs) - 1; i >= 0; i-- {
+		if _, ok := pkglist[pkgs[i]]; ok {
+			continue
 		}
-		numOfpkgs += n
+		deps, err := deptree(pkgs[i], m, 0, verbose, tree)
+		if err != nil {
+			pkglist[pkgs[i]] = false
+			continue
+		}
+		pkglist[pkgs[i]] = true
+		pkgs = append(append(pkgs[:i], pkgs[i+1:]...), deps...)
+		i = len(pkgs)
 	}
 
 	if verbose && results {
-		fmt.Printf("\npackages scanned: %d\n", numOfpkgs)
-		fmt.Printf("packages skipped: %d\n", bpkgs.len())
+		fmt.Printf("\npackages scanned: %d\n", len(pkglist))
+		fmt.Println("packages skipped:")
+		for pkg, ok := range pkglist {
+			if !ok {
+				fmt.Printf("	%q\n", pkg)
+			}
+		}
 		fmt.Printf("repos downloaded: %d\n", m.Len())
 	}
 
-	if lock || initManifestLen > 0 {
+	if lock || manifestLen > 0 {
 		if err := m.Write(); err != nil {
 			return err
 		}
@@ -97,13 +103,12 @@ func Vendor(pkgs []string, update, verbose, tree, results, commands, lock bool, 
 //
 // as well as an error, deptree returns the number of external package nodes
 // scanned in the dependecy tree excluding the root node/pkg.
-func deptree(pkg string, m *manifest.Manifest, bpkgs *badpkgs, level int, verbose bool, tree bool) (int, error) {
+func deptree(pkg string, m *manifest.Manifest, level int, verbose bool, tree bool) ([]string, error) {
 
 	// use the network to gather some metadata on this repo
 	r, err := repo.Ping(pkg)
 	if err != nil {
 		if strings.Contains(err.Error(), "unrecognized import path") {
-			bpkgs.append(pkg)
 			if verbose {
 				if tree {
 					writeBlanks(level)
@@ -111,23 +116,20 @@ func deptree(pkg string, m *manifest.Manifest, bpkgs *badpkgs, level int, verbos
 				fmt.Printf("%s (bad ping)\n", pkg)
 			}
 		}
-		return 0, err
+		return nil, err
 	}
 
 	// check if the repo is missing from the manifest file
 	if !m.Contains(r.ImportPath) {
-
 		if verbose {
 			if tree {
 				writeBlanks(level)
 			}
 			fmt.Printf("%s\n", r.ImportPath)
 		}
-
-		// download the repo
 		rev, err := repo.Download(r, "vendor", "latest")
 		if err != nil {
-			return 0, err
+			return nil, err
 		}
 
 		// append the repo to the manifest file
@@ -136,53 +138,11 @@ func deptree(pkg string, m *manifest.Manifest, bpkgs *badpkgs, level int, verbos
 
 	pkgdeps, err := packages.Scan(filepath.Join("vendor", pkg))
 	if err != nil {
-		if os.IsNotExist(err) {
-			return 0, nil
-		}
-		return 0, err
+		return nil, err
 	}
 
 	// exclude standard packages
-	pkgdeps = packages.FilterStdPkgs(pkgdeps)
-	num := len(pkgdeps)
-	level++
-
-	for _, pkgdep := range pkgdeps {
-		if pkgdep != pkg && pkgdep != lastimport {
-
-			lastimport = pkg
-			n, err := deptree(pkgdep, m, bpkgs, level, verbose, tree)
-			if err != nil {
-				return num + n, err
-			}
-
-			// add num nodes scanned to the total tree n
-			num += n
-		}
-	}
-
-	return num, nil
-}
-
-type badpkgs struct {
-	pkgs []string
-}
-
-func (b *badpkgs) append(pkg string) {
-	b.pkgs = append(b.pkgs, pkg)
-}
-
-func (b *badpkgs) contains(pkg string) bool {
-	for _, p := range b.pkgs {
-		if p == pkg {
-			return true
-		}
-	}
-	return false
-}
-
-func (b *badpkgs) len() int {
-	return len(b.pkgs)
+	return packages.FilterStdPkgs(pkgdeps), nil
 }
 
 // writeBlanks writes a number of blank spaces.
