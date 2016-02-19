@@ -2,7 +2,7 @@
 
 # govend [![GoDoc](http://godoc.org/github.com/govend/govend?status.png)](http://godoc.org/github.com/govend/govend) [![Build Status](https://travis-ci.org/govend/govend.svg?branch=master)](https://travis-ci.org/govend/govend) [![Go Report Card](http://goreportcard.com/badge/govend/govend?)](http://goreportcard.com/report/govend/govend) [![Join the chat at https://gitter.im/govend/govend](https://badges.gitter.im/govend/govend.svg)](https://gitter.im/govend/govend?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-`govend` leverages the `GO15VENDOREXPERIMENT` to vendor external package dependencies.
+`govend` is a simple tool written in golang to vendor Go packages as external or third party dependencies.
 
 **it does:**
 * try to be compatible with any project
@@ -15,6 +15,8 @@
 * try to create a new project
 * generate temporary directories or files
 * alter any go environment variables, including `$GOPATH`
+
+`govend` supports Go 1.5 via the `GO15VENDOREXPERIMENT=1` environment variable. Go 1.6 is not supported if `GO15VENDOREXPERIMENT=0` and Go 1.7+ will always be supported.
 
 # Install
 
