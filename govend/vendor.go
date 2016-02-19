@@ -72,7 +72,7 @@ func Vendor(pkgs []string, update, verbose, tree, results, commands, lock bool, 
 		}
 		pkglist[pkgs[i]] = true
 		pkgs = append(append(pkgs[:i], pkgs[i+1:]...), deps...)
-		i = len(pkgs)
+		i += len(deps)
 	}
 
 	if verbose && results {
