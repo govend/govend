@@ -18,9 +18,11 @@
 
 # Supported Go Versions
 
-`govend` supports Go 1.5 vendoring via `GO15VENDOREXPERIMENT=1`.
-Go 1.6 vendoring is supported unless `GO15VENDOREXPERIMENT=0`.
-Go 1.7+ is always be supported despite the value of `GO15VENDOREXPERIMENT`.
+* Go 1.4 or less - Go does not support vendoring
+* Go 1.5 - vendor via `GO15VENDOREXPERIMENT=1`.
+* Go 1.6 - vendor unless `GO15VENDOREXPERIMENT=0`.
+* Go 1.7+ - vendor always despite the value of `GO15VENDOREXPERIMENT`.
+
 For further explanation please read https://golang.org/doc/go1.6#go_command.
 
 # Install
