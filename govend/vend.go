@@ -89,12 +89,13 @@ func Vend(pkgs []string, update, verbose, results, commands, lock bool, format s
 
 	if verbose && results {
 		fmt.Printf("\npackages scanned: %d\n", len(pkglist))
-		fmt.Println("packages skipped:")
-		for pkg, ok := range pkglist {
+		skipped := 0
+		for _, ok := range pkglist {
 			if !ok {
-				fmt.Printf("	%q\n", pkg)
+				skipped++
 			}
 		}
+		fmt.Printf("packages skipped: %d\n", skipped)
 		fmt.Printf("repos downloaded: %d\n", m.Len())
 	}
 
