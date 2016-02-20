@@ -11,7 +11,7 @@ import (
 	"github.com/govend/govend/vcs"
 )
 
-// VCS
+// VCS represents a version control system for a repository.
 type VCS struct {
 	*vcs.Cmd
 
@@ -23,7 +23,7 @@ type VCS struct {
 	ExistsCmd string
 }
 
-// NewVCS
+// NewVCS creates a new VCS object.
 func NewVCS(v *vcs.Cmd) (*VCS, error) {
 	switch v.Cmd {
 	case "git":
@@ -70,13 +70,13 @@ func Dir(dir, srcRoot string) (*VCS, string, error) {
 	return vcsext, reporoot, nil
 }
 
-// Identify
+// Identify takes a directory path and returns a revision string.
 func (v *VCS) Identify(dir string) (string, error) {
 	out, err := v.runOutput(dir, v.IdentifyCmd)
 	return string(bytes.TrimSpace(out)), err
 }
 
-// Describe
+// Describe describes a package via directory path and revision string.
 func (v *VCS) Describe(dir, rev string) string {
 	out, err := v.runOutputVerboseOnly(dir, v.DescribeCmd, "rev", rev)
 	if err != nil {
@@ -85,13 +85,13 @@ func (v *VCS) Describe(dir, rev string) string {
 	return string(bytes.TrimSpace(out))
 }
 
-// Dirty
+// Dirty determines if a local repo on disk is not clean.
 func (v *VCS) Dirty(dir, rev string) bool {
 	out, err := v.runOutput(dir, v.DiffCmd, "rev", rev)
 	return err != nil || len(out) != 0
 }
 
-// Exists
+// Exists tests if a revision exists on local disk in a repo.
 func (v *VCS) Exists(dir, rev string) bool {
 	err := v.runVerboseOnly(dir, v.ExistsCmd, "rev", rev)
 	return err == nil
