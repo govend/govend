@@ -1,6 +1,6 @@
 ![govend](art/govend.png)
 
-# govend [![GoDoc](http://godoc.org/github.com/govend/govend?status.png)](http://godoc.org/github.com/govend/govend) [![Build Status](https://travis-ci.org/govend/govend.svg?branch=master)](https://travis-ci.org/govend/govend) [![Go Report Card](http://goreportcard.com/badge/govend/govend?)](http://goreportcard.com/report/govend/govend) [![Join the chat at https://gitter.im/govend/govend](https://badges.gitter.im/govend/govend.svg)](https://gitter.im/govend/govend?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# govend [![GoDoc](http://godoc.org/github.com/govend/govend?status.png)](http://godoc.org/github.com/govend/govend) [![Build Status](https://travis-ci.org/govend/govend.svg?branch=master)](https://travis-ci.org/govend/govend) [![Go Report Card](http://goreportcard.com/badge/govend/govend?)](http://goreportcard.com/report/govend/govend) [![Join the chat at https://gitter.im/govend/govend](https://badges.gitter.im/govend/govend.svg)](https://gitter.im/govend/govend?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) ![](https://img.shields.io/badge/windows-ready-green.svg)
 
 `govend` is a simple tool written in Golang to vendor Go packages as external or third party dependencies.
 
@@ -38,15 +38,12 @@ $ cd project/root
 
 $ govend -v
 github.com/kr/fs
+github.com/BurntSushi/toml
 github.com/spf13/cobra
-github.com/spf13/pflag
 github.com/inconshreveable/mousetrap
-github.com/cpuguy83/go-md2man
-github.com/russross/blackfriday
-github.com/shurcooL/sanitized_anchor_name
+github.com/spf13/pflag
 gopkg.in/yaml.v2
 gopkg.in/check.v1
-github.com/BurntSushi/toml
 ```
 
 # Vendor Lock
@@ -60,25 +57,19 @@ To lock in dependency versions run `govend -l` for `lock`.  An example `vendor.y
 ```yaml
 vendors:
 - path: github.com/BurntSushi/toml
-  rev: 056c9bc7be7190eaa7715723883caffa5f8fa3e4
-- path: github.com/cpuguy83/go-md2man
-  rev: 71acacd42f85e5e82f70a55327789582a5200a90
+  rev: f772cd89eb0b33743387f826d1918df67f99cc7a
 - path: github.com/inconshreveable/mousetrap
   rev: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - path: github.com/kr/fs
   rev: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
-- path: github.com/russross/blackfriday
-  rev: 300106c228d52c8941d4b3de6054a6062a86dda3
-- path: github.com/shurcooL/sanitized_anchor_name
-  rev: 10ef21a441db47d8b13ebcc5fd2310f636973c77
 - path: github.com/spf13/cobra
-  rev: 1c44ec8d3f1552cac48999f9306da23c4d8a288b
+  rev: 65a708cee0a4424f4e353d031ce440643e312f92
 - path: github.com/spf13/pflag
-  rev: 08b1a584251b5b62f458943640fc8ebd4d50aaa5
+  rev: 7f60f83a2c81bc3c3c0d5297f61ddfa68da9d3b7
 - path: gopkg.in/check.v1
-  rev: 11d3bc7aa68e238947792f30573146a3231fc0f1
+  rev: 4f90aeace3a26ad7021961c297b22c42160c7b25
 - path: gopkg.in/yaml.v2
-  rev: 53feefa2559fb8dfa8d81baad31be332c97d6c77
+  rev: f7716cbe52baa25d2e9b0d0da546fcf909fc16b4
 ```
 
 # Report Summary
@@ -86,20 +77,17 @@ If you would like to get a report summary of the number of unique packages scann
 
 ```bash
 → govend -v -r
+github.com/kr/fs
 github.com/BurntSushi/toml
+github.com/spf13/cobra
+github.com/inconshreveable/mousetrap
+github.com/spf13/pflag
 gopkg.in/yaml.v2
 gopkg.in/check.v1
-github.com/kr/fs
-github.com/spf13/cobra
-github.com/spf13/pflag
-github.com/cpuguy83/go-md2man
-github.com/russross/blackfriday
-github.com/shurcooL/sanitized_anchor_name
-github.com/inconshreveable/mousetrap
 
-packages scanned: 12
+packages scanned: 7
 packages skipped: 0
-repos downloaded: 10
+repos downloaded: 7
 ```
 
 # Scan
@@ -177,7 +165,7 @@ Flags:
 ```
 
 # Windows Support
-`govend` works on Windows, but it may have some bugs.
+`govend` works on Windows, but please report any bugs.
 
 # Contributing
 Simply fork the code and send a pull request.
