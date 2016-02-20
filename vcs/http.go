@@ -60,9 +60,9 @@ func httpGET(url string) ([]byte, error) {
 	return b, nil
 }
 
-// httpsOrHTTP returns the body of either the importPath's
+// HTTPSorHTTP returns the body of either the importPath's
 // https resource or, if unavailable, the http resource.
-func HttpsOrHTTP(importPath string, security securityMode, verbose bool) (urlStr string, body io.ReadCloser, err error) {
+func HTTPSorHTTP(importPath string, security securityMode, verbose bool) (urlStr string, body io.ReadCloser, err error) {
 	fetch := func(scheme string) (urlStr string, res *http.Response, err error) {
 		u, err := url.Parse(scheme + "://" + importPath)
 		if err != nil {

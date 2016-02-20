@@ -77,7 +77,7 @@ var RootCMD = &cobra.Command{
 		}
 
 		if scan {
-			if err := govend.List(args, format, all); err != nil {
+			if err := govend.Scan(args, format, all); err != nil {
 				log.Fatal(err)
 			}
 			return

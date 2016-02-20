@@ -585,6 +585,7 @@ var httpPrefixRE = regexp.MustCompile(`^https?:`)
 // The zero value is "secure".
 type securityMode int
 
+// Security mode options
 const (
 	Secure securityMode = iota
 	Insecure
@@ -698,8 +699,8 @@ func RepoRootFromVCSPaths(importPath, scheme string, security securityMode, vcsP
 	return nil, errUnknownSite
 }
 
-// repoRootForImportDynamic finds a *repoRoot for a custom domain that's not
-// statically known by repoRootForImportPathStatic.
+// RepoRootForImportDynamic finds a *repoRoot for a custom domain that's not
+// statically known by RepoRootForImportPathStatic.
 //
 // This handles custom import paths like "name.tld/pkg/foo" or just "name.tld".
 func RepoRootForImportDynamic(importPath string, security securityMode, verbose bool) (*RepoRoot, error) {
@@ -711,7 +712,7 @@ func RepoRootForImportDynamic(importPath string, security securityMode, verbose 
 	if !strings.Contains(host, ".") {
 		return nil, errors.New("import path does not begin with hostname")
 	}
-	urlStr, body, err := HttpsOrHTTP(importPath, security, verbose)
+	urlStr, body, err := HTTPSorHTTP(importPath, security, verbose)
 	if err != nil {
 		msg := "https fetch: %v"
 		if security == Insecure {
@@ -801,7 +802,7 @@ func MetaImportsForPrefix(importPrefix string, security securityMode, verbose bo
 		}
 		fetchCacheMu.Unlock()
 
-		urlStr, body, err := HttpsOrHTTP(importPrefix, security, verbose)
+		urlStr, body, err := HTTPSorHTTP(importPrefix, security, verbose)
 		if err != nil {
 			return setCache(fetchResult{urlStr: urlStr, err: fmt.Errorf("fetch %s: %v", urlStr, err)})
 		}

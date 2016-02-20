@@ -14,7 +14,7 @@ import (
 	"github.com/govend/govend/semver"
 )
 
-// Vend
+// Vend is the main function govend uses to vendor external packages.
 func Vend(pkgs []string, update, verbose, results, commands, lock bool, format string) error {
 
 	go15, _ := semver.New("1.5.0")

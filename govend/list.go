@@ -7,8 +7,8 @@ import (
 	"github.com/govend/govend/strutil"
 )
 
-// List
-func List(args []string, format string, all bool) error {
+// Scan scans and prints external imported packages.
+func Scan(args []string, format string, all bool) error {
 
 	dir := "."
 	if len(args) > 0 {
