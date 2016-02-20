@@ -24,7 +24,7 @@ func FilterStdPkgs(pkgs []string) []string {
 			}
 		}
 
-		// if the import path doens't exists in pkgs, add it
+		// if the import path doesn't exists in pkgs, add it
 		list = append(list, pkg)
 	SKIP: // skips the appending of packages that are already present
 	}

@@ -630,7 +630,7 @@ var errUnknownSite = errors.New("dynamic lookup required to find mapping")
 // If scheme is non-empty, that scheme is forced.
 func RepoRootFromVCSPaths(importPath, scheme string, security securityMode, vcsPaths []*vcsPath) (*RepoRoot, error) {
 	// A common error is to use https://packagepath because that's what
-	// hg and git require. Diagnose this helpfully.
+	// hg and git require. Diagnose this hopefully.
 	if loc := httpPrefixRE.FindStringIndex(importPath); loc != nil {
 		// The importPath has been cleaned, so has only one slash. The pattern
 		// ignores the slashes; the error message puts them back on the RHS at least.

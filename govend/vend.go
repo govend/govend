@@ -58,7 +58,7 @@ func Vend(pkgs []string, update, verbose, results, commands, lock bool, format s
 	m.Sync()
 
 	// if no packages were provided as arguments, assume the current directory is
-	// a go project and scan it for external pacakges.
+	// a go project and scan it for external packages.
 	if len(pkgs) == 0 {
 		pkgs, err = packages.ScanProject(".")
 		if err != nil {

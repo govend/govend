@@ -5,12 +5,14 @@ import (
 	"strings"
 )
 
+// SemVer describes a semantic version number.
 type SemVer struct {
 	Major int
 	Minor int
 	Patch int
 }
 
+// New takes a semantic version number as a string and returns a SemVer object.
 func New(verison string) (SemVer, error) {
 	sem := strings.Split(verison, ".")
 	switch len(sem) {
@@ -43,6 +45,8 @@ func New(verison string) (SemVer, error) {
 	}
 }
 
+// GreaterThan takes a SemVer object and reports true if it is greater than
+// the SemVer object.
 func (s SemVer) GreaterThan(sem SemVer) bool {
 	if s.Major > sem.Major {
 		return true
@@ -60,6 +64,8 @@ func (s SemVer) GreaterThan(sem SemVer) bool {
 	return false
 }
 
+// GreaterThanEqual takes a SemVer object and reports true if it is greater
+// than or equal to the SemVer object.
 func (s SemVer) GreaterThanEqual(sem SemVer) bool {
 	if s.Major > sem.Major {
 		return true
@@ -77,6 +83,8 @@ func (s SemVer) GreaterThanEqual(sem SemVer) bool {
 	return false
 }
 
+// LessThan takes a SemVer object and reports true if it is less than
+// the SemVer object.
 func (s SemVer) LessThan(sem SemVer) bool {
 	if s.Major < sem.Major {
 		return true
