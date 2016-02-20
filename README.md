@@ -16,6 +16,8 @@
 * generate temporary directories or files
 * alter any go environment variables, including `$GOPATH`
 
+# Go Version Support
+
 `govend` supports Go 1.5 via the `GO15VENDOREXPERIMENT=1` environment variable. Go 1.6 is not supported if `GO15VENDOREXPERIMENT=0` and Go 1.7+ will always be supported.
 
 # Install
