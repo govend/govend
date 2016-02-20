@@ -73,7 +73,7 @@ func Vend(pkgs []string, update, verbose, results, commands, lock bool, format s
 			pkgs = pkgs[:i]
 			continue
 		}
-		deps, err := deptree(pkgs[i], m, verbose)
+		deps, err := download(pkgs[i], m, update, verbose)
 		if err != nil {
 			pkglist[pkgs[i]] = false
 			pkgs = pkgs[:i]
@@ -107,7 +107,7 @@ func Vend(pkgs []string, update, verbose, results, commands, lock bool, format s
 	return nil
 }
 
-// deptree downloads a dependency and the entire tree of dependencies/packages
+// download downloads a dependency and the entire tree of dependencies/packages
 // that dependency requries as well.
 //
 // deptree takes a manifest as well as map of badimports to avoid as much
@@ -115,7 +115,7 @@ func Vend(pkgs []string, update, verbose, results, commands, lock bool, format s
 //
 // as well as an error, deptree returns the number of external package nodes
 // scanned in the dependecy tree excluding the root node/pkg.
-func deptree(pkg string, m *manifest.Manifest, verbose bool) ([]string, error) {
+func download(pkg string, m *manifest.Manifest, update, verbose bool) ([]string, error) {
 
 	// use the network to gather some metadata on this repo
 	r, err := repo.Ping(pkg)
@@ -129,7 +129,7 @@ func deptree(pkg string, m *manifest.Manifest, verbose bool) ([]string, error) {
 	}
 
 	// check if the repo is missing from the manifest file
-	if !m.Contains(r.ImportPath) {
+	if !m.Contains(r.ImportPath) || update {
 		if verbose {
 			fmt.Printf("%s\n", r.ImportPath)
 		}

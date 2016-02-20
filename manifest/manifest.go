@@ -58,6 +58,12 @@ func (m *Manifest) Format() string {
 // Append creates a vendor object from a path and revision and
 // appends it to the Manifest.
 func (m *Manifest) Append(path, rev string) {
+	for _, vendor := range m.Vendors {
+		if vendor.Path == path {
+			vendor.Rev = rev
+			return
+		}
+	}
 	m.Vendors = append(m.Vendors, vendor{path, rev})
 }
 
