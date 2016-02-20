@@ -1,6 +1,5 @@
 package govend
 
-// ScanCMD executes the scan command
 import (
 	"fmt"
 

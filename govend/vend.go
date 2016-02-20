@@ -19,6 +19,7 @@ func Vend(pkgs []string, update, verbose, results, commands, lock bool, format s
 
 	go15, _ := semver.New("1.5.0")
 	go16, _ := semver.New("1.6.0")
+	go17, _ := semver.New("1.7.0")
 
 	version, err := semver.New(strings.TrimPrefix(runtime.Version(), "go"))
 	if err != nil {
@@ -26,12 +27,18 @@ func Vend(pkgs []string, update, verbose, results, commands, lock bool, format s
 	}
 
 	if version.LessThan(go15) {
-		return errors.New("govend requires go versions 1.5+")
+		return errors.New("vendoring requires Go versions 1.5+")
 	}
 
 	if version.GreaterThanEqual(go15) && version.LessThan(go16) {
 		if os.Getenv("GO15VENDOREXPERIMENT") != "1" {
-			return errors.New("govend requires the env var 'GO15VENDOREXPERIMENT' to be set")
+			return errors.New("Go 1.5.x requires 'GO15VENDOREXPERIMENT=1'")
+		}
+	}
+
+	if version.GreaterThanEqual(go16) && version.LessThan(go17) {
+		if os.Getenv("GO15VENDOREXPERIMENT") == "0" {
+			return errors.New("Go 1.6.x cannot vendor with 'GO15VENDOREXPERIMENT=0'")
 		}
 	}
 
