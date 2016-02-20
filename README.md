@@ -1,6 +1,6 @@
 ![govend](art/govend.png)
 
-# govend [![GoDoc](http://godoc.org/github.com/govend/govend?status.png)](http://godoc.org/github.com/govend/govend) [![Build Status](https://travis-ci.org/govend/govend.svg?branch=master)](https://travis-ci.org/govend/govend) [![Go Report Card](http://goreportcard.com/badge/govend/govend?)](http://goreportcard.com/report/govend/govend) [![Join the chat at https://gitter.im/govend/govend](https://badges.gitter.im/govend/govend.svg)](https://gitter.im/govend/govend?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) ![](https://img.shields.io/badge/windows-ready-green.svg)
+# govend [![GoDoc](http://godoc.org/github.com/govend/govend?status.png)](http://godoc.org/github.com/govend/govend) [![Build Status](https://travis-ci.org/govend/govend.svg?branch=master)](https://travis-ci.org/govend/govend) [![Go Report Card](http://goreportcard.com/badge/govend/govend?1)](http://goreportcard.com/report/govend/govend) [![Join the chat at https://gitter.im/govend/govend](https://badges.gitter.im/govend/govend.svg)](https://gitter.im/govend/govend?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) ![](https://img.shields.io/badge/windows-ready-green.svg)
 
 `govend` is a simple tool written in Golang to vendor Go packages as external or third party dependencies.
 
