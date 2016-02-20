@@ -18,6 +18,8 @@ const (
 	importPathError = "invalid import path:"
 )
 
+// Scan takes a directory path and returns a list of go dependencies from that
+// package in that directory.
 func Scan(dir string) ([]string, error) {
 
 	fileInfo, err := os.Stat(dir)
@@ -92,7 +94,7 @@ func Scan(dir string) ([]string, error) {
 		}
 	}
 
-	for path, _ := range imports {
+	for path := range imports {
 		for _, exception := range Exceptions {
 			if Match(path, exception) {
 				imports[path] = false
