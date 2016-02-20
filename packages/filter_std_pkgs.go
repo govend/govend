@@ -2,7 +2,7 @@ package packages
 
 import "path"
 
-// FilterStdPkgs
+// FilterStdPkgs filters out standard packages from a slice of strings.
 func FilterStdPkgs(pkgs []string) []string {
 
 	var list []string

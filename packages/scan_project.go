@@ -10,7 +10,7 @@ import (
 	"github.com/kr/fs"
 )
 
-// ScanProject
+// ScanProject takes a directory and scans it for import dependencies.
 func ScanProject(dir string) ([]string, error) {
 
 	imports := map[string]bool{}

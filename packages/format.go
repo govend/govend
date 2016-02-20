@@ -10,6 +10,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Format takes a slice of packages and formats it.
 func Format(pkgs []string, format string) ([]byte, error) {
 
 	if format == "YAML" {
