@@ -1,8 +1,8 @@
-package packages
+package filters
 
 import "strings"
 
-// Match determins if two package paths match.
+// Match determines if two package paths match.
 func Match(path1, path2 string) bool {
 
 	p1 := strings.Split(path1, "/")

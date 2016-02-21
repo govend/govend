@@ -1,4 +1,4 @@
-package packages
+package imports
 
 import (
 	"errors"
@@ -6,8 +6,9 @@ import (
 	"path/filepath"
 )
 
-// ImportPath returns the import path of a directory by using $GOPATH.
-func ImportPath(dir string) (string, error) {
+// Path returns the import path of a package directory.
+// It does so via $GOPATH.
+func Path(dir string) (string, error) {
 
 	// check for relative path
 	if dir == "." {
