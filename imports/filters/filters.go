@@ -10,16 +10,6 @@ import (
 	"path/filepath"
 )
 
-type Filter interface {
-	Apply(pkgs []string) []string
-}
-
-type FilterFunc func(pkgs []string) []string
-
-func (f FilterFunc) Apply(pkgs []string) []string {
-	return f(pkgs)
-}
-
 // Standard filters out standard packages.
 func Standard(pkgs []string) []string {
 
