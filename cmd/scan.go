@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/govend/govend/packages"
+	"github.com/govend/govend/imports"
 )
 
 // Scan scans and prints external imported packages.
@@ -15,12 +15,12 @@ func Scan(args []string, format string, testfiles, all bool) error {
 	}
 
 	// scan the project directory provided
-	pkgs, err := packages.Scan(path, false, testfiles, all)
+	pkgs, err := imports.Scan(path, false, testfiles, all)
 	if err != nil {
 		return err
 	}
 
-	b, err := packages.Format(pkgs, format)
+	b, err := imports.Format(pkgs, format)
 	if err != nil {
 		return err
 	}

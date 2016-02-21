@@ -8,8 +8,8 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/govend/govend/imports"
 	"github.com/govend/govend/manifest"
-	"github.com/govend/govend/packages"
 	"github.com/govend/govend/repo"
 	"github.com/govend/govend/semver"
 )
@@ -60,7 +60,7 @@ func Vend(pkgs []string, update, verbose, results, commands, lock bool, format s
 	// if no packages were provided as arguments, assume the current directory is
 	// a go project and scan it for external packages.
 	if len(pkgs) == 0 {
-		pkgs, err = packages.Scan(".", false, true, false)
+		pkgs, err = imports.Scan(".", false, true, false)
 		if err != nil {
 			return err
 		}
@@ -143,7 +143,7 @@ func download(pkg string, m *manifest.Manifest, update, verbose bool) ([]string,
 		m.Append(r.ImportPath, rev)
 	}
 
-	pkgdeps, err := packages.Scan(filepath.Join("vendor", pkg), true, true, false)
+	pkgdeps, err := imports.Scan(filepath.Join("vendor", pkg), true, true, false)
 	if err != nil {
 		return nil, err
 	}
