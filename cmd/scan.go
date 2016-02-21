@@ -1,4 +1,4 @@
-package govend
+package cmd
 
 import (
 	"fmt"
