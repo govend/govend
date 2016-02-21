@@ -6,7 +6,8 @@ import (
 	"path/filepath"
 )
 
-// ImportPath returns the import path of a directory by using $GOPATH.
+// ImportPath returns the import path of a package directory.
+// It does so via $GOPATH.
 func ImportPath(dir string) (string, error) {
 
 	// check for relative path

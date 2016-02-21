@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/govend/govend/govend"
 	"github.com/spf13/cobra"
 )
 
 var (
-	version  bool
-	verbose  bool
-	update   bool
-	results  bool
-	commands bool
-	lock     bool
-	scan     bool
-	all      bool
-	format   string
+	version   bool
+	verbose   bool
+	update    bool
+	results   bool
+	commands  bool
+	lock      bool
+	scan      bool
+	all       bool
+	testfiles bool
+	format    string
 )
 
 const (
@@ -62,6 +62,7 @@ func init() {
 	RootCMD.Flags().BoolVarP(&lock, "lock", "l", false, lockDesc)
 	RootCMD.Flags().BoolVarP(&scan, "scan", "s", false, scanDesc)
 	RootCMD.Flags().BoolVarP(&all, "all", "a", false, allDesc)
+	RootCMD.Flags().BoolVarP(&testfiles, "testfiles", "t", true, "test files")
 }
 
 // RootCMD describes the root command.
@@ -77,13 +78,13 @@ var RootCMD = &cobra.Command{
 		}
 
 		if scan {
-			if err := govend.Scan(args, format, all); err != nil {
+			if err := Scan(args, format, testfiles, all); err != nil {
 				log.Fatal(err)
 			}
 			return
 		}
 
-		if err := govend.Vend(args, update, verbose, results, commands, lock, format); err != nil {
+		if err := Vend(args, update, verbose, results, commands, lock, format); err != nil {
 			log.Fatal(err)
 		}
 	},

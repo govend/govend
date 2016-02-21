@@ -1,113 +1,85 @@
 package packages
 
-//go:generate go run generate_std_pkgs.go
-
 import (
-	"fmt"
-	"go/parser"
-	"go/token"
 	"os"
-	"strconv"
 	"strings"
 
+	"github.com/govend/govend/packages/filters"
 	"github.com/kr/fs"
 )
 
-const (
-	eofError        = "expected 'package', found 'EOF'"
-	importPathError = "invalid import path:"
-)
+// Scan takes a directory and scans it for import dependencies.
+func Scan(path string, pkg, testfiles, all bool) ([]string, error) {
 
-// Scan takes a directory path and returns a list of go dependencies from that
-// package in that directory.
-func Scan(dir string) ([]string, error) {
-
-	fileInfo, err := os.Stat(dir)
+	// get directory info
+	dinfo, err := os.Stat(path)
 	if err != nil {
 		return nil, err
 	}
 
-	if !fileInfo.IsDir() {
-		return nil, fmt.Errorf("'%s' is a file, directories contain packages", fileInfo.Name())
+	// if we are in a directory step to it!
+	w := fs.Walk(path)
+	if dinfo.IsDir() {
+		w.Step()
 	}
 
-	imports := map[string]bool{}
-
-	w := fs.Walk(dir)
-	w.Step()
-
+	// we will parse a list of packages
+	pkgs := []string{}
 	for w.Step() {
 
-		fstat := w.Stat()
+		// skip all files and directories that start with '.' or '_'
+		finfo := w.Stat()
 
-		if fstat.IsDir() {
-			w.SkipDir()
-			continue
-		}
-
-		// check for errors
+		// check for any walker errors
 		if w.Err() != nil {
 			return nil, w.Err()
 		}
 
+		firstchar := []rune(finfo.Name())[0]
+		if firstchar == '_' || firstchar == '.' {
+			if finfo.IsDir() {
+				w.SkipDir()
+				continue
+			} else {
+				continue
+			}
+		}
+
+		// skip directories named "vendor" or "testdata"
+		if finfo.IsDir() {
+			if finfo.Name() == "vendor" || finfo.Name() == "testdata" || pkg {
+				w.SkipDir()
+				continue
+			}
+		}
+
+		// if testfiles is false then skip all go tests deps
+		if !testfiles && strings.HasSuffix(finfo.Name(), "_test.go") {
+			continue
+		}
+
+		// only parse .go files
 		fpath := w.Path()
-
-		// check the file is a .go file
 		if strings.HasSuffix(fpath, ".go") {
-
-			fset := token.NewFileSet()
-
-			// parse only the import declarations in the .go file
-			f, err := parser.ParseFile(fset, w.Path(), nil, parser.ImportsOnly)
+			imports, err := Parse(w.Path())
 			if err != nil {
 
-				e := err.Error()
-				if strings.Contains(e, eofError) {
+				// if the error is because of a bad file, skip the file
+				if strings.Contains(err.Error(), eofError) {
 					continue
 				}
-
-				if strings.Contains(e, importPathError) {
-					for _, i := range f.Imports {
-						if Valid(i.Path.Value) {
-							path, err := strconv.Unquote(i.Path.Value)
-							if err != nil {
-								return nil, err
-							}
-							imports[path] = true
-							continue
-						}
-					}
-					continue
-				}
-
-				return nil, err
 			}
-
-			// unquote the import path value
-			for _, i := range f.Imports {
-				path, err := strconv.Unquote(i.Path.Value)
-				if err != nil {
-					return nil, err
-				}
-				imports[path] = true
-			}
+			pkgs = append(pkgs, imports...)
 		}
 	}
 
-	for path := range imports {
-		for _, exception := range Exceptions {
-			if Match(path, exception) {
-				imports[path] = false
-			}
-		}
+	// filter packages
+	if !all {
+		pkgs = filters.Exceptions(pkgs)
+		pkgs = filters.Standard(pkgs)
+		pkgs = filters.Local(pkgs)
 	}
+	pkgs = filters.Duplicates(pkgs)
 
-	paths := []string{}
-	for path, ok := range imports {
-		if ok {
-			paths = append(paths, path)
-		}
-	}
-
-	return paths, nil
+	return pkgs, nil
 }
