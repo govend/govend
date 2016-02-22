@@ -117,12 +117,12 @@ gopkg.in/check.v1
 
 The command `govend` only scans for external packages and downloads them to the `vendor` directory in your project. You may need more control over versioning your dependencies so that reliable reproducible builds are possible.
 
-`govend` can save the path and commit revisions of each package dependency in a `vendor.yml` file.
-This is called locking dependencies.
-The format of the file can be `JSON` or `TOML` as well.
-Usually this file is located in the root directory of your project and is included in your version control system.
+`govend` can save the path and commit revisions of each repository downloaded in a `vendor.yml` file.
+This is called vendor locking.
+The format of the file can be specified to be `JSON` or `TOML`, `YAML` is used by default.
+Usually this file is located in the root directory of your project and should be included in your version control system.
 
-To lock dependency versions and generate a `vendor.yml` file use the `-l` flag:
+To generate a `vendor.yml` file use the `-l` flag:
 
 ```Bash
 $ cd project/root
@@ -137,17 +137,18 @@ gopkg.in/yaml.v2
 gopkg.in/check.v1
 ```
 
-The resulting project structure would now be something like:
+The resulting project structure should look something like:
 
 ```Bash
 .
+├── ...
 ├── code
 ├── README.md
 ├── vendor
 └── vendor.yml
 ```
 
-The contents of the generated `vendor.yml` file would be:
+The contents of the generated `vendor.yml` file in this example would be:
 
 ```yaml
 vendors:
@@ -167,26 +168,27 @@ vendors:
   rev: f7716cbe52baa25d2e9b0d0da546fcf909fc16b4
 ```
 
-Now it is possible to ignore the large `vendor` directory and just pass on the small `vendor.yml` file to your developer buddy.
-Your buddy can then run `$ govend` and get the exact same dependency versions specified by `vendor.yml`.
+
+You can now ignore the large `vendor` directory and pass the small `vendor.yml` file to your buddy.
+Your buddy can run `$ govend` and will get the exact same dependency versions as specified by `vendor.yml`.
 
 This is how a team of developers can ensure reproducible builds without checking the `vendor` directory into a version control system.
 
 # Update Locked Vendored Packages
 
-If you would like to update a particular vendored package to the latest version use the `-u` flag:
+If you would like to update a particular vendored package to its latest version use the `-u` flag:
 
 ```Bash
 $ govend -u github.com/gorilla/mux
 ```
 
-If you would like to update all the vendored packages to the latest versions run:
+If you would like to update all the vendored packages to their latest versions run:
 
 ```Bash
 $ govend -u
 ```
 
-If you want to update a particular vendored package to a particular revision, update the `vendor.yml` file by hand. Then delete that package/repo from the `vendor` directory.  Finally run:
+If you want to update a particular vendored package to a particular revision, update the relevant `rev:` value inside the `vendor.yml` file. Then delete that repository from the `vendor` directory.  Finally run:
 
 ```Bash
 $ govend
