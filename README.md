@@ -53,7 +53,7 @@ For example, you might want to vendor the gorilla `mux`, `http`, and `securecook
 $ govend github.com/gorilla/mux github.com/gorilla/http github.com/gorilla/securecookie
 ```
 
-# Explicitly Update Package
+# Explicitly Update Packages
 
 To update a package that has already been vendored, simply use the `-u` network update flag.
 This flag has the same meaning as `go get -u` and will always use the network to download a fresh copy of the dependency.
@@ -72,17 +72,10 @@ $ govend -u github.com/gorilla/mux
 
 # Vendor Packages Automatically
 
-It would get old to explicitly ask `govend` to download and vendor each individual package for large Go projects.
-Thankfully `govend` can scan your project and identify dependencies for you.
+It would get old to ask `govend` to download and vendor each individual package when working on large Go projects.
+Thankfully `govend` can scan your project source code and identify dependencies for you.
 
-`go get` assumes this as the default use case when no packages are explicitly provided:
-
-```Bash
-$ go get ./...
-```
-
-`govend` does the same to find packages inside your project root, but you don't need the `./...`.
-Just run:  
+`govend` assumes you want this behavior when no packages are explicitly provided:
 
 ```Bash
 $ cd project/root
@@ -90,7 +83,7 @@ $ cd project/root
 $ govend
 ```
 
-or
+or show project dependencies as we vendor them:
 
 ```Bash
 $ cd project/root
