@@ -188,7 +188,9 @@ If you would like to update all the vendored packages to their latest versions r
 $ govend -u
 ```
 
-If you want to update a particular vendored package to a particular revision, update the relevant `rev:` value inside the `vendor.yml` file. Then delete that repository from the `vendor` directory.  Finally run:
+If you want to update a particular vendored package to a particular revision, update the relevant `rev:` value inside the `vendor.yml` file.
+Then delete that repository from the `vendor` directory.
+Finally, to update to that specified revision run:
 
 ```Bash
 $ govend
