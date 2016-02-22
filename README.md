@@ -190,7 +190,7 @@ $ govend -u
 
 If you want to update a particular vendored package to a particular revision, update the relevant `rev:` value inside the `vendor.yml` file.
 Then delete that repository from the `vendor` directory.
-Finally to download that specified revision run:
+Finally to download that specific revision hash run:
 
 ```Bash
 $ govend
