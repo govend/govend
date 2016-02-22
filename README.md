@@ -46,7 +46,7 @@ $ govend github.com/gorilla/mux
 ```
 
 which will download the gorilla `mux` package into your local project `vendor` directory.
-If you want to tell `govend` download more than one package, just add them on.
+If you want `govend` to download more than one package, just tack them on.
 For example you might want to vendor the gorilla `mux`, `http`, and `securecookie` packages like so:
 
 ```Bash
