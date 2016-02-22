@@ -2,28 +2,21 @@
 
 # govend [![GoDoc](http://godoc.org/github.com/govend/govend?status.png)](http://godoc.org/github.com/govend/govend) [![Build Status](https://travis-ci.org/govend/govend.svg?branch=master)](https://travis-ci.org/govend/govend) [![Go Report Card](http://goreportcard.com/badge/govend/govend?1)](http://goreportcard.com/report/govend/govend) [![Join the chat at https://gitter.im/govend/govend](https://badges.gitter.im/govend/govend.svg)](https://gitter.im/govend/govend?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) ![](https://img.shields.io/badge/windows-ready-green.svg)
 
-`govend` is a simple tool written in Golang to vendor Go packages as external or third party dependencies.
+`govend` is a simple tool to vendor Go package dependencies.
+It's like `go get`, but for vendoring external or third party packages.
 
-**it does:**
-* try to be compatible with any project
-* take a both note and code from `go get`
-* vendor the nested dependency tree to the `nth` degree
-* utilize the `GO15VENDOREXPERIMENT` and `vendor` directory as specified in golang version 1.5
+**govend is:**
+* like `go get`, but for vendoring packages
+* compatible with any project directory structure
+* designed to vendor nested dependencies to the nth degree
+* compatible with Go versions 1.5+.
 
-**it does not:**
+**govend does not:**
 * wrap the `go` command
 * try to create a new project
+* force you to lock dependency versions
 * generate temporary directories or files
-* alter any go environment variables, including `$GOPATH`
-
-# Supported Go Versions
-
-* Go 1.4 or less - Go does not support vendoring
-* Go 1.5 - vendor via `GO15VENDOREXPERIMENT=1`
-* Go 1.6 - vendor unless `GO15VENDOREXPERIMENT=0`
-* Go 1.7+ - vendor always despite the value of `GO15VENDOREXPERIMENT`
-
-For further explanation please read https://golang.org/doc/go1.6#go_command.
+* alter any Go environment variables, including `$GOPATH`
 
 # Install
 
@@ -31,11 +24,74 @@ For further explanation please read https://golang.org/doc/go1.6#go_command.
 $ go get -u github.com/govend/govend
 ```
 
-# Vendor
+# Verbose Mode
 
-To vendor external package dependencies run `govend` while inside the root directory of the project.  If you would like to see more verbose output run `govend -v`.
+As with most unixy programs, no news is good news.
+Therefore, unless something goes wrong `govend` will not print anything to the terminal.
+If you want to see progress/proof something is happening use the `-v` flag to print out package names as they are downloaded and vendored.
 
-```bash
+# Explicitly Vendor A Package
+
+You can explicitly tell `govend` to vendor one or more packages.
+It works the same way as `go get` but instead of running:
+
+```Bash
+$ go get github.com/gorilla/mux
+```
+
+which will download the gorilla `mux` package into your `$GOPATH`, run:
+
+```Bash
+$ govend github.com/gorilla/mux
+```
+
+which will download the gorilla `mux` package into your local project `vendor` directory.
+If you want to tell `govend` download more than one package, just add them on.
+For example you might want to vendor the gorilla `mux`, `http`, and `securecookie` packages like so:
+
+```Bash
+$ govend github.com/gorilla/mux github.com/gorilla/http github.com/gorilla/securecookie
+```
+
+# Explicitly Update Package
+
+To update a package that has already been vendored inside your `vendor` directory simply use the `-u` network update flag. This flag has the same meaning as `go get -u` and will always try to use the network.
+
+To update the gorilla `mux` package in your `$GOPATH` you would run:
+
+```Bash
+$ go get -u github.com/gorilla/mux
+```
+
+To update the gorilla `mux` package in your local project `vendor` directory run:
+
+```Bash
+$ govend -u github.com/gorilla/mux
+```
+
+# Vendor Packages Automatically
+
+It would get tiring to explicitly ask `govend` to download and vendor each individual package for large Go projects.
+Thankfully `govend` can scan your project and identify your dependencies for you.
+
+`go get` handles this problem with the `./...` syntax when located inside the root of your project like so:
+
+```Bash
+$ go get ./...
+```
+
+`govend` does the same to find packages inside your project root, but you don't need the `./...`.
+Just run:  
+
+```Bash
+$ cd project/root
+
+$ govend
+```
+
+or
+
+```Bash
 $ cd project/root
 
 $ govend -v
@@ -129,42 +185,14 @@ $ govend -s -f xml packages
 
 You can run `govend -h` to find more flags and options.
 
-```bash
-$ govend -h  
-Govend downloads and vendors the packages named by the import
-paths, along with their dependencies.
+# Supported Go Versions
 
-Usage:
-  govend [flags]
+  * Go 1.4 or less - Go does not support vendoring
+  * Go 1.5 - vendor via `GO15VENDOREXPERIMENT=1`
+  * Go 1.6 - vendor unless `GO15VENDOREXPERIMENT=0`
+  * Go 1.7+ - vendor always despite the value of `GO15VENDOREXPERIMENT`
 
-Flags:
-  -a, --all[=false]: The -a flag works with the -s flag to show all packages, not just
-	external packages.
-
-  -x, --commands[=false]: The -x flag prints commands as they are executed for vendoring
-	such as 'git init'.
-
-  -f, --format="YAML": The -f flag works with the -m flag and -s flag to define the
-	format when writing files to disk.  By default, the file format is YAML but
-	also supports JSON and TOML formats.
-
-  -l, --lock[=false]: The -l flag writes a manifest vendor file on disk to lock in the
-	versions of vendored dependencies.  This only needs to be done once.
-
-  -r, --results[=false]: The -r flag works with the -v flag to print a summary of the
-	number of packages scanned, packages skipped, and repositories downloaded.
-
-  -s, --scan[=false]: The -s flag scans the current or provided directory for external
-	packages.
-
-  -u, --update[=false]: The -u flag uses the network to update the named packages and
-	their dependencies.  By default, the network is used to check out missing
-	packages but does not use it to look for updates to existing packages.
-
-  -v, --verbose[=false]: The -v flag prints the names of packages as they are vendored.
-
-      --version[=false]: The --version flag prints the current version.
-```
+For further explanation please read https://golang.org/doc/go1.6#go_command.
 
 # Windows Support
 `govend` works on Windows, but please report any bugs.
