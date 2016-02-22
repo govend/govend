@@ -83,7 +83,7 @@ $ cd project/root
 $ govend
 ```
 
-or show project dependencies as we vendor them:
+You can also show dependencies as they are vendored with the `-v` flag:
 
 ```Bash
 $ cd project/root
@@ -98,13 +98,56 @@ gopkg.in/yaml.v2
 gopkg.in/check.v1
 ```
 
-# Vendor Lock
+If you would like to update all vendored packages in a project use the `-u` flag:
 
-The command `govend -v` only scans for external packages and downloads them to the `vendor` directory in your project. You may need more control over versioning your dependencies so that reliable reproducible builds are possible.
+```Bash
+$ cd project/root
 
-`govend` can save the path and commit revisions of each package dependency in a `vendor.yml` file in the root directory of your project. The format of the file can be `JSON` or `TOML` as well.
+$ govend -v -u
+github.com/kr/fs
+github.com/BurntSushi/toml
+github.com/spf13/cobra
+github.com/inconshreveable/mousetrap
+github.com/spf13/pflag
+gopkg.in/yaml.v2
+gopkg.in/check.v1
+```
 
-To lock in dependency versions run `govend -l` for `lock`.  An example `vendor.yml` file is shown below:
+# Lock Vendored Package Versions
+
+The command `govend` only scans for external packages and downloads them to the `vendor` directory in your project. You may need more control over versioning your dependencies so that reliable reproducible builds are possible.
+
+`govend` can save the path and commit revisions of each package dependency in a `vendor.yml` file.
+This is called locking dependencies.
+The format of the file can be `JSON` or `TOML` as well.
+Usually this file is located in the root directory of your project and is included in your version control system.
+
+To lock dependency versions and generate a `vendor.yml` file use the `-l` flag:
+
+```Bash
+$ cd project/root
+
+$ govend -v -l
+github.com/kr/fs
+github.com/BurntSushi/toml
+github.com/spf13/cobra
+github.com/inconshreveable/mousetrap
+github.com/spf13/pflag
+gopkg.in/yaml.v2
+gopkg.in/check.v1
+```
+
+The resulting project structure would now be something like:
+
+```Bash
+.
+├── code
+├── README.md
+├── vendor
+└── vendor.yml
+```
+
+The contents of the generated `vendor.yml` file would be:
 
 ```yaml
 vendors:
@@ -124,7 +167,32 @@ vendors:
   rev: f7716cbe52baa25d2e9b0d0da546fcf909fc16b4
 ```
 
-# Report Summary
+Now it is possible to ignore the large `vendor` directory and just pass on the small `vendor.yml` file to your developer buddy.
+Your buddy can then run `$ govend` and get the exact same dependency versions specified by `vendor.yml`.
+
+This is how a team of developers can ensure reproducible builds without checking the `vendor` directory into a version control system.
+
+# Update Locked Vendored Packages
+
+If you would like to update a particular vendored package to the latest version use the `-u` flag:
+
+```Bash
+$ govend -u github.com/gorilla/mux
+```
+
+If you would like to update all the vendored packages to the latest versions run:
+
+```Bash
+$ govend -u
+```
+
+If you want to update a particular vendored package to a particular revision, update the `vendor.yml` file by hand. Then delete that package/repo from the `vendor` directory.  Finally run:
+
+```Bash
+$ govend
+```
+
+# Vendor Report Summary
 If you would like to get a report summary of the number of unique packages scanned, skipped and how many repositories were downloaded, run `govend -v -r`.
 
 ```bash
@@ -142,7 +210,7 @@ packages skipped: 0
 repos downloaded: 7
 ```
 
-# Scan
+# Vendor Scan
 You may want to scan your code to determine how many third party dependencies are
 in your project. To do so run `govend -s <path/to/dir>`. You can also specify different output formats.
 
@@ -179,7 +247,7 @@ $ govend -s -f xml packages
 
 You can run `govend -h` to find more flags and options.
 
-# Supported Go Versions
+# Vendor Supported Go Versions
 
   * Go 1.4 or less - Go does not support vendoring
   * Go 1.5 - vendor via `GO15VENDOREXPERIMENT=1`
