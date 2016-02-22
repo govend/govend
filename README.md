@@ -72,10 +72,10 @@ $ govend -u github.com/gorilla/mux
 
 # Vendor Packages Automatically
 
-It would get tiring to explicitly ask `govend` to download and vendor each individual package for large Go projects.
-Thankfully `govend` can scan your project and identify your dependencies for you.
+It would get old to explicitly ask `govend` to download and vendor each individual package for large Go projects.
+Thankfully `govend` can scan your project and identify dependencies for you.
 
-`go get` handles this problem with the `./...` syntax when located inside the root of your project like so:
+`go get` assumes this as the default use case when no packages are explicitly provided:
 
 ```Bash
 $ go get ./...
