@@ -47,7 +47,7 @@ $ govend github.com/gorilla/mux
 
 which will download the gorilla `mux` package into your local project `vendor` directory.
 If you want `govend` to download more than one package, just tack them on.
-For example you might want to vendor the gorilla `mux`, `http`, and `securecookie` packages like so:
+For example, you might want to vendor the gorilla `mux`, `http`, and `securecookie` packages like so:
 
 ```Bash
 $ govend github.com/gorilla/mux github.com/gorilla/http github.com/gorilla/securecookie
@@ -55,7 +55,8 @@ $ govend github.com/gorilla/mux github.com/gorilla/http github.com/gorilla/secur
 
 # Explicitly Update Package
 
-To update a package that has already been vendored inside your `vendor` directory simply use the `-u` network update flag. This flag has the same meaning as `go get -u` and will always try to use the network.
+To update a package that has already been vendored, simply use the `-u` network update flag.
+This flag has the same meaning as `go get -u` and will always use the network to download a fresh copy of the dependency.
 
 To update the gorilla `mux` package in your `$GOPATH` you would run:
 
