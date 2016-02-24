@@ -79,6 +79,7 @@ $ go build                     # go tools work normally
 
 $ govend -v -u                 # scan your project, update all dependencies,
                                # and update the vendor.yml revision versions
+
 # ...                          # code, code, code
 
 $ echo 'vendor' >> .gitignore  # add vendor directory to .gitignore
