@@ -93,7 +93,7 @@ Mike:
 ```
 # git clone url       # grab all the code Sarah pushed
 
-$ govend -v -l        # download all the dependency in the vendor.yml file
+$ govend -v           # download all the dependency in the vendor.yml file
                       # and use the same revision versions Sarah is using
 
 $ go build            # build the exact same binary Sarah has
