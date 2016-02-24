@@ -60,7 +60,7 @@ $ govend -v -l        # scan your project, download all dependencies, and
 # ...                 # code, code, code
 $ go build            # go tools work normally
 $ govend -v -u        # scan your project, update all dependencies, and update
-                      # the vendor.yaml file versions
+                      # the vendor.yaml revision versions
 # ...                 # code, code, code
 $ echo 'vendor' >> .gitignore  # add vendor directory to .gitignore
 $ git push            # push code to github
@@ -71,7 +71,7 @@ Mike:
 ```
 # git clone url       # grab all the code Sarah pushed
 $ govend -v -l        # download all the dependency in the vendor.yml file
-                      # and use the revision versions Sarah is using
+                      # and use the same revision versions Sarah is using
 $ go build            # build the exact same binary Sarah has
 # ...                 # code, code, code
 ```
