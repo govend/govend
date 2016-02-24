@@ -50,8 +50,8 @@ $ govend -u            # scan your project and update all dependencies
 $ go build
 ```
 
-### Big Project Team Usage
-Developer Sarah
+### Team Usage
+Sarah:
 ```
 $ git init
 # ...                 # code, code, code
@@ -67,7 +67,7 @@ $ git push            # push code to github
 $ go build            # go tools work normally
 ```
 
-Developer Mike
+Mike:
 ```
 # git clone url       # grab all the code Sarah pushed
 $ govend -v -l        # download all the dependency in the vendor.yml file
