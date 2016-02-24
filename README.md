@@ -24,7 +24,9 @@ It's like `go get`, but for vendoring external or third party packages.
 $ go get -u github.com/govend/govend
 ```
 
-## Small Project Usage
+# Usage
+
+### Small Project Usage
 
 ```
 # work, work, work
@@ -36,7 +38,7 @@ $ govend -u github.com/gorilla/mux           # updated a dependency
 $ go build
 ```
 
-## Big Project Usage
+### Big Project Usage
 
 ```
 # work, work, work
@@ -48,7 +50,7 @@ $ govend -u            # scan your project and update all dependencies
 $ go build
 ```
 
-## Big Project Team Usage
+### Big Project Team Usage
 Developer Sarah
 ```
 $ git init
