@@ -70,7 +70,7 @@ $ git init                     # start git project
 # ...                          # code, code, code
 
 $ govend -v -l                 # scan your project, download all dependencies,
-                               # and create a vendor.yaml file to lock
+                               # and create a vendor.yml file to lock
                                # dependency versions
 
 # ...                          # code, code, code
@@ -78,7 +78,7 @@ $ govend -v -l                 # scan your project, download all dependencies,
 $ go build                     # go tools work normally
 
 $ govend -v -u                 # scan your project, update all dependencies,
-                               # and update the vendor.yaml revision versions
+                               # and update the vendor.yml revision versions
 # ...                          # code, code, code
 
 $ echo 'vendor' >> .gitignore  # add vendor directory to .gitignore
