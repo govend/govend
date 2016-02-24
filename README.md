@@ -53,13 +53,13 @@ $ govend -v            # scan your project and download all dependencies
 
 # ...                  # code, code, code
 
-$ go build
+$ go build             # go tools work normally
 
 $ govend -u            # scan your project and update all dependencies
 
 # ...                  # code, code, code
 
-$ go build
+$ go build             # go tools work normally
 ```
 
 ### Team Usage
