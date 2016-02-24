@@ -28,76 +28,52 @@ $ go get -u github.com/govend/govend
 
 ### Small Project Usage
 
-```
+```bash
 # ...                                        # code, code, code
-
 $ govend github.com/gorilla/mux              # vendor a dependency
-
 # ...                                        # code, code, code
-
 $ go build                                   # go tools work normally
-
 $ govend -u github.com/gorilla/mux           # updated a dependency
-
 # ...                                        # code, code, code
-
 $ go build                                   # go tools work normally
 ```
 
 ### Big Project Usage
 
-```
+```bash
 # ...                  # code, code, code
-
 $ govend -v            # scan your project and download all dependencies
-
 # ...                  # code, code, code
-
 $ go build             # go tools work normally
-
 $ govend -u            # scan your project and update all dependencies
-
 # ...                  # code, code, code
-
 $ go build             # go tools work normally
 ```
 
 ### Team Usage
 Sarah:
-```
+```bash
 $ git init                     # start git project
-
 # ...                          # code, code, code
-
 $ govend -v -l                 # scan your project, download all dependencies,
                                # and create a vendor.yml file to lock
                                # dependency versions
-
 # ...                          # code, code, code
-
 $ go build                     # go tools work normally
-
 $ govend -v -u                 # scan your project, update all dependencies,
                                # and update the vendor.yml revision versions
-
 # ...                          # code, code, code
-
-$ echo 'vendor' >> .gitignore  # add vendor directory to .gitignore
-
+$ echo 'vendor/' >> .gitignore  # add vendor/ directory to .gitignore
 $ git push                     # push code to github
-
 $ go build                     # go tools work normally
 ```
 
 Mike:
-```
+```bash
 # git clone url       # grab all the code Sarah pushed
-
 $ govend -v           # download all the dependencies in the vendor.yml file
                       # and use the same revision versions Sarah is using
-
 $ go build            # build the exact same binary Sarah has
-
 # ...                 # code, code, code
 ```
 
@@ -122,7 +98,7 @@ which will download the gorilla `mux` package into your `$GOPATH`, run:
 $ govend github.com/gorilla/mux
 ```
 
-which will download the gorilla `mux` package into your local project `vendor` directory.
+which will download the gorilla `mux` package into your local project `vendor/` directory.
 If you want `govend` to download more than one package, just tack them on.
 For example, you might want to vendor the gorilla `mux`, `http`, and `securecookie` packages like so:
 
@@ -141,7 +117,7 @@ To update the gorilla `mux` package in your `$GOPATH` you would run:
 $ go get -u github.com/gorilla/mux
 ```
 
-To update the gorilla `mux` package in your local project `vendor` directory run:
+To update the gorilla `mux` package in your local project `vendor/` directory run:
 
 ```Bash
 $ govend -u github.com/gorilla/mux
@@ -192,7 +168,7 @@ gopkg.in/check.v1
 
 # Lock Vendored Package Versions
 
-The command `govend` only scans for external packages and downloads them to the `vendor` directory in your project. You may need more control over versioning your dependencies so that reliable reproducible builds are possible.
+The command `govend` only scans for external packages and downloads them to the `vendor/` directory in your project. You may need more control over versioning your dependencies so that reliable reproducible builds are possible.
 
 `govend` can save the path and commit revisions of each repository downloaded in a `vendor.yml` file.
 This is called vendor locking.
@@ -246,10 +222,10 @@ vendors:
 ```
 
 
-You can now ignore the large `vendor` directory and pass the small `vendor.yml` file to your buddy.
+You can now ignore the large `vendor/` directory and pass the small `vendor.yml` file to your buddy.
 Your buddy can run `$ govend` and will get the exact same dependency versions as specified by `vendor.yml`.
 
-This is how a team of developers can ensure reproducible builds without checking the `vendor` directory into a version control system.
+This is how a team of developers can ensure reproducible builds without checking the `vendor/` directory into a version control system.
 
 # Update Locked Vendored Packages
 
@@ -266,7 +242,7 @@ $ govend -u
 ```
 
 If you want to update a particular vendored package to a particular revision, update the relevant `rev:` value inside the `vendor.yml` file.
-Then delete that repository from the `vendor` directory.
+Then delete that repository from the `vendor/` directory.
 Finally to download that specific revision hash run:
 
 ```Bash
