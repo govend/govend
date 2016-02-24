@@ -24,6 +24,56 @@ It's like `go get`, but for vendoring external or third party packages.
 $ go get -u github.com/govend/govend
 ```
 
+## Small Project Usage
+
+```
+# work, work, work
+$ govend github.com/gorilla/mux              # vendor a dependency
+# work, work, work
+$ go build
+$ govend -u github.com/gorilla/mux           # updated a dependency
+# work, work, work
+$ go build
+```
+
+## Big Project Usage
+
+```
+# work, work, work
+$ govend -v            # scan your project and download all dependencies
+# work, work, work
+$ go build
+$ govend -u            # scan your project and update all dependencies
+# work, work, work
+$ go build
+```
+
+## Big Project Team Usage
+Developer Sarah
+```
+$ git init
+# ...                 # code, code, code
+$ govend -v -l        # scan your project, download all dependencies, and
+                      # create a vendor.yaml file to lock dependency versions
+# ...                 # code, code, code
+$ go build            # go tools work normally
+$ govend -v -u        # scan your project, update all dependencies, and update
+                      # the vendor.yaml file versions
+# ...                 # code, code, code
+$ echo 'vendor' >> .gitignore  # add vendor directory to .gitignore
+$ git push            # push code to github
+$ go build            # go tools work normally
+```
+
+Developer Mike
+```
+# git clone url       # grab all the code Sarah pushed
+$ govend -v -l        # download all the dependency in the vendor.yml file
+                      # and use the revision versions Sarah is using
+$ go build            # build the exact same binary Sarah has
+# ...                 # code, code, code
+```
+
 # Verbose Mode
 
 As with most unixy programs, no news is good news.
