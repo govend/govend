@@ -17,6 +17,8 @@ import (
 // Vend is the main function govend uses to vendor external packages.
 func Vend(pkgs []string, update, verbose, results, commands, lock bool, format string) error {
 
+	manifestLen := 0
+
 	go15, _ := semver.New("1.5.0")
 	go16, _ := semver.New("1.6.0")
 	go17, _ := semver.New("1.7.0")
@@ -48,14 +50,15 @@ func Vend(pkgs []string, update, verbose, results, commands, lock bool, format s
 		return err
 	}
 
-	// it is important to save the manifest length before syncing, so that
-	// we can tell the difference and update the manifest file
-	manifestLen := m.Len()
-
 	// sync ensures that if a vendor is specified in the manifest, that the
 	// repository structure is also currently present in the vendor directory,
 	// this allows us to trust the manifest file
 	if lock || update {
+
+		// it is important to save the manifest length before syncing, so that
+		// we can tell the difference and update the manifest file
+		manifestLen = m.Len()
+
 		m.Sync()
 	}
 
