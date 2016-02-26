@@ -55,7 +55,9 @@ func Vend(pkgs []string, update, verbose, results, commands, lock bool, format s
 	// sync ensures that if a vendor is specified in the manifest, that the
 	// repository structure is also currently present in the vendor directory,
 	// this allows us to trust the manifest file
-	m.Sync()
+	if lock || update {
+		m.Sync()
+	}
 
 	// if no packages were provided as arguments, assume the current directory is
 	// a go project and scan it for external packages.
@@ -141,6 +143,15 @@ func download(pkg string, m *manifest.Manifest, update, verbose bool) ([]string,
 
 		// append the repo to the manifest file
 		m.Append(r.ImportPath, rev)
+	} else {
+		if verbose {
+			fmt.Printf("%s\n", r.ImportPath)
+		}
+		for _, vendor := range m.Vendors {
+			if vendor.Path == r.ImportPath {
+				repo.Download(r, "vendor", vendor.Rev)
+			}
+		}
 	}
 
 	pkgdeps, err := imports.Scan(filepath.Join("vendor", pkg), true, true, false)
