@@ -17,6 +17,8 @@ import (
 // Vend is the main function govend uses to vendor external packages.
 func Vend(pkgs []string, update, verbose, results, commands, lock bool, format string) error {
 
+	manifestLen := 0
+
 	go15, _ := semver.New("1.5.0")
 	go16, _ := semver.New("1.6.0")
 	go17, _ := semver.New("1.7.0")
@@ -48,14 +50,17 @@ func Vend(pkgs []string, update, verbose, results, commands, lock bool, format s
 		return err
 	}
 
-	// it is important to save the manifest length before syncing, so that
-	// we can tell the difference and update the manifest file
-	manifestLen := m.Len()
-
 	// sync ensures that if a vendor is specified in the manifest, that the
 	// repository structure is also currently present in the vendor directory,
 	// this allows us to trust the manifest file
-	m.Sync()
+	if lock || update {
+
+		// it is important to save the manifest length before syncing, so that
+		// we can tell the difference and update the manifest file
+		manifestLen = m.Len()
+
+		m.Sync()
+	}
 
 	// if no packages were provided as arguments, assume the current directory is
 	// a go project and scan it for external packages.
@@ -141,6 +146,15 @@ func download(pkg string, m *manifest.Manifest, update, verbose bool) ([]string,
 
 		// append the repo to the manifest file
 		m.Append(r.ImportPath, rev)
+	} else {
+		if verbose {
+			fmt.Printf("%s\n", r.ImportPath)
+		}
+		for _, vendor := range m.Vendors {
+			if vendor.Path == r.ImportPath {
+				repo.Download(r, "vendor", vendor.Rev)
+			}
+		}
 	}
 
 	pkgdeps, err := imports.Scan(filepath.Join("vendor", pkg), true, true, false)
