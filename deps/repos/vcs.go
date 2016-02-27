@@ -1,4 +1,4 @@
-package repo
+package repos
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/govend/govend/repo/vcs"
+	"github.com/govend/govend/deps/vcs"
 )
 
 // VCS represents a version control system for a repository.

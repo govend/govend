@@ -10,6 +10,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+const file = "vendor"
+
 // Load reads a vendor manifest file and returns a Manifest object.
 // It also takes an optional format to default the manifest to when written.
 func Load(format string) (*Manifest, error) {
@@ -21,7 +23,7 @@ func Load(format string) (*Manifest, error) {
 
 	// create a new manifest and set the format
 	m := &Manifest{}
-	if err := m.SetFormat(format); err != nil {
+	if err := m.format(format); err != nil {
 		return nil, err
 	}
 
@@ -39,12 +41,12 @@ func Load(format string) (*Manifest, error) {
 	}
 
 	// read the manifest file on disk
-	bytes, err := ioutil.ReadFile(file + "." + m.format)
+	bytes, err := ioutil.ReadFile(file + "." + m.fmt)
 	if err != nil {
 		return m, err
 	}
 
-	switch m.format {
+	switch m.fmt {
 	case "json":
 		if err := json.Unmarshal(bytes, m); err != nil {
 			return nil, err

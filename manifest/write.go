@@ -23,7 +23,7 @@ func (m *Manifest) Write() error {
 	b := []byte{}
 
 	var err error
-	switch m.format {
+	switch m.fmt {
 	case "json":
 		b, err = json.Marshal(m)
 		if err != nil {
@@ -50,7 +50,7 @@ func (m *Manifest) Write() error {
 	}
 
 	// write manifest file bytes to disk
-	if err := ioutil.WriteFile(file+"."+m.format, b, 0644); err != nil {
+	if err := ioutil.WriteFile(file+"."+m.fmt, b, 0644); err != nil {
 		return err
 	}
 

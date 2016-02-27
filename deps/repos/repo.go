@@ -1,6 +1,6 @@
-package repo
+package repos
 
-import "github.com/govend/govend/repo/vcs"
+import "github.com/govend/govend/deps/vcs"
 
 // Repo RepoRoot
 type Repo struct {
