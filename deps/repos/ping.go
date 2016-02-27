@@ -1,4 +1,4 @@
-package repo
+package repos
 
 // Ping checks the host server to determine the package Repo.
 func Ping(pkg string) (*Repo, error) {

@@ -8,29 +8,29 @@ import (
 	"strings"
 )
 
-const file = "vendor"
-
 var extensions = []string{".json", ".yml", ".yaml", ".toml"}
 
-// Manifest describes the vendors manifest file used save repository
-// dependencies and their versions. The file is written as JSON, YAML or TOML.
+// Manifest describes the manifest file used save repository dependencies
+// and their corresponding revision hashes.
+//
+// The file is written as JSON, YAML or TOML.
 type Manifest struct {
-	format  string
+	fmt     string
 	Vendors []vendor `json:"vendors" yml:"vendors" toml:"vendors"`
 }
 
-// vendor describes a dependecy with its import path and revision hash.
+// vendor describes a repository with its import path and revision hash.
 type vendor struct {
 	Path string `json:"path" yaml:"path"`
 	Rev  string `json:"rev,omitempty" yaml:"rev,omitempty"`
 }
 
-// SetFormat takes a string format and sets it, if it is valid.
-// If the format provided is not a valid or supported format an error is
-// returned.
+// format takes a string format and sets it.
+//
+// If the format provided is not supported an error is returned.
 //
 // Currently YAML, JSON, and TOML are supported formats.
-func (m *Manifest) SetFormat(format string) error {
+func (m *Manifest) format(format string) error {
 
 	if format == "" {
 		return errors.New("cannot set empty format")
@@ -42,17 +42,12 @@ func (m *Manifest) SetFormat(format string) error {
 			if format == "yaml" {
 				format = "yml"
 			}
-			m.format = format
+			m.fmt = format
 			return nil
 		}
 	}
 
-	return fmt.Errorf("format type '%s' not supported", m.format)
-}
-
-// Format returns the manifest's set format.
-func (m *Manifest) Format() string {
-	return m.format
+	return fmt.Errorf("format type %q not supported", m.fmt)
 }
 
 // Append creates a vendor object from a path and revision and

@@ -70,7 +70,7 @@ $ go build                     # go tools work normally
 
 Mike:
 ```bash
-# git clone url       # grab all the code Sarah pushed
+$ git clone url       # grab all the code Sarah pushed
 $ govend -v           # download all the dependencies in the vendor.yml file
                       # and use the same revision versions Sarah is using
 $ go build            # build the exact same binary Sarah has
