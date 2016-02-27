@@ -41,7 +41,7 @@ func (m *Manifest) Write() error {
 		}
 		b = buf.Bytes()
 	default:
-		return fmt.Errorf("format type '%s' not supported", m.format)
+		return fmt.Errorf("format type %q not supported", m.fmt)
 	}
 
 	// cleanup any previous file formats

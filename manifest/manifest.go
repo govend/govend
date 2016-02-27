@@ -47,7 +47,7 @@ func (m *Manifest) format(format string) error {
 		}
 	}
 
-	return fmt.Errorf("format type %q not supported", m.format)
+	return fmt.Errorf("format type %q not supported", m.fmt)
 }
 
 // Append creates a vendor object from a path and revision and
