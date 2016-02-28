@@ -77,8 +77,8 @@ func Vend(pkgs []string, update, verbose, results, lock bool, format string) err
 		}
 
 		// check if the repo is missing from the manifest file
-		if !m.Contains(repo.ImportPath) || update {
-			if !dirExists(filepath.Join("vendor", repo.ImportPath)) || lock {
+		if !m.Contains(repo.ImportPath) {
+			if !dirExists(filepath.Join("vendor", repo.ImportPath)) || lock || update {
 				rev, err := repos.Download(repo, "vendor", "latest")
 				if err != nil {
 					pkglist[pkg] = false
