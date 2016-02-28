@@ -1,5 +1,5 @@
-// Copyright 2013 The Go Authors.  All rights reserved.
-// Use of this source code is governed by a BSD-style
+// Copyright 2015 Jack Spirou.  All rights reserved.
+// Use of this source code is governed by a Apache 2.0
 // license that can be found in the LICENSE file.
 
 // Package singleflight provides a duplicate function call suppression
