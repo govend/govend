@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"log"
 
+	"golang.org/x/tools/go/buildutil"
+
 	"github.com/govend/govend/deps"
 	"github.com/govend/govend/imports"
 	"github.com/spf13/cobra"
@@ -23,6 +25,7 @@ var (
 	skipTestFiles bool
 	skipFilters   bool
 	format        string
+	tags          []string
 )
 
 const (
@@ -80,7 +83,7 @@ var govend = &cobra.Command{
 			}
 
 			// scan the project directory provided
-			pkgs, err := imports.Scan(path, scanOptions...)
+			pkgs, err := imports.Scan(path, tags, scanOptions...)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -96,7 +99,7 @@ var govend = &cobra.Command{
 		}
 
 		// vendor dependencies
-		if err := deps.Vend(args, update, verbose, results, lock, format); err != nil {
+		if err := deps.Vend(args, tags, update, verbose, results, lock, format); err != nil {
 			log.Fatal(err)
 		}
 	},
@@ -123,5 +126,6 @@ func main() {
 	govend.Flags().BoolVarP(&scan, "scan", "s", false, scanDesc)
 	govend.Flags().BoolVar(&skipFilters, "skipFilters", false, skipFiltersDesc)
 	govend.Flags().BoolVar(&skipTestFiles, "skipTestFiles", false, skipTestFilesDesc)
+	govend.Flags().StringSliceVar(&tags, "tags", []string{}, buildutil.TagsFlagDoc)
 	govend.Execute()
 }

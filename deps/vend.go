@@ -16,7 +16,7 @@ import (
 )
 
 // Vend is the main function govend uses to vendor external packages.
-func Vend(pkgs []string, update, verbose, results, lock bool, format string) error {
+func Vend(pkgs, tags []string, update, verbose, results, lock bool, format string) error {
 
 	// check the site is vendorable
 	if err := Vendorable(); err != nil {
@@ -45,7 +45,7 @@ func Vend(pkgs []string, update, verbose, results, lock bool, format string) err
 	// if no packages were provided as arguments, assume the current directory is
 	// a go project and scan it for external packages.
 	if len(pkgs) == 0 {
-		pkgs, err = imports.Scan(".")
+		pkgs, err = imports.Scan(".", tags)
 		if err != nil {
 			return err
 		}
@@ -102,7 +102,7 @@ func Vend(pkgs []string, update, verbose, results, lock bool, format string) err
 		}
 
 		vpkg := filepath.Join("vendor", pkg)
-		deps, err := imports.Scan(vpkg, imports.SinglePackage)
+		deps, err := imports.Scan(vpkg, tags, imports.SinglePackage)
 		if err != nil {
 			pkglist[pkg] = false
 			continue

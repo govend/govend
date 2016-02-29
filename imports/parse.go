@@ -5,10 +5,13 @@
 package imports
 
 import (
+	"go/build"
 	"go/parser"
 	"go/token"
 	"strconv"
 	"strings"
+
+	"golang.org/x/tools/go/buildutil"
 )
 
 const (
@@ -17,14 +20,22 @@ const (
 )
 
 // Parse takes a Go file path and parses its import paths.
-func Parse(file string) ([]string, error) {
+func Parse(file string, tags []string) ([]string, error) {
+
+	/*
+		var ctxt *build.Context
+		if len(tags) > 0 {
+			ctxt = &build.Default
+			ctxt.BuildTags = tags
+		}
+	*/
 
 	// we will parse a list of packages
 	pkgs := []string{}
 
 	// parse only imports
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, file, nil, parser.ImportsOnly)
+	f, err := buildutil.ParseFile(fset, &build.Context{}, nil, "", file, parser.ParseComments|parser.ImportsOnly)
 	if err != nil {
 
 		// if the error is because of an invalid import path

@@ -27,7 +27,7 @@ const (
 )
 
 // Scan takes a directory and scans it for import dependencies.
-func Scan(path string, options ...ScanOptions) ([]string, error) {
+func Scan(path string, tags []string, options ...ScanOptions) ([]string, error) {
 
 	// parse scan options
 	var singlePackage, skipTestFiles, skipFilters bool
@@ -96,7 +96,7 @@ func Scan(path string, options ...ScanOptions) ([]string, error) {
 		// only parse .go files
 		fpath := w.Path()
 		if strings.HasSuffix(fpath, ".go") {
-			p, err := Parse(w.Path())
+			p, err := Parse(w.Path(), tags)
 			if err != nil {
 
 				// if the error is because of a bad file, skip the file
