@@ -72,6 +72,11 @@ func Vend(pkgs []string, update, verbose, results, lock bool, format string) err
 			continue
 		}
 
+		if _, ok := pkglist[repo.ImportPath]; ok {
+			pkglist[repo.ImportPath] = false
+			continue
+		}
+
 		if verbose {
 			fmt.Printf("%s\n", repo.ImportPath)
 		}
@@ -103,6 +108,7 @@ func Vend(pkgs []string, update, verbose, results, lock bool, format string) err
 			continue
 		}
 		pkglist[pkg] = true
+		pkglist[repo.ImportPath] = true
 
 		// push
 		stack.push(deps...)
