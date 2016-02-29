@@ -6,6 +6,7 @@ package imports
 
 import (
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/govend/govend/imports/filters"
@@ -115,6 +116,9 @@ func Scan(path string, options ...ScanOptions) ([]string, error) {
 		pkgs = filters.Local(pkgs)
 	}
 	pkgs = filters.Duplicates(pkgs)
+
+	// sort
+	sort.Strings(pkgs)
 
 	return pkgs, nil
 }
