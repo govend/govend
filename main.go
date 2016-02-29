@@ -120,7 +120,7 @@ func parseScanOptions(skipTestFiles, skipFilters bool) []imports.ScanOptions {
 func main() {
 	govend.Flags().BoolVar(&version, "version", false, versionDesc)
 	govend.Flags().BoolVarP(&verbose, "verbose", "v", false, verboseDesc)
-	govend.Flags().BoolVarP(&tree, "tree", "t", false, verboseDesc)
+	govend.Flags().BoolVarP(&tree, "tree", "t", false, treeDesc)
 	govend.Flags().BoolVarP(&results, "results", "r", false, resultsDesc)
 	govend.Flags().StringVarP(&format, "format", "f", "YAML", formatDesc)
 	govend.Flags().BoolVarP(&update, "update", "u", false, updateDesc)
