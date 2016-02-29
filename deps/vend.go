@@ -16,7 +16,7 @@ import (
 )
 
 // Vend is the main function govend uses to vendor external packages.
-func Vend(pkgs []string, update, verbose, results, lock bool, format string) error {
+func Vend(pkgs []string, update, verbose, tree, results, lock bool, format string) error {
 
 	// check the site is vendorable
 	if err := Vendorable(); err != nil {
@@ -58,26 +58,26 @@ func Vend(pkgs []string, update, verbose, results, lock bool, format string) err
 
 		// pop an import package path off the stack
 		pkg := stack.pop()
-		if _, ok := pkglist[pkg]; ok {
+		if _, ok := pkglist[pkg.path]; ok {
 			continue
 		}
 
 		// use the network to gather some metadata on this repo
-		repo, err := repos.Ping(pkg)
+		repo, err := repos.Ping(pkg.path)
 		if err != nil {
-			if verbose {
-				fmt.Printf("%s (bad ping): %s\n", pkg, err)
-			}
-			pkglist[pkg] = false
+			fmt.Printf("%s (bad ping): %s\n", pkg.path, err)
+			pkglist[pkg.path] = false
 			continue
 		}
 
 		if _, ok := pkglist[repo.ImportPath]; ok {
-			pkglist[repo.ImportPath] = false
 			continue
 		}
 
 		if verbose {
+			if tree {
+				writeBlanks(pkg.level)
+			}
 			fmt.Printf("%s\n", repo.ImportPath)
 		}
 
@@ -86,7 +86,8 @@ func Vend(pkgs []string, update, verbose, results, lock bool, format string) err
 		if !m.Contains(repo.ImportPath) && !dirExists(vpath) || lock || update {
 			rev, err := repos.Download(repo, "vendor", "latest")
 			if err != nil {
-				pkglist[pkg] = false
+				fmt.Printf("%s (download error): %s\n", repo.ImportPath, err)
+				pkglist[pkg.path] = false
 				continue
 			}
 			m.Append(repo.ImportPath, rev)
@@ -94,24 +95,27 @@ func Vend(pkgs []string, update, verbose, results, lock bool, format string) err
 			for _, vendor := range m.Vendors {
 				if vendor.Path == repo.ImportPath {
 					if _, err := repos.Download(repo, "vendor", vendor.Rev); err != nil {
-						pkglist[pkg] = false
+						fmt.Printf("%s (download error): %s\n", repo.ImportPath, err)
+						pkglist[pkg.path] = false
 						continue
 					}
 				}
 			}
 		}
 
-		vpkg := filepath.Join("vendor", pkg)
+		vpkg := filepath.Join("vendor", pkg.path)
 		deps, err := imports.Scan(vpkg, imports.SinglePackage)
 		if err != nil {
-			pkglist[pkg] = false
+			fmt.Printf("%s (scan error): %s\n", pkg.path, err)
 			continue
 		}
-		pkglist[pkg] = true
+		pkglist[pkg.path] = true
 		pkglist[repo.ImportPath] = true
 
 		// push
-		stack.push(deps...)
+		if len(deps) > 0 {
+			stack.push(pkg.level+1, deps...)
+		}
 	}
 
 	if verbose && results {
@@ -137,6 +141,7 @@ func Vend(pkgs []string, update, verbose, results, lock bool, format string) err
 
 // writeBlanks writes a number of blank spaces.
 func writeBlanks(num int) {
+	num = num * 2
 	for num > 0 {
 		fmt.Printf(" ")
 		num--

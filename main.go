@@ -16,6 +16,7 @@ import (
 var (
 	version       bool
 	verbose       bool
+	tree          bool
 	update        bool
 	results       bool
 	lock          bool
@@ -31,6 +32,9 @@ const (
 	versionDesc = `The --version flag prints the installed version of govend.
 	`
 	verboseDesc = `The -v flag prints package paths as they are vendored.
+	`
+	treeDesc = `The -t flag works with the -v flag to print the names of packages
+	as an indented tree.
 	`
 	resultsDesc = `The -r flag works with the -v flag to print a summary of the
 	number of packages scanned, packages skipped, and repositories downloaded.
@@ -96,7 +100,7 @@ var govend = &cobra.Command{
 		}
 
 		// vendor dependencies
-		if err := deps.Vend(args, update, verbose, results, lock, format); err != nil {
+		if err := deps.Vend(args, update, verbose, tree, results, lock, format); err != nil {
 			log.Fatal(err)
 		}
 	},
@@ -116,6 +120,7 @@ func parseScanOptions(skipTestFiles, skipFilters bool) []imports.ScanOptions {
 func main() {
 	govend.Flags().BoolVar(&version, "version", false, versionDesc)
 	govend.Flags().BoolVarP(&verbose, "verbose", "v", false, verboseDesc)
+	govend.Flags().BoolVarP(&tree, "tree", "t", false, verboseDesc)
 	govend.Flags().BoolVarP(&results, "results", "r", false, resultsDesc)
 	govend.Flags().StringVarP(&format, "format", "f", "YAML", formatDesc)
 	govend.Flags().BoolVarP(&update, "update", "u", false, updateDesc)
