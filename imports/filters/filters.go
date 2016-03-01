@@ -13,6 +13,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 )
 
 // Standard filters out standard packages.
@@ -94,6 +95,17 @@ func Local(pkgs []string) []string {
 		list = append(list, pkg)
 	}
 
+	return list
+}
+
+// Ellipses trims the ellipses suffix off of package import paths.
+func Ellipses(pkgs []string) []string {
+	var list []string
+	for _, pkg := range pkgs {
+		pkg = strings.TrimSuffix(pkg, "/.../")
+		pkg = strings.TrimSuffix(pkg, "/...")
+		list = append(list, pkg)
+	}
 	return list
 }
 

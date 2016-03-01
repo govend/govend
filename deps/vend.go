@@ -12,6 +12,7 @@ import (
 
 	"github.com/govend/govend/deps/repos"
 	"github.com/govend/govend/imports"
+	"github.com/govend/govend/imports/filters"
 	"github.com/govend/govend/manifest"
 )
 
@@ -53,6 +54,7 @@ func Vend(pkgs []string, update, verbose, tree, results, lock bool, format strin
 
 	// download that dependency and any external deps it has
 	pkglist := map[string]bool{}
+	pkgs = filters.Ellipses(pkgs)
 	stack := newVendorStack(pkgs...)
 	for !stack.empty() {
 
