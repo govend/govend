@@ -1,6 +1,6 @@
 vendors:
 - path: github.com/BurntSushi/toml
-  rev: a4eecd407cf4129fc902ece859a0114e4cf1a7f4
+  rev: 19467339e27d32759122c54124a826c36af0b553
 - path: github.com/inconshreveable/mousetrap
   rev: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - path: github.com/kr/fs

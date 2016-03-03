@@ -26,9 +26,9 @@ type Manifest struct {
 
 // vendor describes a repository with its import path and revision hash.
 type vendor struct {
-	Path string `json:"path" yaml:"path"`
-	Rev  string `json:"rev,omitempty" yaml:"rev,omitempty"`
-	Hold bool   `json:"hold,omitempty" yaml:"hold,omitempty"`
+	Path string `json:"path" yaml:"path" toml:"path"`
+	Rev  string `json:"rev,omitempty" yaml:"rev,omitempty" toml:"rev,omitempty"`
+	Hold bool   `json:"hold,omitempty" yaml:"hold,omitempty" toml:"hold,omitempty"`
 }
 
 // format takes a string format and sets it.

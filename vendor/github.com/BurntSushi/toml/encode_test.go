@@ -457,16 +457,30 @@ func TestEncodeArrayHashWithNormalHashOrder(t *testing.T) {
 
 func TestEncodeWithOmitEmpty(t *testing.T) {
 	type simple struct {
-		User string `toml:"user"`
-		Pass string `toml:"password,omitempty"`
+		Bool   bool              `toml:"bool,omitempty"`
+		String string            `toml:"string,omitempty"`
+		Array  [0]byte           `toml:"array,omitempty"`
+		Slice  []int             `toml:"slice,omitempty"`
+		Map    map[string]string `toml:"map,omitempty"`
 	}
 
-	value := simple{"Testing", ""}
-	expected := fmt.Sprintf("user = %q\n", value.User)
-	encodeExpected(t, "simple with omitempty, is empty", value, expected, nil)
-	value.Pass = "some password"
-	expected = fmt.Sprintf("user = %q\npassword = %q\n", value.User, value.Pass)
-	encodeExpected(t, "simple with omitempty, not empty", value, expected, nil)
+	var v simple
+	encodeExpected(t, "fields with omitempty are omitted when empty", v, "", nil)
+	v = simple{
+		Bool:   true,
+		String: " ",
+		Slice:  []int{2, 3, 4},
+		Map:    map[string]string{"foo": "bar"},
+	}
+	expected := `bool = true
+string = " "
+slice = [2, 3, 4]
+
+[map]
+  foo = "bar"
+`
+	encodeExpected(t, "fields with omitempty are not omitted when non-empty",
+		v, expected, nil)
 }
 
 func TestEncodeWithOmitZero(t *testing.T) {
@@ -489,6 +503,16 @@ real = 20.0
 unsigned = 5
 `
 	encodeExpected(t, "simple with omitzero, non-zero", value, expected, nil)
+}
+
+func TestEncodeOmitemptyWithEmptyName(t *testing.T) {
+	type simple struct {
+		S []int `toml:",omitempty"`
+	}
+	v := simple{[]int{1, 2, 3}}
+	expected := "S = [1, 2, 3]\n"
+	encodeExpected(t, "simple with omitempty, no name, non-empty field",
+		v, expected, nil)
 }
 
 func TestEncodeAnonymousStructPointerField(t *testing.T) {
