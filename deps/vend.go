@@ -70,15 +70,11 @@ func Vend(pkgs []string, update, verbose, tree, results, lock, hold bool, format
 			continue
 		}
 
-		if _, ok := pkglist[repo.ImportPath]; ok {
-			continue
-		}
-
 		if verbose {
 			if tree {
 				writeBlanks(pkg.level)
 			}
-			fmt.Printf("%s\n", repo.ImportPath)
+			fmt.Printf("%s\n", pkg.path)
 		}
 
 		// check if the repo is missing from the manifest file
