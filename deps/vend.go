@@ -17,7 +17,7 @@ import (
 )
 
 // Vend is the main function govend uses to vendor external packages.
-func Vend(pkgs []string, update, verbose, tree, results, lock bool, format string) error {
+func Vend(pkgs []string, update, verbose, tree, results, lock, hold bool, format string) error {
 
 	// check the site is vendorable
 	if err := Vendorable(); err != nil {
@@ -34,12 +34,10 @@ func Vend(pkgs []string, update, verbose, tree, results, lock bool, format strin
 	// repository structure is also currently present in the vendor directory,
 	// this allows us to trust the manifest file
 	mlen := 0
-	if lock || update {
-
+	if lock || hold || update {
 		// it is important to save the manifest length before syncing, so that
 		// we can tell the difference and update the manifest file
 		mlen = m.Len()
-
 		m.Sync()
 	}
 
@@ -85,14 +83,14 @@ func Vend(pkgs []string, update, verbose, tree, results, lock bool, format strin
 
 		// check if the repo is missing from the manifest file
 		vpath := filepath.Join("vendor", repo.ImportPath)
-		if !m.Contains(repo.ImportPath) && !dirExists(vpath) || lock || update {
+		if !m.Contains(repo.ImportPath) && !dirExists(vpath) || lock || hold || update {
 			rev, err := repos.Download(repo, "vendor", "latest")
 			if err != nil {
 				fmt.Printf("%s (download error): %s\n", repo.ImportPath, err)
 				pkglist[pkg.path] = false
 				continue
 			}
-			m.Append(repo.ImportPath, rev)
+			m.Append(repo.ImportPath, rev, hold)
 		} else {
 			for _, vendor := range m.Vendors {
 				if vendor.Path == repo.ImportPath {
@@ -106,7 +104,11 @@ func Vend(pkgs []string, update, verbose, tree, results, lock bool, format strin
 		}
 
 		vpkg := filepath.Join("vendor", pkg.path)
-		deps, err := imports.Scan(vpkg, imports.SinglePackage)
+		importOptions := []imports.ScanOptions{}
+		if !hold {
+			importOptions = append(importOptions, imports.SinglePackage)
+		}
+		deps, err := imports.Scan(vpkg, importOptions...)
 		if err != nil {
 			fmt.Printf("%s (scan error): %s\n", pkg.path, err)
 			continue
@@ -132,7 +134,7 @@ func Vend(pkgs []string, update, verbose, tree, results, lock bool, format strin
 		fmt.Printf("repos downloaded: %d\n", m.Len())
 	}
 
-	if lock || mlen > 0 {
+	if lock || hold || mlen > 0 {
 		if err := m.Write(); err != nil {
 			return err
 		}

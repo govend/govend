@@ -28,6 +28,7 @@ type Manifest struct {
 type vendor struct {
 	Path string `json:"path" yaml:"path"`
 	Rev  string `json:"rev,omitempty" yaml:"rev,omitempty"`
+	Hold bool   `json:"hold,omitempty" yaml:"hold,omitempty"`
 }
 
 // format takes a string format and sets it.
@@ -57,14 +58,14 @@ func (m *Manifest) format(format string) error {
 
 // Append creates a vendor object from a path and revision and
 // appends it to the Manifest.
-func (m *Manifest) Append(path, rev string) {
+func (m *Manifest) Append(path, rev string, hold bool) {
 	for _, vendor := range m.Vendors {
 		if vendor.Path == path {
 			vendor.Rev = rev
 			return
 		}
 	}
-	m.Vendors = append(m.Vendors, vendor{path, rev})
+	m.Vendors = append(m.Vendors, vendor{path, rev, hold})
 }
 
 // Remove takes a package import string, and removes it from the manifest file.
@@ -105,7 +106,9 @@ func (m *Manifest) Sync() {
 	vendors, ok := m.inSync()
 	if !ok {
 		for _, vendor := range vendors {
-			m.Remove(vendor.Path)
+			if !vendor.Hold {
+				m.Remove(vendor.Path)
+			}
 		}
 	}
 }

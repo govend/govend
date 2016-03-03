@@ -20,6 +20,7 @@ var (
 	update        bool
 	results       bool
 	lock          bool
+	hold          bool
 	scan          bool
 	skipTestFiles bool
 	skipFilters   bool
@@ -48,6 +49,10 @@ const (
 	`
 	lockDesc = `The -l flag locks down dependency versions by writing to disk a
 	manifest vendor file containing repository revision hashes.
+	`
+	holdDesc = `The --hold flag holds on to a dependency, even if it is not used
+	as an import path in the project codebase. This ability to freeze
+	dependencies is useful for vendoring Go tool versions per project.
 	`
 	scanDesc = `The -s flag scans the current or provided directory for external
 	packages.
@@ -100,7 +105,7 @@ var govend = &cobra.Command{
 		}
 
 		// vendor dependencies
-		if err := deps.Vend(args, update, verbose, tree, results, lock, format); err != nil {
+		if err := deps.Vend(args, update, verbose, tree, results, lock, hold, format); err != nil {
 			log.Fatal(err)
 		}
 	},
@@ -125,6 +130,7 @@ func main() {
 	govend.Flags().StringVarP(&format, "format", "f", "YAML", formatDesc)
 	govend.Flags().BoolVarP(&update, "update", "u", false, updateDesc)
 	govend.Flags().BoolVarP(&lock, "lock", "l", false, lockDesc)
+	govend.Flags().BoolVar(&hold, "hold", false, holdDesc)
 	govend.Flags().BoolVarP(&scan, "scan", "s", false, scanDesc)
 	govend.Flags().BoolVar(&skipFilters, "skipFilters", false, skipFiltersDesc)
 	govend.Flags().BoolVar(&skipTestFiles, "skipTestFiles", false, skipTestFilesDesc)
