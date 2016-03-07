@@ -30,6 +30,9 @@ const (
 // Scan takes a directory and scans it for import dependencies.
 func Scan(path string, options ...ScanOptions) ([]string, error) {
 
+	// if the path is a Godeps path, filter it out
+	path = filters.Godeps([]string{path})[0]
+
 	// parse scan options
 	var singlePackage, skipTestFiles, skipFilters bool
 	for _, option := range options {
@@ -79,7 +82,7 @@ func Scan(path string, options ...ScanOptions) ([]string, error) {
 
 		// skip directories named "vendor"
 		if finfo.IsDir() {
-			if finfo.Name() == "vendor" {
+			if finfo.Name() == "vendor" || finfo.Name() == "Godeps" {
 				w.SkipDir()
 				continue
 			}
@@ -114,6 +117,7 @@ func Scan(path string, options ...ScanOptions) ([]string, error) {
 		pkgs = filters.Exceptions(pkgs)
 		pkgs = filters.Standard(pkgs)
 		pkgs = filters.Local(pkgs)
+		pkgs = filters.Godeps(pkgs)
 	}
 	pkgs = filters.Duplicates(pkgs)
 

@@ -72,16 +72,14 @@ var govend = &cobra.Command{
 	Long:  govendDesc,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		// print version
+		// print version command
 		if version {
 			fmt.Println("0.1.5")
 			return
 		}
 
-		// scan for dependencies
-		scanOptions := parseScanOptions(skipTestFiles, skipFilters)
+		// scan command
 		if scan {
-
 			// assume local directory
 			path := "."
 			if len(args) > 0 {
@@ -89,6 +87,7 @@ var govend = &cobra.Command{
 			}
 
 			// scan the project directory provided
+			scanOptions := parseScanOptions(skipTestFiles, skipFilters)
 			pkgs, err := imports.Scan(path, scanOptions...)
 			if err != nil {
 				log.Fatal(err)
@@ -104,22 +103,18 @@ var govend = &cobra.Command{
 			return
 		}
 
+		// all that is left is the vendor command, but first we need to check that
+		// the current project environment is vendorable
+		if err := deps.Vendorable(); err != nil {
+			log.Fatal(err)
+		}
+
 		// vendor dependencies
-		if err := deps.Vend(args, update, verbose, tree, results, lock, hold, format); err != nil {
+		vendOptions := parseVendOptions(update, lock, hold, verbose, tree, results)
+		if err := deps.Vend(args, format, vendOptions...); err != nil {
 			log.Fatal(err)
 		}
 	},
-}
-
-func parseScanOptions(skipTestFiles, skipFilters bool) []imports.ScanOptions {
-	options := []imports.ScanOptions{}
-	if skipTestFiles {
-		options = append(options, imports.SkipTestFiles)
-	}
-	if skipFilters {
-		options = append(options, imports.SkipFilters)
-	}
-	return options
 }
 
 func main() {
@@ -135,4 +130,38 @@ func main() {
 	govend.Flags().BoolVar(&skipFilters, "skipFilters", false, skipFiltersDesc)
 	govend.Flags().BoolVar(&skipTestFiles, "skipTestFiles", false, skipTestFilesDesc)
 	govend.Execute()
+}
+
+func parseScanOptions(skipTestFiles, skipFilters bool) []imports.ScanOptions {
+	options := []imports.ScanOptions{}
+	if skipTestFiles {
+		options = append(options, imports.SkipTestFiles)
+	}
+	if skipFilters {
+		options = append(options, imports.SkipFilters)
+	}
+	return options
+}
+
+func parseVendOptions(update, lock, hold, verbose, tree, results bool) []deps.VendOptions {
+	options := []deps.VendOptions{}
+	if update {
+		options = append(options, deps.Update)
+	}
+	if lock {
+		options = append(options, deps.Lock)
+	}
+	if hold {
+		options = append(options, deps.Hold)
+	}
+	if verbose {
+		options = append(options, deps.Verbose)
+	}
+	if tree {
+		options = append(options, deps.Tree)
+	}
+	if results {
+		options = append(options, deps.Results)
+	}
+	return options
 }
