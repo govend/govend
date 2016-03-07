@@ -16,60 +16,119 @@ import (
 	"github.com/govend/govend/manifest"
 )
 
-// Vend is the main function govend uses to vendor external packages.
-func Vend(pkgs []string, update, verbose, tree, results, lock, hold bool, format string) error {
+// VendOptions represents available vend options.
+type VendOptions int
 
-	// check the site is vendorable
-	if err := Vendorable(); err != nil {
-		return err
+const (
+	// Update updates vendored repositories.
+	Update VendOptions = iota
+
+	// Lock locks the revision version of vendored repositories.
+	Lock
+
+	// Hold holds onto a vendored repository, even if none of its import paths
+	// are used in the project source code.
+	Hold
+
+	// Verbose prints out packages as they are vendored.
+	Verbose
+
+	// Tree prints the names of packages as an indented tree.
+	Tree
+
+	// Results prints a summary of the number of packages scanned, packages
+	// skipped, and repositories downloaded.
+	Results
+)
+
+// Vend is the main function govend uses to vendor external packages.
+func Vend(pkgs []string, format string, options ...VendOptions) error {
+	// parse vend options
+	var update, lock, hold, verbose, tree, results bool
+	for _, option := range options {
+		switch option {
+		case Update:
+			update = true
+		case Lock:
+			lock = true
+		case Hold:
+			hold = true
+		case Verbose:
+			verbose = true
+		case Tree:
+			tree = true
+		case Results:
+			results = true
+		}
 	}
 
-	// attempt to load the manifest file
+	// load the manifest file if it exists
 	m, err := manifest.Load(format)
 	if err != nil {
 		return err
 	}
 
-	// sync ensures that if a vendor is specified in the manifest, that the
-	// repository structure is also currently present in the vendor directory,
-	// this allows us to trust the manifest file
+	// the manifest length should always default to 0
 	mlen := 0
+
+	// only sync the manfiest file for the lock, hold, or update flags
 	if lock || hold || update {
-		// it is important to save the manifest length before syncing, so that
-		// we can tell the difference and update the manifest file
+		// it is important to record the manifest length before syncing, so that
+		// we can identify changes and update the manifest file later
 		mlen = m.Len()
+
+		// sync ensures that if a vendored repository is specified in the manifest
+		// file, the same repository directory structure also exists inside the
+		// vendor directory
 		m.Sync()
 	}
 
-	// if no packages were provided as arguments, assume the current directory is
-	// a go project and scan it for external packages.
+	// check if any import package paths were provided as arguments
 	if len(pkgs) == 0 {
+		// if no packages were provided, we can only assume the
+		// current directory contains go source code, so we scan it
 		pkgs, err = imports.Scan(".")
 		if err != nil {
 			return err
 		}
 	}
 
-	// download that dependency and any external deps it has
-	pkglist := map[string]bool{}
+	// rather than using some variable state to track if a repository has been
+	// downloaded we check if that repo or package import path exists inside the
+	// vendor directory structure
+	//
+	// inorder to trust the vendor directory structure for lock, hold or update
+	// flags we must remove the contents of the vendor directory before vendoring
+	if lock || update {
+		if err := os.RemoveAll("vendor"); err != nil {
+			return err
+		}
+	}
+
+	// support the go get "/.../" and "/..." ellipses syntax by filtering it out
 	pkgs = filters.Ellipses(pkgs)
+
+	// cache is a cache map of package import paths to a boolean results value
+	cache := map[string]bool{}
+
+	// newVendorStack takes a list of packages, reverses them, and places them
+	// on a stack of a slice of strings
+	//
+	// the stack data structure allows for the tree flag implimentation to be
+	// clean and simple
 	stack := newVendorStack(pkgs...)
+
+	// iterating over a stack allows vendoring of packages and any of their
+	// dependencies to the nth degree in the order they are discovered
 	for !stack.empty() {
-
-		// pop an import package path off the stack
 		pkg := stack.pop()
-		if _, ok := pkglist[pkg.path]; ok {
+
+		// if the package path has been cached, skip it despite the result value
+		if _, ok := cache[pkg.path]; ok {
 			continue
 		}
 
-		// use the network to gather some metadata on this repo
-		repo, err := repos.Ping(pkg.path)
-		if err != nil {
-			fmt.Printf("%s (bad ping): %s\n", pkg.path, err)
-			pkglist[pkg.path] = false
-			continue
-		}
-
+		// tell the humans we are going to process this package
 		if verbose {
 			if tree {
 				writeBlanks(pkg.level)
@@ -77,51 +136,71 @@ func Vend(pkgs []string, update, verbose, tree, results, lock, hold bool, format
 			fmt.Printf("%s\n", pkg.path)
 		}
 
-		// check if the repo is missing from the manifest file
-		vpath := filepath.Join("vendor", repo.ImportPath)
-		if !m.Contains(repo.ImportPath) && !dirExists(vpath) || lock || hold || update {
-			rev, err := repos.Download(repo, "vendor", "latest")
+		// if the package import path structure does not exist inside the vendor,
+		// we need to download it
+		if !vendorDirExists(pkg.path) {
+
+			// ping the VCS repo across the network to gather metadata tags using
+			// the package import path
+			repo, err := repos.Ping(pkg.path)
+			if err != nil {
+				fmt.Printf("%s (bad ping): %s\n", pkg.path, err)
+				cache[pkg.path] = false
+				continue
+			}
+
+			// if the manifest file contains the repo and the update flag is off then
+			// use the manifest revision version even if the value is an empty string
+			//
+			// otherwise get the latest version of the repository
+			rev := ""
+			if vendor, ok := m.Contains(repo.ImportPath); ok && !update {
+				rev, err = repos.Download(repo, "vendor", vendor.Rev)
+			} else {
+				rev, err = repos.Download(repo, "vendor", "latest")
+			}
 			if err != nil {
 				fmt.Printf("%s (download error): %s\n", repo.ImportPath, err)
-				pkglist[pkg.path] = false
+				cache[pkg.path] = false
 				continue
 			}
 			m.Append(repo.ImportPath, rev, hold)
-		} else {
-			for _, vendor := range m.Vendors {
-				if vendor.Path == repo.ImportPath {
-					if _, err := repos.Download(repo, "vendor", vendor.Rev); err != nil {
-						fmt.Printf("%s (download error): %s\n", repo.ImportPath, err)
-						pkglist[pkg.path] = false
-						continue
-					}
-				}
-			}
 		}
 
-		vpkg := filepath.Join("vendor", pkg.path)
-		importOptions := []imports.ScanOptions{}
-		if !hold {
-			importOptions = append(importOptions, imports.SinglePackage)
+		// update the cache for the package import path after checking if the
+		// package existed inside the vendor directory, this allows for both
+		// the download neede and download not needed use cases
+		cache[pkg.path] = true
+
+		// we must scan the recently vendored package for any dependencies it
+		// relies on so we can vendor them on the next iteration
+		//
+		// if the hold flag is applied we must vendor all the packages in that repo
+		// since they might be used for tooling and not source code dependencies
+		vdeps := []string{}
+		if hold {
+			vdeps, err = imports.Scan(filepath.Join("vendor", pkg.path))
+		} else {
+			vpath := filepath.Join("vendor", pkg.path)
+			vdeps, err = imports.Scan(vpath, imports.SinglePackage)
 		}
-		deps, err := imports.Scan(vpkg, importOptions...)
 		if err != nil {
 			fmt.Printf("%s (scan error): %s\n", pkg.path, err)
 			continue
 		}
-		pkglist[pkg.path] = true
-		pkglist[repo.ImportPath] = true
 
-		// push
-		if len(deps) > 0 {
-			stack.push(pkg.level+1, deps...)
+		// push the vendor package dependencies on the stack so we can parse sub
+		// packages in the order they are discovered
+		if len(vdeps) > 0 {
+			stack.push(pkg.level+1, vdeps...)
 		}
 	}
 
+	// tell the humans the results
 	if verbose && results {
-		fmt.Printf("\npackages scanned: %d\n", len(pkglist))
+		fmt.Printf("\npackages scanned: %d\n", len(cache))
 		skipped := 0
-		for _, ok := range pkglist {
+		for _, ok := range cache {
 			if !ok {
 				skipped++
 			}
@@ -130,16 +209,15 @@ func Vend(pkgs []string, update, verbose, tree, results, lock, hold bool, format
 		fmt.Printf("repos downloaded: %d\n", m.Len())
 	}
 
+	// if we need to do so, update the manifest file
 	if lock || hold || mlen > 0 {
 		if err := m.Write(); err != nil {
 			return err
 		}
 	}
-
 	return nil
 }
 
-// writeBlanks writes a number of blank spaces.
 func writeBlanks(num int) {
 	num = num * 2
 	for num > 0 {
@@ -152,7 +230,7 @@ func badImportPath(err error) bool {
 	return strings.Contains(err.Error(), "unrecognized import path")
 }
 
-func dirExists(path string) bool {
-	_, err := os.Stat(path)
+func vendorDirExists(path string) bool {
+	_, err := os.Stat(filepath.Join("vendor", path))
 	return !os.IsNotExist(err)
 }

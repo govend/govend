@@ -21,11 +21,11 @@ var extensions = []string{".json", ".yml", ".yaml", ".toml"}
 // The file is written as JSON, YAML or TOML.
 type Manifest struct {
 	fmt     string
-	Vendors []vendor `json:"vendors" yml:"vendors" toml:"vendors"`
+	Vendors []Vendor `json:"vendors" yml:"vendors" toml:"vendors"`
 }
 
-// vendor describes a repository with its import path and revision hash.
-type vendor struct {
+// Vendor describes a repository with its import path and revision hash.
+type Vendor struct {
 	Path string `json:"path" yaml:"path" toml:"path"`
 	Rev  string `json:"rev,omitempty" yaml:"rev,omitempty" toml:"rev,omitempty"`
 	Hold bool   `json:"hold,omitempty" yaml:"hold,omitempty" toml:"hold,omitempty"`
@@ -62,10 +62,11 @@ func (m *Manifest) Append(path, rev string, hold bool) {
 	for _, vendor := range m.Vendors {
 		if vendor.Path == path {
 			vendor.Rev = rev
+			vendor.Hold = hold
 			return
 		}
 	}
-	m.Vendors = append(m.Vendors, vendor{path, rev, hold})
+	m.Vendors = append(m.Vendors, Vendor{path, rev, hold})
 }
 
 // Remove takes a package import string, and removes it from the manifest file.
@@ -79,19 +80,19 @@ func (m *Manifest) Remove(pkg string) {
 
 // Contains returns true of the package import string is contained in the
 // Manifest object
-func (m Manifest) Contains(pkg string) bool {
+func (m Manifest) Contains(pkg string) (Vendor, bool) {
 	for _, vendor := range m.Vendors {
 		if vendor.Path == pkg {
-			return true
+			return vendor, true
 		}
 	}
-	return false
+	return Vendor{}, false
 }
 
 // inSync check if the manifest file's list of vendored directories are on disk.
-func (m Manifest) inSync() ([]vendor, bool) {
+func (m Manifest) inSync() ([]Vendor, bool) {
 	inSync := true
-	orphans := []vendor{}
+	orphans := []Vendor{}
 	for _, v := range m.Vendors {
 		if _, err := os.Stat(filepath.Join("vendor", v.Path)); os.IsNotExist(err) {
 			orphans = append(orphans, v)

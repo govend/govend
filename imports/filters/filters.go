@@ -109,6 +109,21 @@ func Ellipses(pkgs []string) []string {
 	return list
 }
 
+// Godeps filters out Godeps package import paths.
+func Godeps(pkgs []string) []string {
+	var list []string
+	for _, pkg := range pkgs {
+		if strings.Contains(pkg, "/Godeps/_workspace/src/") {
+			split := strings.SplitAfter(pkg, "/Godeps/_workspace/src/")
+			if len(split) > 1 {
+				pkg = split[1]
+			}
+		}
+		list = append(list, pkg)
+	}
+	return list
+}
+
 // projectImportPath returns the import path of the current project directory.
 // It does so via $GOPATH.
 func projectImportPath() string {
