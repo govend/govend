@@ -203,7 +203,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 	}
 
 	// if we need to do so, update the manifest file
-	if lock || hold || update || fileExists(m.Filename()) {
+	if lock || hold || update && fileExists(m.Filename()) {
 		if err := m.Write(); err != nil {
 			return err
 		}
