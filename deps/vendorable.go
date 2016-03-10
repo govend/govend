@@ -32,7 +32,7 @@ func Vendorable() error {
 
 	// check we are in the $GOPATH
 	if !strings.Contains(path, gopath+"/src/") {
-		log.Fatal(errors.New("you can't vendor packages outside of your $GOPATH"))
+		log.Fatal(errors.New("you can't vendor packages outside of your $GOPATH/src"))
 	}
 
 	go15, _ := semver.New("1.5.0")
