@@ -59,10 +59,10 @@ func (m *Manifest) format(format string) error {
 // Append creates a vendor object from a path and revision and
 // appends it to the Manifest.
 func (m *Manifest) Append(path, rev string, hold bool) {
-	for _, vendor := range m.Vendors {
-		if vendor.Path == path {
-			vendor.Rev = rev
-			vendor.Hold = hold
+	for i := range m.Vendors {
+		if m.Vendors[i].Path == path {
+			m.Vendors[i].Rev = rev
+			m.Vendors[i].Hold = hold
 			return
 		}
 	}
@@ -127,4 +127,9 @@ func (m *Manifest) Swap(i, j int) {
 // Less allows Manifest to satisfy the sort.Interface.
 func (m *Manifest) Less(i, j int) bool {
 	return m.Vendors[i].Path < m.Vendors[j].Path
+}
+
+// Filename returns the manifest filename including the format extension.
+func (m *Manifest) Filename() string {
+	return file + "." + m.fmt
 }

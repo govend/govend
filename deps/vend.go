@@ -68,15 +68,8 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 		return err
 	}
 
-	// the manifest length should always default to 0
-	mlen := 0
-
 	// only sync the manfiest file for the lock, hold, or update flags
 	if lock || hold || update {
-		// it is important to record the manifest length before syncing, so that
-		// we can identify changes and update the manifest file later
-		mlen = m.Len()
-
 		// sync ensures that if a vendored repository is specified in the manifest
 		// file, the same repository directory structure also exists inside the
 		// vendor directory
@@ -153,12 +146,12 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 			// use the manifest revision version even if the value is an empty string
 			//
 			// otherwise get the latest version of the repository
-			rev := ""
+			target := "latest"
 			if vendor, ok := m.Contains(repo.ImportPath); ok && !update {
-				rev, err = repos.Download(repo, "vendor", vendor.Rev)
-			} else {
-				rev, err = repos.Download(repo, "vendor", "latest")
+				target = vendor.Rev
 			}
+
+			rev, err := repos.Download(repo, "vendor", target)
 			if err != nil {
 				fmt.Printf("%s (download error): %s\n", repo.ImportPath, err)
 				cache[pkg.path] = false
@@ -210,7 +203,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 	}
 
 	// if we need to do so, update the manifest file
-	if lock || hold || mlen > 0 {
+	if lock || hold || update || fileExists(m.Filename()) {
 		if err := m.Write(); err != nil {
 			return err
 		}
@@ -233,4 +226,9 @@ func badImportPath(err error) bool {
 func vendorDirExists(path string) bool {
 	_, err := os.Stat(filepath.Join("vendor", path))
 	return !os.IsNotExist(err)
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }

@@ -39,8 +39,8 @@ type Cmd struct {
 
 	TagCmd         []TagCmd // commands to list tags
 	TagLookupCmd   []TagCmd // commands to lookup tags before running tagSyncCmd
-	TagSyncCmd     []string // commands to sync to specific tag
-	TagSyncDefault []string // commands to sync to default tag
+	TagSyncCmd     string   // commands to sync to specific tag
+	TagSyncDefault string   // commands to sync to default tag
 
 	Scheme  []string
 	PingCmd string
@@ -109,8 +109,8 @@ var Hg = &Cmd{
 		{"tags", `^(\S+)`},
 		{"branches", `^(\S+)`},
 	},
-	TagSyncCmd:     []string{"update -r {tag}"},
-	TagSyncDefault: []string{"update default"},
+	TagSyncCmd:     "update -r {tag}",
+	TagSyncDefault: "update default",
 
 	Scheme:     []string{"https", "http", "ssh"},
 	PingCmd:    "identify {scheme}://{repo}",
@@ -141,13 +141,8 @@ var Git = &Cmd{
 	TagLookupCmd: []TagCmd{
 		{"show-ref tags/{tag} origin/{tag}", `((?:tags|origin)/\S+)$`},
 	},
-	TagSyncCmd: []string{"checkout {tag}", "submodule update --init --recursive"},
-	// both createCmd and downloadCmd update the working dir.
-	// No need to do more here. We used to 'checkout master'
-	// but that doesn't work if the default branch is not named master.
-	// DO NOT add 'checkout master' here.
-	// See golang.org/issue/9032.
-	TagSyncDefault: []string{"submodule update --init --recursive"},
+	TagSyncCmd:     "checkout {tag}",
+	TagSyncDefault: "checkout master",
 
 	Scheme:     []string{"git", "https", "http", "git+ssh", "ssh"},
 	PingCmd:    "ls-remote {scheme}://{repo}",
@@ -214,8 +209,8 @@ var Bzr = &Cmd{
 	DownloadCmd: []string{"pull --overwrite"},
 
 	TagCmd:         []TagCmd{{"tags", `^(\S+)`}},
-	TagSyncCmd:     []string{"update -r {tag}"},
-	TagSyncDefault: []string{"update -r revno:-1"},
+	TagSyncCmd:     "update -r {tag}",
+	TagSyncDefault: "update -r revno:-1",
 
 	Scheme:      []string{"https", "http", "bzr", "bzr+ssh"},
 	PingCmd:     "info {scheme}://{repo}",
@@ -410,12 +405,7 @@ func (c *Cmd) CreateAtRev(dir, repo, rev string) error {
 	if err := c.Create(dir, repo); err != nil {
 		return err
 	}
-	for _, cmd := range c.DownloadCmd {
-		if err := c.run(dir, cmd, "tag", rev); err != nil {
-			return err
-		}
-	}
-	return nil
+	return c.run(dir, c.TagSyncCmd, "tag", rev)
 }
 
 // Download downloads any new changes for the repo in dir.
@@ -476,7 +466,7 @@ func (c *Cmd) Tags(dir string) ([]string, error) {
 // TagSync syncs the repo in dir to the named tag,
 // which either is a tag returned by tags or is v.tagDefault.
 func (c *Cmd) TagSync(dir, tag string) error {
-	if c.TagSyncCmd == nil {
+	if c.TagSyncCmd == "" {
 		return nil
 	}
 	if tag != "" {
@@ -493,32 +483,10 @@ func (c *Cmd) TagSync(dir, tag string) error {
 			}
 		}
 	}
-
-	if tag == "" && c.TagSyncDefault != nil {
-		for _, cmd := range c.TagSyncDefault {
-			/*
-				if !go15vendorexperiment.On() && strings.Contains(cmd, "submodule") {
-					continue
-				}
-			*/
-			if err := c.run(dir, cmd); err != nil {
-				return err
-			}
-		}
-		return nil
+	if tag == "" && c.TagSyncDefault != "" {
+		return c.run(dir, c.TagSyncDefault)
 	}
-
-	for _, cmd := range c.TagSyncCmd {
-		/*
-			if !go15vendorexperiment.On() && strings.Contains(cmd, "submodule") {
-				continue
-			}
-		*/
-		if err := c.run(dir, cmd, "tag", tag); err != nil {
-			return err
-		}
-	}
-	return nil
+	return c.run(dir, c.TagSyncCmd, "tag", tag)
 }
 
 // A vcsPath describes how to convert an import path into a
