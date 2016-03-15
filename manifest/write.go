@@ -29,7 +29,7 @@ func (m *Manifest) Write() error {
 	var err error
 	switch m.fmt {
 	case "json":
-		b, err = json.Marshal(m)
+		b, err = json.MarshalIndent(m, "", "  ")
 		if err != nil {
 			return err
 		}
