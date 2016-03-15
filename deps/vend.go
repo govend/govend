@@ -30,6 +30,9 @@ const (
 	// are used in the project source code.
 	Hold
 
+	// Prune removes vendored packages that are not needed.
+	Prune
+
 	// Verbose prints out packages as they are vendored.
 	Verbose
 
@@ -44,7 +47,7 @@ const (
 // Vend is the main function govend uses to vendor external packages.
 func Vend(pkgs []string, format string, options ...VendOptions) error {
 	// parse vend options
-	var update, lock, hold, verbose, tree, results bool
+	var update, lock, hold, prune, verbose, tree, results bool
 	for _, option := range options {
 		switch option {
 		case Update:
@@ -53,6 +56,8 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 			lock = true
 		case Hold:
 			hold = true
+		case Prune:
+			prune = true
 		case Verbose:
 			verbose = true
 		case Tree:
@@ -110,6 +115,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 	// the stack data structure allows for the tree flag implimentation to be
 	// clean and simple
 	stack := newVendorStack(pkgs...)
+	keepers := pkgs
 
 	// iterating over a stack allows vendoring of packages and any of their
 	// dependencies to the nth degree in the order they are discovered
@@ -186,6 +192,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 		// packages in the order they are discovered
 		if len(vdeps) > 0 {
 			stack.push(pkg.level+1, vdeps...)
+			keepers = append(keepers, vdeps...)
 		}
 	}
 
@@ -208,6 +215,18 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 			return err
 		}
 	}
+
+	if prune {
+		if verbose {
+			fmt.Print("\npruning packages... ")
+		}
+		keepers = filters.Duplicates(keepers)
+		prunePackages(keepers)
+		if verbose {
+			fmt.Println("finished")
+		}
+	}
+
 	return nil
 }
 
