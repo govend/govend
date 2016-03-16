@@ -181,7 +181,11 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 			vdeps, err = imports.Scan(filepath.Join("vendor", pkg.path))
 		} else {
 			vpath := filepath.Join("vendor", pkg.path)
-			vdeps, err = imports.Scan(vpath, imports.SinglePackage)
+			if prune {
+				vdeps, err = imports.Scan(vpath, imports.SinglePackage, imports.SkipTestFiles)
+			} else {
+				vdeps, err = imports.Scan(vpath, imports.SinglePackage)
+			}
 		}
 		if err != nil {
 			fmt.Printf("%s (scan error): %s\n", pkg.path, err)
