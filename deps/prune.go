@@ -30,26 +30,25 @@ func prunePackages(keepers []string) {
 	START:
 
 		finfo := w.Stat()
+		if finfo.IsDir() {
 
-		// check for any walker errors
-		// if w.Err() != nil {
-		// log.Fatal(w.Err())
-		// }
+			for _, keeper := range keepers {
+				if subpath(filepath.Join("vendor", keeper), w.Path()) {
+					if !w.Step() {
+						return
+					}
+					goto START
+				}
+			}
 
-		if !finfo.IsDir() {
+			os.RemoveAll(w.Path())
+			w.SkipDir()
 			continue
 		}
 
-		for _, keeper := range keepers {
-			if subpath(filepath.Join("vendor", keeper), w.Path()) {
-				if !w.Step() {
-					return
-				}
-				goto START
-			}
+		firstchar := []rune(finfo.Name())[0]
+		if firstchar == '_' || firstchar == '.' || strings.HasSuffix(finfo.Name(), "_test.go") {
+			os.Remove(w.Path())
 		}
-
-		os.RemoveAll(w.Path())
-		w.SkipDir()
 	}
 }
