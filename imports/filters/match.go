@@ -15,17 +15,10 @@ func Match(path1, path2 string) bool {
 	for i, v := range p1 {
 		if i < len(p2) {
 			if v != p2[i] {
-				if v == "*" || p2[i] == "*" {
-					return true
-				}
-				return false
+				return v == "*" || p2[i] == "*"
 			}
 		}
 	}
 
-	if len(p1) != len(p2) {
-		return false
-	}
-
-	return true
+	return len(p1) == len(p2)
 }

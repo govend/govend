@@ -21,6 +21,7 @@ var (
 	results       bool
 	lock          bool
 	hold          bool
+	prune         bool
 	scan          bool
 	skipTestFiles bool
 	skipFilters   bool
@@ -53,6 +54,9 @@ const (
 	holdDesc = `The --hold flag holds on to a dependency, even if it is not used
 	as an import path in the project codebase. This ability to freeze
 	dependencies is useful for vendoring Go tool versions per project.
+	`
+	pruneDesc = `The --prune flag removes vendored packages that are not needed
+	by leveraging the dependency tree after vendoring has completed.
 	`
 	scanDesc = `The -s flag scans the current or provided directory for external
 	packages.
@@ -110,7 +114,7 @@ var govend = &cobra.Command{
 		}
 
 		// vendor dependencies
-		vendOptions := parseVendOptions(update, lock, hold, verbose, tree, results)
+		vendOptions := parseVendOptions(update, lock, hold, prune, verbose, tree, results)
 		if err := deps.Vend(args, format, vendOptions...); err != nil {
 			log.Fatal(err)
 		}
@@ -126,6 +130,7 @@ func main() {
 	govend.Flags().BoolVarP(&update, "update", "u", false, updateDesc)
 	govend.Flags().BoolVarP(&lock, "lock", "l", false, lockDesc)
 	govend.Flags().BoolVar(&hold, "hold", false, holdDesc)
+	govend.Flags().BoolVar(&prune, "prune", false, pruneDesc)
 	govend.Flags().BoolVarP(&scan, "scan", "s", false, scanDesc)
 	govend.Flags().BoolVar(&skipFilters, "skipFilters", false, skipFiltersDesc)
 	govend.Flags().BoolVar(&skipTestFiles, "skipTestFiles", false, skipTestFilesDesc)
@@ -143,7 +148,7 @@ func parseScanOptions(skipTestFiles, skipFilters bool) []imports.ScanOptions {
 	return options
 }
 
-func parseVendOptions(update, lock, hold, verbose, tree, results bool) []deps.VendOptions {
+func parseVendOptions(update, lock, hold, prune, verbose, tree, results bool) []deps.VendOptions {
 	options := []deps.VendOptions{}
 	if update {
 		options = append(options, deps.Update)
@@ -153,6 +158,9 @@ func parseVendOptions(update, lock, hold, verbose, tree, results bool) []deps.Ve
 	}
 	if hold {
 		options = append(options, deps.Hold)
+	}
+	if prune {
+		options = append(options, deps.Prune)
 	}
 	if verbose {
 		options = append(options, deps.Verbose)

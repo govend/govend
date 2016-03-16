@@ -18,5 +18,5 @@ script:
   - go vet -v $(go list ./...|grep -v vendor)
   - go test -v $(go list ./...|grep -v vendor)
   - rm -rf vendor
-  - govend -v
+  - govend -v --prune
   - go install
