@@ -112,7 +112,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 	// newVendorStack takes a list of packages, reverses them, and places them
 	// on a stack of a slice of strings
 	//
-	// the stack data structure allows for the tree flag implimentation to be
+	// the stack data structure allows for the tree flag implementation to be
 	// clean and simple
 	stack := newVendorStack(pkgs...)
 	keepers := pkgs
