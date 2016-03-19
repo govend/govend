@@ -13,6 +13,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var semver = "v0.1.10-beta"
+
+// cli flag values
 var (
 	version       bool
 	verbose       bool
@@ -28,6 +31,7 @@ var (
 	format        string
 )
 
+// cli flag usage descriptions
 const (
 	govendDesc = `The govend command scans and downloads dependencies.
 	`
@@ -69,29 +73,28 @@ const (
 	`
 )
 
-// govend describes the root command.
+// govend represents the command root
 var govend = &cobra.Command{
 	Use:   "govend",
-	Short: "Govend vendors external packages.",
+	Short: "The govend command vendors external packages.",
 	Long:  govendDesc,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		// print version command
-		if version {
-			fmt.Println("0.1.5")
-			return
-		}
+		switch {
+		case version:
+			fmt.Println(semver)
 
-		// scan command
-		if scan {
-			// assume local directory
+		case scan:
+			// we should always assume the local directory unless a specific
+			// directory path is provided
 			path := "."
 			if len(args) > 0 {
 				path = args[0]
 			}
 
-			// scan the project directory provided
-			scanOptions := parseScanOptions(skipTestFiles, skipFilters)
+			// parse flag options relevant to the scan command
+			scanOptions := imports.ParseScanOptions(skipTestFiles, skipFilters)
+
 			pkgs, err := imports.Scan(path, scanOptions...)
 			if err != nil {
 				log.Fatal(err)
@@ -102,21 +105,35 @@ var govend = &cobra.Command{
 				log.Fatal(err)
 			}
 
-			// print the results to screen
+			// always print the scan results to screen
 			fmt.Printf("%s\n", b)
-			return
-		}
 
-		// all that is left is the vendor command, but first we need to check that
-		// the current project environment is vendorable
-		if err := deps.Vendorable(verbose); err != nil {
-			log.Fatal(err)
-		}
+		default:
+			// the default govend command triggers vending since this is the most
+			// common use case.
 
-		// vendor dependencies
-		vendOptions := parseVendOptions(update, lock, hold, prune, verbose, tree, results)
-		if err := deps.Vend(args, format, vendOptions...); err != nil {
-			log.Fatal(err)
+			// first we need to check that the current project environment is
+			// suitable for vendoring packages, otherwise the user will not get
+			// the results they expect when attempting `go build` or `go install`
+			if err := deps.Vendorable(verbose); err != nil {
+				log.Fatal(err)
+			}
+
+			// parse flag options relevant to the vend command
+			vendOptions := deps.ParseVendOptions(
+				update,
+				lock,
+				hold,
+				prune,
+				verbose,
+				tree,
+				results,
+			)
+
+			// vendor according to the options provided
+			if err := deps.Vend(args, format, vendOptions...); err != nil {
+				log.Fatal(err)
+			}
 		}
 	},
 }
@@ -135,41 +152,4 @@ func main() {
 	govend.Flags().BoolVar(&skipFilters, "skipFilters", false, skipFiltersDesc)
 	govend.Flags().BoolVar(&skipTestFiles, "skipTestFiles", false, skipTestFilesDesc)
 	govend.Execute()
-}
-
-func parseScanOptions(skipTestFiles, skipFilters bool) []imports.ScanOptions {
-	options := []imports.ScanOptions{}
-	if skipTestFiles {
-		options = append(options, imports.SkipTestFiles)
-	}
-	if skipFilters {
-		options = append(options, imports.SkipFilters)
-	}
-	return options
-}
-
-func parseVendOptions(update, lock, hold, prune, verbose, tree, results bool) []deps.VendOptions {
-	options := []deps.VendOptions{}
-	if update {
-		options = append(options, deps.Update)
-	}
-	if lock {
-		options = append(options, deps.Lock)
-	}
-	if hold {
-		options = append(options, deps.Hold)
-	}
-	if prune {
-		options = append(options, deps.Prune)
-	}
-	if verbose {
-		options = append(options, deps.Verbose)
-	}
-	if tree {
-		options = append(options, deps.Tree)
-	}
-	if results {
-		options = append(options, deps.Results)
-	}
-	return options
 }
