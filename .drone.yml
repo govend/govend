@@ -10,6 +10,11 @@ build:
       - go install
       - go test -cover -coverprofile coverage.out
 
+  coverage:
+    image: golang:1.6
+    commands:
+      - go test -cover -coverprofile coverage.out
+
   release:
     image: golang:1.6
     commands:
