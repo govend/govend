@@ -7,13 +7,13 @@ build:
       - go install
       - rm -rf vendor
       - govend -vlt --prune
-      - go install
-      - go test -cover -coverprofile coverage.out
 
   coverage:
     image: golang:1.6
     commands:
       - go test -cover -coverprofile coverage.out
+    when:
+      branch: master
 
   release:
     image: golang:1.6
