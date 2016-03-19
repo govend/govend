@@ -4,19 +4,20 @@ build:
     environment:
       - GO15VENDOREXPERIMENT=1
     commands:
+      # install the tool
       - go install
+
+      # remove the deps in the vendor directory
       - rm -rf vendor
+
+      # download those deps again and prune
       - govend -vlt --prune
 
-  coverage:
-    image: golang:1.6
-    commands:
+      # ensure the right deps were downloaded and prune
+      - go install
+
+      # execute unit tests and write the coverage report
       - go test -cover -coverprofile coverage.out
-    publish:
-      coverage:
-    when:
-      branch: master
-      success: trues
 
   release:
     image: golang:1.6
@@ -37,6 +38,14 @@ matrix:
     - 1.5.3
     - 1.6
     - latest
+
+publish:
+  coverage:
+    when:
+      branch: master
+      success: true
+      matrix:
+        GO_VERSION: 1.6
 
   github_release:
     api_key: $$GITHUB_TOKEN
