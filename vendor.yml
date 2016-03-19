@@ -1,12 +1,12 @@
 vendors:
 - path: github.com/BurntSushi/toml
-  rev: 75869ce70f3cd0f6d1473c58f4adac5941f1055a
+  rev: bbd5bb678321a0d6e58f1099321dfa73391c1b6f
 - path: github.com/inconshreveable/mousetrap
   rev: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - path: github.com/kr/fs
   rev: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
 - path: github.com/spf13/cobra
-  rev: 65a708cee0a4424f4e353d031ce440643e312f92
+  rev: 1bacefc9a216c93293e670067bd159a64b4d72c3
 - path: github.com/spf13/pflag
   rev: 7f60f83a2c81bc3c3c0d5297f61ddfa68da9d3b7
 - path: gopkg.in/yaml.v2
