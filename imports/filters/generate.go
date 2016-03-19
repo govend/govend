@@ -1,6 +1,6 @@
 // +build ignore
 
-// Copyright 2016 github.com/govend/govend. All rights reserved.
+// Copyright 2016 govend. All rights reserved.
 // Use of this source code is governed by an Apache 2.0
 // license that can be found in the LICENSE file.
 
@@ -73,7 +73,7 @@ func main() {
 
 	// write preliminary file data such as comments, package name, structs, etc..
 	var buf bytes.Buffer
-	buf.WriteString(`// Copyright 2016 github.com/govend/govend. All rights reserved.
+	buf.WriteString(`// Copyright 2016 govend. All rights reserved.
 	// Use of this source code is governed by an Apache 2.0
 	// license that can be found in the LICENSE file.
 
