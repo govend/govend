@@ -109,7 +109,7 @@ var govend = &cobra.Command{
 
 		// all that is left is the vendor command, but first we need to check that
 		// the current project environment is vendorable
-		if err := deps.Vendorable(); err != nil {
+		if err := deps.Vendorable(verbose); err != nil {
 			log.Fatal(err)
 		}
 
