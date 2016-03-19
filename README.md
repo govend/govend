@@ -224,7 +224,9 @@ vendors:
 You can now ignore the large `vendor/` directory and pass the small `vendor.yml` file to your buddy.
 Your buddy can run `$ govend` and will get the exact same dependency versions as specified by `vendor.yml`.
 
-This is how a team of developers can ensure reproducible builds without checking the `vendor/` directory into a version control system.
+This is how a team of developers can ensure reproducible builds if they do not want to check the `vendor/` directory into a version control system.
+
+> Note: It is still a best practice to check in the `vendor/` directory to your VCS.
 
 # Update Locked Vendored Packages
 
@@ -244,7 +246,21 @@ If you want to update a particular vendored package to a particular revision, up
 Then to update to that specific revision hash run:
 
 ```Bash
-$ govend
+$ govend -l
+```
+
+# Hold Locked Vendored Repos
+
+If you stop using or importing a package path in your project code, `govend`
+will remove that package from your `vendor.yml`. Its how `govend` cleans up
+after you and keeps `vendor.yml` tidy.
+
+The `--hold` flag will tell `govend` to keep that dependency, even if its not
+being used as an import by your project. This is great for versioning tooling
+that you might want to ship with a project.
+
+```Bash
+$ govend --hold github.com/hashicorp/terraform
 ```
 
 # Vendor Report Summary

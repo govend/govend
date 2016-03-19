@@ -6,6 +6,7 @@
 package semver
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 )
@@ -46,7 +47,7 @@ func New(verison string) (SemVer, error) {
 		}
 		return SemVer{Major: major, Minor: minor, Patch: 0}, nil
 	default:
-		return SemVer{}, nil
+		return SemVer{}, errors.New("unable to parse the current go version as a semver")
 	}
 }
 

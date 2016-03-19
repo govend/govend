@@ -6,6 +6,7 @@ package deps
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -16,7 +17,7 @@ import (
 )
 
 // Vendorable ensures the current local setup is conducive to vendoring.
-func Vendorable() error {
+func Vendorable(verbose bool) error {
 
 	// check the env $GOPATH is valid
 	gopath := os.Getenv("GOPATH")
@@ -41,7 +42,10 @@ func Vendorable() error {
 
 	version, err := semver.New(strings.TrimPrefix(runtime.Version(), "go"))
 	if err != nil {
-		return err
+		if verbose {
+			fmt.Println(err)
+			return nil
+		}
 	}
 
 	if version.LessThan(go15) {
