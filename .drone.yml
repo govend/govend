@@ -13,7 +13,7 @@ build:
       # download those deps again and prune
       - govend -vlt --prune
 
-      # ensure the right deps were downloaded and prune
+      # ensure the right deps were downloaded and pruned
       - go install
 
       # execute unit tests and write the coverage report

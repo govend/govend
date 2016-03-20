@@ -77,13 +77,18 @@ $ go build            # build the exact same binary Sarah has
 ```
 
 # Verbose Mode
-
 As with most unixy programs, no news is good news.
-Therefore, unless something goes wrong `govend` will not print anything to the terminal.
-If you want to see progress/proof something is happening use the `-v` flag to print out package names as they are downloaded and vendored.
+Therefore, unless something goes wrong `govend` will not print anything to the
+terminal.
+If you want to see progress or proof something is happening use the `-v` flag
+to print out package import paths as they are downloaded and vendored.
+
+# The Dependency Tree
+You can use the `-t` or `--tree` flag to view a rendition of the package
+dependency tree. This is helpful to visualize and understand what packages your
+dependencies rely on as well.
 
 # Explicitly Vendor A Package
-
 You can explicitly tell `govend` to vendor one or more packages.
 It works the same way as `go get` but instead of running:
 
@@ -97,9 +102,11 @@ which will download the gorilla `mux` package into your `$GOPATH`, run:
 $ govend github.com/gorilla/mux
 ```
 
-which will download the gorilla `mux` package into your local project `vendor/` directory.
+which will download the gorilla `mux` package into your local project `vendor/`
+directory.
 If you want `govend` to download more than one package, just tack them on.
-For example, you might want to vendor the gorilla `mux`, `http`, and `securecookie` packages like so:
+For example, you might want to vendor the gorilla `mux`, `http`, and
+`securecookie` packages like so:
 
 ```Bash
 $ govend github.com/gorilla/mux github.com/gorilla/http github.com/gorilla/securecookie
@@ -107,8 +114,10 @@ $ govend github.com/gorilla/mux github.com/gorilla/http github.com/gorilla/secur
 
 # Explicitly Update Packages
 
-To update a package that has already been vendored, simply use the `-u` network update flag.
-This flag has the same meaning as `go get -u` and will always use the network to download a fresh copy of the dependency.
+To update a package that has already been vendored, simply use the `-u` network
+update flag.
+This flag has the same meaning as `go get -u` and will always use the network
+to download a fresh copy of the dependency.
 
 To update the gorilla `mux` package in your `$GOPATH` you would run:
 
@@ -116,7 +125,8 @@ To update the gorilla `mux` package in your `$GOPATH` you would run:
 $ go get -u github.com/gorilla/mux
 ```
 
-To update the gorilla `mux` package in your local project `vendor/` directory run:
+To update the gorilla `mux` package in your local project `vendor/` directory
+run:
 
 ```Bash
 $ govend -u github.com/gorilla/mux
@@ -124,10 +134,13 @@ $ govend -u github.com/gorilla/mux
 
 # Vendor Packages Automatically
 
-It would get old to ask `govend` to download and vendor each individual package when working on large Go projects.
-Thankfully `govend` can scan your project source code and identify dependencies for you.
+It would get old to ask `govend` to download and vendor each individual package
+when working on large Go projects.
+Thankfully `govend` can scan your project source code and identify dependencies
+for you.
 
-`govend` assumes you want this behavior when no packages are explicitly provided:
+`govend` assumes you want this behavior when no packages are explicitly
+provided:
 
 ```Bash
 $ cd project/root
@@ -150,7 +163,8 @@ gopkg.in/yaml.v2
 gopkg.in/check.v1
 ```
 
-If you would like to update all vendored packages in a project use the `-u` flag:
+If you would like to update all vendored packages in a project use the `-u`
+flag:
 
 ```Bash
 $ cd project/root
@@ -165,14 +179,19 @@ gopkg.in/yaml.v2
 gopkg.in/check.v1
 ```
 
-# Lock Vendored Package Versions
+# Lock Packages
 
-The command `govend` only scans for external packages and downloads them to the `vendor/` directory in your project. You may need more control over versioning your dependencies so that reliable reproducible builds are possible.
+The command `govend` only scans for external packages and downloads them to the
+`vendor/` directory in your project. You may need more control over versioning
+your dependencies so that reliable reproducible builds are possible.
 
-`govend` can save the path and commit revisions of each repository downloaded in a `vendor.yml` file.
+`govend` can save the path and commit revisions of each repository downloaded
+in a `vendor.yml` file.
 This is called vendor locking.
-The format of the file can be specified to be `JSON` or `TOML`, `YAML` is used by default.
-Usually this file is located in the root directory of your project and should be included in your version control system.
+The format of the file can be specified to be `JSON` or `TOML`, `YAML` is used
+by default.
+Usually this file is located in the root directory of your project and should
+be included in your version control system.
 
 To generate a `vendor.yml` file use the `-l` flag:
 
@@ -221,36 +240,54 @@ vendors:
 ```
 
 
-You can now ignore the large `vendor/` directory and pass the small `vendor.yml` file to your buddy.
-Your buddy can run `$ govend` and will get the exact same dependency versions as specified by `vendor.yml`.
+You can now ignore the large `vendor/` directory and pass the small `vendor.yml`
+file to your buddy.
+Your buddy can run `$ govend` and will get the exact same dependency versions
+as specified by `vendor.yml`.
 
-This is how a team of developers can ensure reproducible builds if they do not want to check the `vendor/` directory into a version control system.
+This is how a team of developers can ensure reproducible builds if they do not
+want to check the `vendor/` directory into a version control system.
 
-> Note: It is still a best practice to check in the `vendor/` directory to your VCS.
+> Note: It is still a best practice to check in the `vendor/` directory to your
+VCS.
 
-# Update Locked Vendored Packages
+# Update Locked Packages
 
-If you would like to update a particular vendored package to its latest version use the `-u` flag:
+If you would like to update a particular vendored package to its latest version
+use the `-u` flag:
 
 ```Bash
 $ govend -u github.com/gorilla/mux
 ```
 
-If you would like to update all the vendored packages to their latest versions run:
+If you would like to update all the vendored packages to their latest versions
+run:
 
 ```Bash
 $ govend -u
 ```
 
-If you want to update a particular vendored package to a particular revision, update the relevant `rev:` value inside the `vendor.yml` file.
+If you want to update a particular vendored package to a particular revision,
+update the relevant `rev:` value inside the `vendor.yml` file.
 Then to update to that specific revision hash run:
 
 ```Bash
 $ govend -l
 ```
 
-# Hold Locked Vendored Repos
+# Prune Packages
+Sometimes large repositories must be downloaded to satisfy a singular package
+dependency. This generates a lot of dead files if you are checking in `vendor/`
+to your VCS.
 
+The `--prune` flag will use the known dependency tree to remove or prune out
+all unused package leaving you with only relevant code.
+
+> Note: When pruning occurs it removes not only unused packages, but also files
+that start with `.`, `_` and files that end with `_test.go`. This is because
+pruning is highly likely to break third party tests.
+
+# Hold onto Packages
 If you stop using or importing a package path in your project code, `govend`
 will remove that package from your `vendor.yml`. Its how `govend` cleans up
 after you and keeps `vendor.yml` tidy.
@@ -263,8 +300,13 @@ that you might want to ship with a project.
 $ govend --hold github.com/hashicorp/terraform
 ```
 
+> Note: When using the `--hold` flag a manifest file like `vendor.yml` is
+generated.  Essentially, opting into `--hold` is also opting into `--lock`.
+Also because of the nature of hold, repos using hold cannot be pruned.
+
 # Vendor Report Summary
-If you would like to get a report summary of the number of unique packages scanned, skipped and how many repositories were downloaded, run `govend -v -r`.
+If you would like to get a report summary of the number of unique packages
+scanned, skipped and how many repositories were downloaded, run `govend -v -r`.
 
 ```bash
 → govend -v -r
@@ -282,8 +324,11 @@ repos downloaded: 7
 ```
 
 # Vendor Scan
-You may want to scan your code to determine how many third party dependencies are
-in your project. To do so run `govend -s <path/to/dir>`. You can also specify different output formats.
+You may want to scan your code to determine how many third party dependencies
+are
+in your project.
+To do so run `govend -s <path/to/dir>`. You can also specify different output
+formats.
 
 **TXT**
 ```bash
