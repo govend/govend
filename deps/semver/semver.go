@@ -47,7 +47,9 @@ func New(verison string) (SemVer, error) {
 		}
 		return SemVer{Major: major, Minor: minor, Patch: 0}, nil
 	default:
-		return SemVer{}, errors.New("trust the go version is valid for vendoring")
+		return SemVer{}, errors.New(
+			"warning: unable to determine the installed Go version",
+		)
 	}
 }
 

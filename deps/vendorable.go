@@ -17,6 +17,9 @@ import (
 )
 
 // Vendorable ensures the current local setup is conducive to vendoring.
+//
+// If the current version of Go cannot be parsed, then trust it supports
+// vendoring, but display a message if verbose is true.
 func Vendorable(verbose bool) error {
 
 	// check the env $GOPATH is valid
@@ -43,7 +46,7 @@ func Vendorable(verbose bool) error {
 	version, err := semver.New(strings.TrimPrefix(runtime.Version(), "go"))
 	if err != nil {
 		if verbose {
-			fmt.Println(err)
+			fmt.Printf("\n%s\n", err)
 			return nil
 		}
 	}
