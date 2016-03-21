@@ -2,13 +2,13 @@
 // Use of this source code is governed by an Apache 2.0
 // license that can be found in the LICENSE file.
 
+// Package deps provides vendoring for repositories.
 package deps
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/govend/govend/deps/repos"
 	"github.com/govend/govend/imports"
@@ -16,134 +16,121 @@ import (
 	"github.com/govend/govend/manifest"
 )
 
-// VendOptions represents available vend options.
-type VendOptions int
-
-const (
-	// Update updates vendored repositories.
-	Update VendOptions = iota
-
-	// Lock locks the revision version of vendored repositories.
-	Lock
-
-	// Hold holds onto a vendored repository, even if none of its import paths
-	// are used in the project source code.
-	Hold
-
-	// Prune removes vendored packages that are not needed.
-	Prune
-
-	// Verbose prints out packages as they are vendored.
-	Verbose
-
-	// Tree prints the names of packages as an indented tree.
-	Tree
-
-	// Results prints a summary of the number of packages scanned, packages
-	// skipped, and repositories downloaded.
-	Results
-)
-
 // Vend is the main function govend uses to vendor external packages.
+// Vend also invokes the Hold and Prune methods.
 func Vend(pkgs []string, format string, options ...VendOptions) error {
-	// parse vend options
-	var update, lock, hold, prune, verbose, tree, results bool
-	for _, option := range options {
-		switch option {
-		case Update:
-			update = true
-		case Lock:
-			lock = true
-		case Hold:
-			hold = true
-		case Prune:
-			prune = true
-		case Verbose:
-			verbose = true
-		case Tree:
-			tree = true
-		case Results:
-			results = true
-		}
-	}
 
-	// load the manifest file if it exists
+	// parse VendOptions into usable boolean values
+	update, lock, hold, prune, verbose, tree, results := parseVendOptions(options)
+
+	// load or create an empty manifest file
 	m, err := manifest.Load(format)
 	if err != nil {
 		return err
 	}
 
-	// only sync the manfiest file for the lock, hold, or update flags
+	// sync ensures that if a vendored repository is specified in the manifest
+	// file, the same repository directory structure also exists inside the
+	// vendor directory
 	if lock || hold || update {
-		// sync ensures that if a vendored repository is specified in the manifest
-		// file, the same repository directory structure also exists inside the
-		// vendor directory
 		m.Sync()
 	}
 
-	// check if any import package paths were provided as arguments
+	// if no packages were provided, we can only assume the current relative
+	// directory contains Go source code, therefore so we should scan it
 	if len(pkgs) == 0 {
-		// if no packages were provided, we can only assume the
-		// current directory contains go source code, so we scan it
 		pkgs, err = imports.Scan(".")
 		if err != nil {
 			return err
 		}
 	}
 
-	// rather than using some variable state to track if a repository has been
-	// downloaded we check if that repo or package import path exists inside the
-	// vendor directory structure
+	// inorder to be efficent, we need to track if a repository has already been
+	// downloaded
 	//
-	// inorder to trust the vendor directory structure for lock, hold or update
-	// flags we must remove the contents of the vendor directory before vendoring
+	// pinging and downloading a repository twice is a waste of valuable network
+	// bandwidth, time and disk usage
+	//
+	// rather than using state to track if a repository has been download, we
+	// can instead check if the repository import path exists inside of the
+	// vendor directory
+	//
+	// inorder to trust the contents of the vendor directory, we must first
+	// remove it before starting the vendoring process
+	//
+	// removing the vendor directory ensures the repository package paths found
+	// do not originate from a previous vendoring session
+	//
+	// removing the vendor directory also helps keeps the vendored repositories
+	// clean and fresh, preventing stale packages from sticking around when they
+	// are no longer needed
 	if lock || update {
 		if err := os.RemoveAll("vendor"); err != nil {
 			return err
 		}
 	}
 
-	// support the go get "/.../" and "/..." ellipses syntax by filtering it out
+	// the go get "/.../" and "/..." ellipses syntax should be supported since
+	// govend is based on the go get command
+	//
+	// the purpose of the ellipses syntax is to iterate through all dependent
+	// packages and repositories to the nth degree
+	//
+	// govend iterates through packages to the nth degree by default since it is
+	// a vendoring tool, so ellipses syntax should simply be filtered it out
 	pkgs = filters.Ellipses(pkgs)
 
-	// cache is a cache map of package import paths to a boolean results value
-	cache := map[string]bool{}
-
-	// newVendorStack takes a list of packages, reverses them, and places them
-	// on a stack of a slice of strings
+	// the stack data structure allows for the dependency tree printing
+	// implementation to be simple and clean
 	//
-	// the stack data structure allows for the tree flag implementation to be
-	// clean and simple
-	stack := newVendorStack(pkgs...)
-	keepers := pkgs
+	// newStack reverses a list of packages and places them on the stack
+	stack := newStack(pkgs...)
+
+	// we need some state to track the dependency tree as well as a cache of
+	// parsed packages
+	//
+	// deptree is a list of package import paths that describe the valid
+	// dependency tree, it is used for pruning
+	//
+	// cache is a cache map of package import paths to a boolean results value
+	deptree := pkgs
+	cache := map[string]bool{}
 
 	// iterating over a stack allows vendoring of packages and any of their
 	// dependencies to the nth degree in the order they are discovered
 	for !stack.empty() {
+
+		// pop the next package path off the stack
 		pkg := stack.pop()
 
-		// if the package path has been cached, skip it despite the result value
+		// skip package paths that have already been cached
 		if _, ok := cache[pkg.path]; ok {
 			continue
 		}
 
-		// tell the humans we are going to process this package
+		// write level * 2 blanks to visualize the package in the dep tree
+		if verbose && tree {
+			writeDoubleBlanks(pkg.level)
+		}
+
+		// print the package import path relevant to the $GOPATH/src
 		if verbose {
-			if tree {
-				writeBlanks(pkg.level)
-			}
 			fmt.Printf("%s\n", pkg.path)
 		}
 
-		// if the package import path structure does not exist inside the vendor,
-		// we need to download it
-		if !vendorDirExists(pkg.path) {
+		// check if the import package path exists inside the vendor directory
+		if _, err := os.Stat(filepath.Join("vendor", pkg.path)); os.IsNotExist(err) {
 
-			// ping the VCS repo across the network to gather metadata tags using
-			// the package import path
+			// we know the package import path does not exist inside of the vendor
+			// directory, but we don't know if the import path is representative of
+			// the repository url
+			//
+			// we need to get info on the VCS repo which contains this package by
+			// "pinging" it across the network, thereby gathering metadata tags
+			// provided/exposed by VCS server host
 			repo, err := repos.Ping(pkg.path)
 			if err != nil {
-				fmt.Printf("%s (bad ping): %s\n", pkg.path, err)
+				reportBadPing(pkg.path, err)
 				cache[pkg.path] = false
 				continue
 			}
@@ -152,53 +139,58 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 			// use the manifest revision version even if the value is an empty string
 			//
 			// otherwise get the latest version of the repository
-			target := "latest"
+			revision := "latest"
 			if vendor, ok := m.Contains(repo.ImportPath); ok && !update {
-				target = vendor.Rev
+				revision = vendor.Rev
 			}
 
-			rev, err := repos.Download(repo, "vendor", target)
+			// download the repository at the requested target revision into the
+			// vendor directory, the revision returned is the actual one downloaded
+			rev, err := repos.Download(repo, "vendor", revision)
 			if err != nil {
-				fmt.Printf("%s (download error): %s\n", repo.ImportPath, err)
+				reportBadPing(repo.ImportPath, err)
 				cache[pkg.path] = false
 				continue
 			}
+
+			// if the repository path already exists in the manifest file appending
+			// does not add a duplicate, it simply overwrites the current values
 			m.Append(repo.ImportPath, rev, hold)
 		}
 
-		// update the cache for the package import path after checking if the
-		// package existed inside the vendor directory, this allows for both
-		// the download neede and download not needed use cases
+		// update the cache to include the package import path
 		cache[pkg.path] = true
 
-		// we must scan the recently vendored package for any dependencies it
-		// relies on so we can vendor them on the next iteration
+		// we need to scan the recently vendored package for any dependencies that
+		// it relies on so that they can be vendored in the next iterations
 		//
-		// if the hold flag is applied we must vendor all the packages in that repo
-		// since they might be used for tooling and not source code dependencies
-		vdeps := []string{}
-		if hold {
-			vdeps, err = imports.Scan(filepath.Join("vendor", pkg.path))
-		} else {
-			vpath := filepath.Join("vendor", pkg.path)
+		// but... first we need to determine which scan options provided
+		scanOpts := []imports.ScanOptions{}
+		if !hold {
+			scanOpts = append(scanOpts, imports.SinglePackage)
 			if prune {
-				vdeps, err = imports.Scan(vpath, imports.SinglePackage, imports.SkipTestFiles)
-			} else {
-				vdeps, err = imports.Scan(vpath, imports.SinglePackage)
+				scanOpts = append(scanOpts, imports.SkipTestFiles)
 			}
 		}
+		vdeps, err := imports.Scan(filepath.Join("vendor", pkg.path), scanOpts...)
 		if err != nil {
-			fmt.Printf("%s (scan error): %s\n", pkg.path, err)
+			reportBadPing(pkg.path, err)
 			continue
 		}
 
-		// push the vendor package dependencies on the stack so we can parse sub
-		// packages in the order they are discovered
+		// push the vendor package dependencies on the stack so we can parse
+		// sub/dependent packages in the order they are discovered
+		//
+		// also add the vendor package dependencies to the deptree for the pruning
+		// process later, if we need it
 		if len(vdeps) > 0 {
 			stack.push(pkg.level+1, vdeps...)
-			keepers = append(keepers, vdeps...)
+			deptree = append(deptree, vdeps...)
 		}
 	}
+
+	// download all repos that are on hold
+	numOfReposOnHold := Hold(m, verbose)
 
 	// tell the humans the results
 	if verbose && results {
@@ -210,10 +202,14 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 			}
 		}
 		fmt.Printf("packages skipped: %d\n", skipped)
-		fmt.Printf("repos downloaded: %d\n", m.Len())
+		fmt.Printf("repos downloaded: %d\n", m.Len()+numOfReposOnHold)
+		if numOfReposOnHold > 0 {
+			fmt.Printf("repos being held: %d\n", numOfReposOnHold)
+		}
 	}
 
-	// if we need to do so, update the manifest file
+	// if a lock or hold flag is present, or if and update was requested and a
+	// manifest file currently exists on disk, then update the manifest file
 	if lock || hold || update && fileExists(m.Filename()) {
 		if err := m.Write(); err != nil {
 			return err
@@ -222,33 +218,27 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 
 	if prune {
 		if verbose {
-			fmt.Print("\npruning packages... ")
+			fmt.Print("\nprune vendored packages... ")
 		}
-		keepers = filters.Duplicates(keepers)
-		prunePackages(keepers)
+		pruneByDepTree(filters.Duplicates(deptree))
 		if verbose {
-			fmt.Println("finished")
+			fmt.Println("finished!")
 		}
 	}
 
 	return nil
 }
 
-func writeBlanks(num int) {
+func reportBadPing(path string, err error) {
+	fmt.Printf("%s bad ping: %s\n", path, err)
+}
+
+func writeDoubleBlanks(num int) {
 	num = num * 2
 	for num > 0 {
 		fmt.Printf(" ")
 		num--
 	}
-}
-
-func badImportPath(err error) bool {
-	return strings.Contains(err.Error(), "unrecognized import path")
-}
-
-func vendorDirExists(path string) bool {
-	_, err := os.Stat(filepath.Join("vendor", path))
-	return !os.IsNotExist(err)
 }
 
 func fileExists(path string) bool {

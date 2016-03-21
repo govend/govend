@@ -4,29 +4,79 @@
 
 package deps
 
-// ParseVendOptions converts cli flag inputs to VendOptions.
-func ParseVendOptions(update, lock, hold, prune, verbose, tree, results bool) []VendOptions {
+// VendOptions represents available vend options.
+type VendOptions int
+
+const (
+	// UpdateOption updates vendored repositories.
+	UpdateOption VendOptions = iota
+
+	// LockOption locks the revision version of vendored repositories.
+	LockOption
+
+	// HoldOption holds onto a vendored repository, even if none of its import
+	// paths are used in the project source code.
+	HoldOption
+
+	// PruneOption removes vendored packages that are not needed.
+	PruneOption
+
+	// VerboseOption prints out packages as they are vendored.
+	VerboseOption
+
+	// TreeOption prints the names of packages as an indented tree.
+	TreeOption
+
+	// ResultsOption prints a summary of the number of packages scanned, packages
+	// skipped, and repositories downloaded.
+	ResultsOption
+)
+
+// ParseOptions converts cli flag inputs to VendOptions.
+func ParseOptions(update, lock, hold, prune, verbose, tree, results bool) []VendOptions {
 	options := []VendOptions{}
 	if update {
-		options = append(options, Update)
+		options = append(options, UpdateOption)
 	}
 	if lock {
-		options = append(options, Lock)
+		options = append(options, LockOption)
 	}
 	if hold {
-		options = append(options, Hold)
+		options = append(options, HoldOption)
 	}
 	if prune {
-		options = append(options, Prune)
+		options = append(options, PruneOption)
 	}
 	if verbose {
-		options = append(options, Verbose)
+		options = append(options, VerboseOption)
 	}
 	if tree {
-		options = append(options, Tree)
+		options = append(options, TreeOption)
 	}
 	if results {
-		options = append(options, Results)
+		options = append(options, ResultsOption)
 	}
 	return options
+}
+
+func parseVendOptions(options []VendOptions) (update, lock, hold, prune, verbose, tree, results bool) {
+	for _, option := range options {
+		switch option {
+		case UpdateOption:
+			update = true
+		case LockOption:
+			lock = true
+		case HoldOption:
+			hold = true
+		case PruneOption:
+			prune = true
+		case VerboseOption:
+			verbose = true
+		case TreeOption:
+			tree = true
+		case ResultsOption:
+			results = true
+		}
+	}
+	return update, lock, hold, prune, verbose, tree, results
 }

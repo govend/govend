@@ -93,9 +93,9 @@ var govend = &cobra.Command{
 			}
 
 			// parse flag options relevant to the scan command
-			scanOptions := imports.ParseScanOptions(skipTestFiles, skipFilters)
+			sOpts := imports.ParseOptions(skipTestFiles, skipFilters)
 
-			pkgs, err := imports.Scan(path, scanOptions...)
+			pkgs, err := imports.Scan(path, sOpts...)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -120,18 +120,10 @@ var govend = &cobra.Command{
 			}
 
 			// parse flag options relevant to the vend command
-			vendOptions := deps.ParseVendOptions(
-				update,
-				lock,
-				hold,
-				prune,
-				verbose,
-				tree,
-				results,
-			)
+			vOpts := deps.ParseOptions(update, lock, hold, prune, verbose, tree, results)
 
 			// vendor according to the options provided
-			if err := deps.Vend(args, format, vendOptions...); err != nil {
+			if err := deps.Vend(args, format, vOpts...); err != nil {
 				log.Fatal(err)
 			}
 		}

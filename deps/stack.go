@@ -13,7 +13,7 @@ type stack struct {
 	data []dep
 }
 
-func newVendorStack(values ...string) *stack {
+func newStack(values ...string) *stack {
 	limit := len(values) * 2
 	s := &stack{data: make([]dep, 0, limit)}
 	for i := len(values) - 1; i >= 0; i-- {
