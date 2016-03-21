@@ -45,7 +45,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 		}
 	}
 
-	// inorder to be efficent, we need to track if a repository has already been
+	// to be efficent, we need to track if a repository has already been
 	// downloaded
 	//
 	// pinging and downloading a repository twice is a waste of valuable network
@@ -55,8 +55,8 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 	// can instead check if the repository import path exists inside of the
 	// vendor directory
 	//
-	// inorder to trust the contents of the vendor directory, we must first
-	// remove it before starting the vendoring process
+	// to trust the contents of the vendor directory, we must first remove it
+	// before starting the vendoring process
 	//
 	// removing the vendor directory ensures the repository package paths found
 	// do not originate from a previous vendoring session
