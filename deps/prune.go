@@ -5,6 +5,7 @@
 package deps
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,7 +13,14 @@ import (
 	"github.com/kr/fs"
 )
 
-func pruneByDepTree(deptree []string) {
+// Prune takes a deptree and verbose option and returns the number of
+// directories and files removed.
+func Prune(deptree []string, verbose bool) (dirs, files int) {
+
+	if verbose {
+		fmt.Print("\nprune vendored packages... ")
+	}
+
 	w := fs.Walk("vendor")
 	for w.Step() {
 
@@ -25,14 +33,22 @@ func pruneByDepTree(deptree []string) {
 
 			os.RemoveAll(w.Path())
 			w.SkipDir()
+			dirs++
 			continue
 		}
 
 		firstchar := []rune(finfo.Name())[0]
 		if firstchar == '_' || firstchar == '.' || strings.HasSuffix(finfo.Name(), "_test.go") {
 			os.Remove(w.Path())
+			files++
 		}
 	}
+
+	if verbose {
+		fmt.Println("finished!")
+	}
+
+	return dirs, files
 }
 
 func inDepTree(deptree []string, path string) bool {

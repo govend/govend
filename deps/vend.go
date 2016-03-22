@@ -189,7 +189,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 		}
 	}
 
-	// download all repos that are on hold
+	// download any repositories that are on hold
 	numOfReposOnHold := Hold(m, verbose)
 
 	// tell the humans the results
@@ -217,13 +217,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 	}
 
 	if prune {
-		if verbose {
-			fmt.Print("\nprune vendored packages... ")
-		}
-		pruneByDepTree(filters.Duplicates(deptree))
-		if verbose {
-			fmt.Println("finished!")
-		}
+		Prune(deptree, verbose)
 	}
 
 	return nil
