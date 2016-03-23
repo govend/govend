@@ -7,7 +7,6 @@ package deps
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -21,22 +20,9 @@ import (
 // If the current version of Go cannot be parsed, then trust it supports
 // vendoring, but display a message if verbose is true.
 func Vendorable(verbose bool) error {
-
-	// check the env $GOPATH is valid
-	gopath := os.Getenv("GOPATH")
-	if len(gopath) == 0 {
-		log.Fatal(errors.New("please set your $GOPATH"))
-	}
-
-	// determine the current absolute file path
-	path, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	err := checkGopath()
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	// check we are in the $GOPATH
-	if !strings.Contains(path, gopath+"/src/") {
-		return errors.New("you cannot vendor packages outside of your $GOPATH/src")
+		return err
 	}
 
 	go15, _ := semver.New("1.5.0")
@@ -65,6 +51,32 @@ func Vendorable(verbose bool) error {
 		if os.Getenv("GO15VENDOREXPERIMENT") == "0" {
 			return errors.New("Go 1.6.x cannot vendor with 'GO15VENDOREXPERIMENT=0'")
 		}
+	}
+
+	return nil
+}
+
+// checkGopath checks if the current working directory has $GOPATH/src as a prefix.
+func checkGopath() error {
+	gopath := os.Getenv("GOPATH")
+	if len(gopath) == 0 {
+		return errors.New("please set your $GOPATH")
+	}
+
+	// determine the current working directory and coerce it to an absolute
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	cwd, err = filepath.Abs(cwd)
+	if err != nil {
+		return err
+	}
+
+	// check $GOPATH/src
+	gosrc := filepath.Join(gopath, "src") + string(filepath.Separator)
+	if !strings.HasPrefix(cwd, gosrc) {
+		return errors.New("you cannot vendor packages outside of your $GOPATH/src")
 	}
 
 	return nil

@@ -124,12 +124,15 @@ func Godeps(pkgs []string) []string {
 	return list
 }
 
-// projectImportPath returns the import path of the current project directory.
-// It does so via $GOPATH.
+// projectImportPath returns the import path of the current working directory.
+// It does so by trimming off the $GOPATH/src prefix.
 func projectImportPath() string {
-
-	// determine the current absolute file path
-	path, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	// determine the current working directory and coerce it to an absolute
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	cwd, err = filepath.Abs(cwd)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -140,6 +143,7 @@ func projectImportPath() string {
 		log.Fatal(errors.New("$GOPATH not set"))
 	}
 
-	// leverage the $GOPATH to strip out everything but the base git URL
-	return path[len(gopath+"/src/"):]
+	// trim the $GOPATH/src off the current working directory
+	gosrc := filepath.Join(gopath, "src") + string(filepath.Separator)
+	return strings.TrimPrefix(cwd, gosrc)
 }
