@@ -145,5 +145,7 @@ func projectImportPath() string {
 
 	// trim the $GOPATH/src off the current working directory
 	gosrc := filepath.Join(gopath, "src") + string(filepath.Separator)
-	return strings.TrimPrefix(cwd, gosrc)
+	importpath := strings.TrimPrefix(cwd, gosrc)
+	dir, file := filepath.Split(importpath)
+	return path.Join(dir, file)
 }
