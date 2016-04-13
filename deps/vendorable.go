@@ -33,8 +33,8 @@ func Vendorable(verbose bool) error {
 	if err != nil {
 		if verbose {
 			fmt.Printf("\n%s\n", err)
-			return nil
 		}
+		return nil
 	}
 
 	if version.LessThan(go15) {
