@@ -25,6 +25,7 @@ var (
 	lock          bool
 	hold          bool
 	prune         bool
+	ignore        bool
 	scan          bool
 	skipTestFiles bool
 	skipFilters   bool
@@ -61,6 +62,9 @@ const (
 	`
 	pruneDesc = `The --prune flag removes vendored packages that are not needed
 	by leveraging the dependency tree after vendoring has completed.
+	`
+	ignoreDesc = `The --ignore flag ignores any packages that are NOT found in the
+	manifest file.
 	`
 	scanDesc = `The -s flag scans the current or provided directory for external
 	packages.
@@ -120,7 +124,7 @@ var govend = &cobra.Command{
 			}
 
 			// parse flag options relevant to the vend command
-			vOpts := deps.ParseOptions(update, lock, hold, prune, verbose, tree, results)
+			vOpts := deps.ParseOptions(update, lock, hold, prune, ignore, verbose, tree, results)
 
 			// vendor according to the options provided
 			if err := deps.Vend(args, format, vOpts...); err != nil {
@@ -140,6 +144,7 @@ func main() {
 	govend.Flags().BoolVarP(&lock, "lock", "l", false, lockDesc)
 	govend.Flags().BoolVar(&hold, "hold", false, holdDesc)
 	govend.Flags().BoolVar(&prune, "prune", false, pruneDesc)
+	govend.Flags().BoolVarP(&ignore, "ignore", "i", false, ignoreDesc)
 	govend.Flags().BoolVarP(&scan, "scan", "s", false, scanDesc)
 	govend.Flags().BoolVar(&skipFilters, "skipFilters", false, skipFiltersDesc)
 	govend.Flags().BoolVar(&skipTestFiles, "skipTestFiles", false, skipTestFilesDesc)

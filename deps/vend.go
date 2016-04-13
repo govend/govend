@@ -21,7 +21,7 @@ import (
 func Vend(pkgs []string, format string, options ...VendOptions) error {
 
 	// parse VendOptions into usable boolean values
-	update, lock, hold, prune, verbose, tree, results := parseVendOptions(options)
+	update, lock, hold, prune, ignore, verbose, tree, results := parseVendOptions(options)
 
 	// load or create an empty manifest file
 	m, err := manifest.Load(format)
@@ -38,10 +38,14 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 
 	// if no packages were provided, we can only assume the current relative
 	// directory contains Go source code, therefore so we should scan it
-	if len(pkgs) == 0 {
+	if len(pkgs) == 0 && !ignore {
 		pkgs, err = imports.Scan(".")
 		if err != nil {
 			return err
+		}
+	} else {
+		for _, pkg := range m.Vendors {
+			pkgs = append(pkgs, pkg.Path)
 		}
 	}
 

@@ -21,6 +21,9 @@ const (
 	// PruneOption removes vendored packages that are not needed.
 	PruneOption
 
+	// IgnoreOption ignores the source import paths.
+	IgnoreOption
+
 	// VerboseOption prints out packages as they are vendored.
 	VerboseOption
 
@@ -33,7 +36,7 @@ const (
 )
 
 // ParseOptions converts cli flag inputs to VendOptions.
-func ParseOptions(update, lock, hold, prune, verbose, tree, results bool) []VendOptions {
+func ParseOptions(update, lock, hold, prune, ignore, verbose, tree, results bool) []VendOptions {
 	options := []VendOptions{}
 	if update {
 		options = append(options, UpdateOption)
@@ -47,6 +50,9 @@ func ParseOptions(update, lock, hold, prune, verbose, tree, results bool) []Vend
 	if prune {
 		options = append(options, PruneOption)
 	}
+	if ignore {
+		options = append(options, IgnoreOption)
+	}
 	if verbose {
 		options = append(options, VerboseOption)
 	}
@@ -59,7 +65,7 @@ func ParseOptions(update, lock, hold, prune, verbose, tree, results bool) []Vend
 	return options
 }
 
-func parseVendOptions(options []VendOptions) (update, lock, hold, prune, verbose, tree, results bool) {
+func parseVendOptions(options []VendOptions) (update, lock, hold, prune, ignore, verbose, tree, results bool) {
 	for _, option := range options {
 		switch option {
 		case UpdateOption:
@@ -70,6 +76,8 @@ func parseVendOptions(options []VendOptions) (update, lock, hold, prune, verbose
 			hold = true
 		case PruneOption:
 			prune = true
+		case IgnoreOption:
+			ignore = true
 		case VerboseOption:
 			verbose = true
 		case TreeOption:
@@ -78,5 +86,5 @@ func parseVendOptions(options []VendOptions) (update, lock, hold, prune, verbose
 			results = true
 		}
 	}
-	return update, lock, hold, prune, verbose, tree, results
+	return update, lock, hold, prune, ignore, verbose, tree, results
 }
