@@ -36,6 +36,10 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 		m.Sync()
 	}
 
+	// explicit will allow us to retain whether or not packages were explicitly
+	// provided as arguments
+	explicit := false
+
 	// if no packages were provided, we can only assume the current relative
 	// directory contains Go source code, therefore so we should scan it
 	if len(pkgs) == 0 && !ignore {
@@ -44,6 +48,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 			return err
 		}
 	} else {
+		explicit = true
 		for _, pkg := range m.Vendors {
 			pkgs = append(pkgs, pkg.Path)
 		}
@@ -68,7 +73,10 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 	// removing the vendor directory also helps keeps the vendored repositories
 	// clean and fresh, preventing stale packages from sticking around when they
 	// are no longer needed
-	if lock || update {
+	//
+	// the only case in which we do not want to remove the vendor directory is
+	// when packages to vendor are explicitly added to the command as arguments
+	if (lock && !explicit) || update {
 		if err := os.RemoveAll("vendor"); err != nil {
 			return err
 		}
@@ -212,7 +220,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 		}
 	}
 
-	// if a lock or hold flag is present, or if and update was requested and a
+	// if a lock or hold flag is present, or if an update was requested and a
 	// manifest file currently exists on disk, then update the manifest file
 	if lock || hold || update && fileExists(m.Filename()) {
 		if err := m.Write(); err != nil {
