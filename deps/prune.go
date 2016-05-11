@@ -15,7 +15,8 @@ import (
 
 // Prune takes a deptree and verbose option and returns the number of
 // directories and files removed.
-func Prune(deptree []string, verbose bool) (dirs, files int) {
+func Prune(deptree []string, verbose bool) (dirs, files int, pruned []string) {
+	pruned = make([]string, 0, len(deptree))
 
 	if verbose {
 		fmt.Print("\nprune vendored packages... ")
@@ -33,6 +34,7 @@ func Prune(deptree []string, verbose bool) (dirs, files int) {
 
 			os.RemoveAll(w.Path())
 			w.SkipDir()
+			pruned = append(pruned, w.Path())
 			dirs++
 			continue
 		}
@@ -48,7 +50,7 @@ func Prune(deptree []string, verbose bool) (dirs, files int) {
 		fmt.Println("finished!")
 	}
 
-	return dirs, files
+	return dirs, files, pruned
 }
 
 func inDepTree(deptree []string, path string) bool {

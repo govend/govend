@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/govend/govend/deps/repos"
 	"github.com/govend/govend/imports"
@@ -74,9 +75,10 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 	// clean and fresh, preventing stale packages from sticking around when they
 	// are no longer needed
 	//
-	// the only case in which we do not want to remove the vendor directory is
-	// when packages to vendor are explicitly added to the command as arguments
-	if (lock && !explicit) || update {
+	// the only cases in which we do not want to remove the vendor directory is
+	// when packages to vendor are explicitly added to the command as arguments,
+	// or when prune and lock are both specified
+	if (lock && !explicit && !prune) || update {
 		if err := os.RemoveAll("vendor"); err != nil {
 			return err
 		}
@@ -220,16 +222,20 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 		}
 	}
 
+	var pruned []string
+	if prune {
+		_, _, pruned = Prune(deptree, verbose)
+	}
+
 	// if a lock or hold flag is present, or if an update was requested and a
 	// manifest file currently exists on disk, then update the manifest file
 	if lock || hold || update && fileExists(m.Filename()) {
+		for _, toRemove := range pruned {
+			m.Remove(strings.Join(strings.Split(toRemove, "/")[1:], "/"))
+		}
 		if err := m.Write(); err != nil {
 			return err
 		}
-	}
-
-	if prune {
-		Prune(deptree, verbose)
 	}
 
 	return nil
