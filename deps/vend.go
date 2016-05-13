@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/govend/govend/deps/repos"
 	"github.com/govend/govend/imports"
@@ -36,6 +37,10 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 		m.Sync()
 	}
 
+	// explicit will allow us to retain whether or not packages were explicitly
+	// provided as arguments
+	explicit := false
+
 	// if no packages were provided, we can only assume the current relative
 	// directory contains Go source code, therefore so we should scan it
 	if len(pkgs) == 0 && !ignore {
@@ -44,6 +49,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 			return err
 		}
 	} else {
+		explicit = true
 		for _, pkg := range m.Vendors {
 			pkgs = append(pkgs, pkg.Path)
 		}
@@ -68,7 +74,11 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 	// removing the vendor directory also helps keeps the vendored repositories
 	// clean and fresh, preventing stale packages from sticking around when they
 	// are no longer needed
-	if lock || update {
+	//
+	// the only cases in which we do not want to remove the vendor directory is
+	// when packages to vendor are explicitly added to the command as arguments,
+	// or when prune and lock are both specified
+	if (lock && !explicit && !prune) || update {
 		if err := os.RemoveAll("vendor"); err != nil {
 			return err
 		}
@@ -212,16 +222,20 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 		}
 	}
 
-	// if a lock or hold flag is present, or if and update was requested and a
+	var pruned []string
+	if prune {
+		_, _, pruned = Prune(deptree, verbose)
+	}
+
+	// if a lock or hold flag is present, or if an update was requested and a
 	// manifest file currently exists on disk, then update the manifest file
 	if lock || hold || update && fileExists(m.Filename()) {
+		for _, toRemove := range pruned {
+			m.Remove(strings.Join(strings.Split(toRemove, "/")[1:], "/"))
+		}
 		if err := m.Write(); err != nil {
 			return err
 		}
-	}
-
-	if prune {
-		Prune(deptree, verbose)
 	}
 
 	return nil
