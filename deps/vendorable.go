@@ -68,7 +68,13 @@ func checkGopath() error {
 	if err != nil {
 		return err
 	}
+
 	cwd, err = filepath.Abs(cwd)
+	if err != nil {
+		return err
+	}
+
+	cwd, err = filepath.EvalSymlinks(cwd)
 	if err != nil {
 		return err
 	}
