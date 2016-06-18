@@ -77,19 +77,13 @@ func Duplicates(pkgs []string) []string {
 
 // Local filters out any local packages.
 func Local(pkgs []string) []string {
-
-	prefix := projectImportPath()
-	l := len(prefix)
+	projectPath := projectImportPath()
+	prefix := projectPath + "/"
 
 	var list []string
 	for _, pkg := range pkgs {
-
-		// check the item length is geater than or equal to the prefix length
-		// this ensures no out of bounds memory errors will occur
-		if len(pkg) >= l {
-			if prefix == pkg[:l] {
-				continue
-			}
+		if pkg == projectPath || strings.HasPrefix(pkg, prefix) {
+			continue
 		}
 
 		list = append(list, pkg)
