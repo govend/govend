@@ -78,7 +78,7 @@ func Duplicates(pkgs []string) []string {
 // Local filters out any local packages.
 func Local(pkgs []string) []string {
 
-	prefix := projectImportPath()
+	prefix := projectImportPath() + string(filepath.Separator)
 	l := len(prefix)
 
 	var list []string
