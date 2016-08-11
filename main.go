@@ -30,6 +30,7 @@ var (
 	skipTestFiles bool
 	skipFilters   bool
 	format        string
+	strict        bool
 )
 
 // cli flag usage descriptions
@@ -74,6 +75,9 @@ const (
 	`
 	skipTestFilesDesc = `The --skipTestFiles flag works with the -s flag and
 	default govend command to skip scanning files that end in "_test.go".
+	`
+	strictDesc = `The --strict flag returns non-zero status code when a package
+	path and/or revision is invalid.
 	`
 )
 
@@ -124,7 +128,7 @@ var govend = &cobra.Command{
 			}
 
 			// parse flag options relevant to the vend command
-			vOpts := deps.ParseOptions(update, lock, hold, prune, ignore, verbose, tree, results)
+			vOpts := deps.ParseOptions(update, lock, hold, prune, ignore, verbose, tree, results, strict)
 
 			// vendor according to the options provided
 			if err := deps.Vend(args, format, vOpts...); err != nil {
@@ -148,5 +152,6 @@ func main() {
 	govend.Flags().BoolVarP(&scan, "scan", "s", false, scanDesc)
 	govend.Flags().BoolVar(&skipFilters, "skipFilters", false, skipFiltersDesc)
 	govend.Flags().BoolVar(&skipTestFiles, "skipTestFiles", false, skipTestFilesDesc)
+	govend.Flags().BoolVar(&strict, "strict", false, strictDesc)
 	govend.Execute()
 }
