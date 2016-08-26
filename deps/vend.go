@@ -22,7 +22,7 @@ import (
 func Vend(pkgs []string, format string, options ...VendOptions) error {
 
 	// parse VendOptions into usable boolean values
-	update, lock, hold, prune, ignore, verbose, tree, results := parseVendOptions(options)
+	update, lock, hold, prune, ignore, verbose, tree, results, strict := parseVendOptions(options)
 
 	// load or create an empty manifest file
 	m, err := manifest.Load(format)
@@ -110,6 +110,9 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 	deptree := pkgs
 	cache := map[string]bool{}
 
+	// badPing is a flag to remember if there is any invalid path or revision
+	badPing := false
+
 	// iterating over a stack allows vendoring of packages and any of their
 	// dependencies to the nth degree in the order they are discovered
 	for !stack.empty() {
@@ -144,6 +147,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 			// provided/exposed by VCS server host
 			repo, err := repos.Ping(pkg.path)
 			if err != nil {
+				badPing = true
 				reportBadPing(pkg.path, err)
 				cache[pkg.path] = false
 				continue
@@ -162,6 +166,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 			// vendor directory, the revision returned is the actual one downloaded
 			rev, err := repos.Download(repo, "vendor", revision)
 			if err != nil {
+				badPing = true
 				reportBadPing(repo.ImportPath, err)
 				cache[pkg.path] = false
 				continue
@@ -188,6 +193,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 		}
 		vdeps, err := imports.Scan(filepath.Join("vendor", pkg.path), scanOpts...)
 		if err != nil {
+			badPing = true
 			reportBadPing(pkg.path, err)
 			continue
 		}
@@ -236,6 +242,10 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 		if err := m.Write(); err != nil {
 			return err
 		}
+	}
+
+	if badPing && strict {
+		return fmt.Errorf("invalid package path and/or revision")
 	}
 
 	return nil

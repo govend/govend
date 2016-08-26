@@ -33,10 +33,13 @@ const (
 	// ResultsOption prints a summary of the number of packages scanned, packages
 	// skipped, and repositories downloaded.
 	ResultsOption
+
+	// StrictOption returns non-zero status code when a path and/or revision is invalid.
+	StrictOption
 )
 
 // ParseOptions converts cli flag inputs to VendOptions.
-func ParseOptions(update, lock, hold, prune, ignore, verbose, tree, results bool) []VendOptions {
+func ParseOptions(update, lock, hold, prune, ignore, verbose, tree, results, strict bool) []VendOptions {
 	options := []VendOptions{}
 	if update {
 		options = append(options, UpdateOption)
@@ -62,10 +65,13 @@ func ParseOptions(update, lock, hold, prune, ignore, verbose, tree, results bool
 	if results {
 		options = append(options, ResultsOption)
 	}
+	if strict {
+		options = append(options, StrictOption)
+	}
 	return options
 }
 
-func parseVendOptions(options []VendOptions) (update, lock, hold, prune, ignore, verbose, tree, results bool) {
+func parseVendOptions(options []VendOptions) (update, lock, hold, prune, ignore, verbose, tree, results, strict bool) {
 	for _, option := range options {
 		switch option {
 		case UpdateOption:
@@ -84,7 +90,9 @@ func parseVendOptions(options []VendOptions) (update, lock, hold, prune, ignore,
 			tree = true
 		case ResultsOption:
 			results = true
+		case StrictOption:
+			strict = true
 		}
 	}
-	return update, lock, hold, prune, ignore, verbose, tree, results
+	return update, lock, hold, prune, ignore, verbose, tree, results, strict
 }
