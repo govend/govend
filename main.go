@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var semver = "v0.1.10-beta"
+var semver = "v0.1.11-beta"
 
 // cli flag values
 var (

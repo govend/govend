@@ -13,661 +13,485 @@ type stdpkg struct {
 }
 
 var stdpkgs = map[string][]stdpkg{
-	"gzip": {
-		{path: "compress/gzip", dir: "/go/src/compress/gzip"},
-	},
-	"lzw": {
-		{path: "compress/lzw", dir: "/go/src/compress/lzw"},
-	},
-	"pkix": {
-		{path: "crypto/x509/pkix", dir: "/go/src/crypto/x509/pkix"},
-	},
-	"expvar": {
-		{path: "expvar", dir: "/go/src/expvar"},
-	},
-	"types": {
-		{path: "go/types", dir: "/go/src/go/types"},
-	},
-	"strconv": {
-		{path: "strconv", dir: "/go/src/strconv"},
-	},
-	"objdump": {
-		{path: "cmd/objdump", dir: "/go/src/cmd/objdump"},
-	},
-	"pack": {
-		{path: "cmd/pack", dir: "/go/src/cmd/pack"},
-	},
-	"gob": {
-		{path: "encoding/gob", dir: "/go/src/encoding/gob"},
-	},
-	"printer": {
-		{path: "go/printer", dir: "/go/src/go/printer"},
-	},
-	"syslog": {
-		{path: "log/syslog", dir: "/go/src/log/syslog"},
-	},
-	"compile": {
-		{path: "cmd/compile", dir: "/go/src/cmd/compile"},
-	},
-	"sha256": {
-		{path: "crypto/sha256", dir: "/go/src/crypto/sha256"},
-	},
-	"html": {
-		{path: "html", dir: "/go/src/html"},
-	},
-	"png": {
-		{path: "image/png", dir: "/go/src/image/png"},
-	},
-	"singleflight": {
-		{path: "internal/singleflight", dir: "/go/src/internal/singleflight"},
-	},
-	"mail": {
-		{path: "net/mail", dir: "/go/src/net/mail"},
-	},
-	"smtp": {
-		{path: "net/smtp", dir: "/go/src/net/smtp"},
-	},
-	"flate": {
-		{path: "compress/flate", dir: "/go/src/compress/flate"},
-	},
-	"gcprog": {
-		{path: "cmd/internal/gcprog", dir: "/go/src/cmd/internal/gcprog"},
-	},
-	"nm": {
-		{path: "cmd/nm", dir: "/go/src/cmd/nm"},
-	},
-	"token": {
-		{path: "go/token", dir: "/go/src/go/token"},
-	},
-	"testing": {
-		{path: "testing", dir: "/go/src/testing"},
-	},
-	"cgo": {
-		{path: "cmd/cgo", dir: "/go/src/cmd/cgo"},
-		{path: "runtime/cgo", dir: "/go/src/runtime/cgo"},
-	},
-	"gosym": {
-		{path: "debug/gosym", dir: "/go/src/debug/gosym"},
-	},
-	"registry": {
-		{path: "internal/syscall/windows/registry", dir: "/go/src/internal/syscall/windows/registry"},
-	},
-	"sync": {
-		{path: "sync", dir: "/go/src/sync"},
-	},
-	"database": {
-		{path: "database", dir: "/go/src/database"},
-	},
+	"addr2line": {
+		{path: "cmd/addr2line", dir: "/go/src/cmd/addr2line"}},
+	"adler32": {
+		{path: "hash/adler32", dir: "/go/src/hash/adler32"}},
+	"aes": {
+		{path: "crypto/aes", dir: "/go/src/crypto/aes"}},
 	"amd64": {
 		{path: "cmd/compile/internal/amd64", dir: "/go/src/cmd/compile/internal/amd64"},
-		{path: "cmd/link/internal/amd64", dir: "/go/src/cmd/link/internal/amd64"},
-	},
-	"mips": {
-		{path: "cmd/internal/obj/mips", dir: "/go/src/cmd/internal/obj/mips"},
-	},
-	"driver": {
-		{path: "cmd/pprof/internal/driver", dir: "/go/src/cmd/pprof/internal/driver"},
-		{path: "database/sql/driver", dir: "/go/src/database/sql/driver"},
-	},
-	"symbolz": {
-		{path: "cmd/pprof/internal/symbolz", dir: "/go/src/cmd/pprof/internal/symbolz"},
-	},
-	"ring": {
-		{path: "container/ring", dir: "/go/src/container/ring"},
-	},
-	"http": {
-		{path: "net/http", dir: "/go/src/net/http"},
-	},
-	"atomic": {
-		{path: "runtime/internal/atomic", dir: "/go/src/runtime/internal/atomic"},
-		{path: "sync/atomic", dir: "/go/src/sync/atomic"},
-	},
-	"builtin": {
-		{path: "builtin", dir: "/go/src/builtin"},
-		{path: "cmd/compile/internal/gc/builtin", dir: "/go/src/cmd/compile/internal/gc/builtin"},
-	},
-	"goobj": {
-		{path: "cmd/internal/goobj", dir: "/go/src/cmd/internal/goobj"},
-	},
-	"pem": {
-		{path: "encoding/pem", dir: "/go/src/encoding/pem"},
-	},
-	"arm64": {
-		{path: "cmd/compile/internal/arm64", dir: "/go/src/cmd/compile/internal/arm64"},
-		{path: "cmd/internal/obj/arm64", dir: "/go/src/cmd/internal/obj/arm64"},
-		{path: "cmd/link/internal/arm64", dir: "/go/src/cmd/link/internal/arm64"},
-	},
-	"sql": {
-		{path: "database/sql", dir: "/go/src/database/sql"},
-	},
-	"constant": {
-		{path: "go/constant", dir: "/go/src/go/constant"},
-	},
-	"gcimporter": {
-		{path: "go/internal/gcimporter", dir: "/go/src/go/internal/gcimporter"},
-	},
-	"path": {
-		{path: "path", dir: "/go/src/path"},
-	},
-	"runtime": {
-		{path: "runtime", dir: "/go/src/runtime"},
-	},
-	"text": {
-		{path: "text", dir: "/go/src/text"},
-	},
-	"md5": {
-		{path: "crypto/md5", dir: "/go/src/crypto/md5"},
-	},
-	"dist": {
-		{path: "cmd/dist", dir: "/go/src/cmd/dist"},
-	},
-	"unvendor": {
-		{path: "cmd/internal/unvendor", dir: "/go/src/cmd/internal/unvendor"},
-	},
-	"ld": {
-		{path: "cmd/link/internal/ld", dir: "/go/src/cmd/link/internal/ld"},
-	},
-	"des": {
-		{path: "crypto/des", dir: "/go/src/crypto/des"},
-	},
-	"importer": {
-		{path: "go/importer", dir: "/go/src/go/importer"},
-	},
-	"draw": {
-		{path: "image/draw", dir: "/go/src/image/draw"},
-	},
-	"http2": {
-		{path: "internal/golang.org/x/net/http2", dir: "/go/src/internal/golang.org/x/net/http2"},
-	},
-	"ppc64": {
-		{path: "cmd/compile/internal/ppc64", dir: "/go/src/cmd/compile/internal/ppc64"},
-		{path: "cmd/internal/obj/ppc64", dir: "/go/src/cmd/internal/obj/ppc64"},
-		{path: "cmd/link/internal/ppc64", dir: "/go/src/cmd/link/internal/ppc64"},
-	},
-	"cookiejar": {
-		{path: "net/http/cookiejar", dir: "/go/src/net/http/cookiejar"},
-	},
-	"fetch": {
-		{path: "cmd/pprof/internal/fetch", dir: "/go/src/cmd/pprof/internal/fetch"},
-	},
-	"list": {
-		{path: "container/list", dir: "/go/src/container/list"},
-	},
-	"base64": {
-		{path: "encoding/base64", dir: "/go/src/encoding/base64"},
-	},
-	"image": {
-		{path: "image", dir: "/go/src/image"},
-	},
-	"cgi": {
-		{path: "net/http/cgi", dir: "/go/src/net/http/cgi"},
-	},
-	"x": {
-		{path: "cmd/internal/unvendor/golang.org/x", dir: "/go/src/cmd/internal/unvendor/golang.org/x"},
-		{path: "internal/golang.org/x", dir: "/go/src/internal/golang.org/x"},
-	},
-	"yacc": {
-		{path: "cmd/yacc", dir: "/go/src/cmd/yacc"},
-	},
-	"dsa": {
-		{path: "crypto/dsa", dir: "/go/src/crypto/dsa"},
-	},
-	"hmac": {
-		{path: "crypto/hmac", dir: "/go/src/crypto/hmac"},
-	},
-	"csv": {
-		{path: "encoding/csv", dir: "/go/src/encoding/csv"},
-	},
-	"fmt": {
-		{path: "fmt", dir: "/go/src/fmt"},
-	},
-	"palette": {
-		{path: "image/color/palette", dir: "/go/src/image/color/palette"},
-	},
-	"syscall": {
-		{path: "internal/syscall", dir: "/go/src/internal/syscall"},
-		{path: "syscall", dir: "/go/src/syscall"},
-	},
-	"objfile": {
-		{path: "cmd/internal/objfile", dir: "/go/src/cmd/internal/objfile"},
-	},
-	"quick": {
-		{path: "testing/quick", dir: "/go/src/testing/quick"},
-	},
-	"jsonrpc": {
-		{path: "net/rpc/jsonrpc", dir: "/go/src/net/rpc/jsonrpc"},
-	},
-	"gofmt": {
-		{path: "cmd/gofmt", dir: "/go/src/cmd/gofmt"},
-	},
-	"pprof": {
-		{path: "cmd/pprof", dir: "/go/src/cmd/pprof"},
-		{path: "net/http/pprof", dir: "/go/src/net/http/pprof"},
-		{path: "runtime/pprof", dir: "/go/src/runtime/pprof"},
-	},
-	"rc4": {
-		{path: "crypto/rc4", dir: "/go/src/crypto/rc4"},
-	},
-	"debug": {
-		{path: "debug", dir: "/go/src/debug"},
-		{path: "runtime/debug", dir: "/go/src/runtime/debug"},
-	},
-	"plan9obj": {
-		{path: "debug/plan9obj", dir: "/go/src/debug/plan9obj"},
-	},
-	"ast": {
-		{path: "go/ast", dir: "/go/src/go/ast"},
-	},
-	"log": {
-		{path: "log", dir: "/go/src/log"},
-	},
+		{path: "cmd/link/internal/amd64", dir: "/go/src/cmd/link/internal/amd64"}},
+	"api": {
+		{path: "cmd/api", dir: "/go/src/cmd/api"}},
+	"arch": {
+		{path: "cmd/asm/internal/arch", dir: "/go/src/cmd/asm/internal/arch"},
+		{path: "cmd/vendor/golang.org/x/arch", dir: "/go/src/cmd/vendor/golang.org/x/arch"}},
+	"archive": {
+		{path: "archive", dir: "/go/src/archive"}},
 	"arm": {
 		{path: "cmd/compile/internal/arm", dir: "/go/src/cmd/compile/internal/arm"},
 		{path: "cmd/internal/obj/arm", dir: "/go/src/cmd/internal/obj/arm"},
-		{path: "cmd/internal/unvendor/golang.org/x/arch/arm", dir: "/go/src/cmd/internal/unvendor/golang.org/x/arch/arm"},
 		{path: "cmd/link/internal/arm", dir: "/go/src/cmd/link/internal/arm"},
-	},
-	"reflect": {
-		{path: "reflect", dir: "/go/src/reflect"},
-	},
-	"svg": {
-		{path: "cmd/pprof/internal/svg", dir: "/go/src/cmd/pprof/internal/svg"},
-	},
-	"macho": {
-		{path: "debug/macho", dir: "/go/src/debug/macho"},
-	},
+		{path: "cmd/vendor/golang.org/x/arch/arm", dir: "/go/src/cmd/vendor/golang.org/x/arch/arm"}},
+	"arm64": {
+		{path: "cmd/compile/internal/arm64", dir: "/go/src/cmd/compile/internal/arm64"},
+		{path: "cmd/internal/obj/arm64", dir: "/go/src/cmd/internal/obj/arm64"},
+		{path: "cmd/link/internal/arm64", dir: "/go/src/cmd/link/internal/arm64"}},
+	"armasm": {
+		{path: "cmd/vendor/golang.org/x/arch/arm/armasm", dir: "/go/src/cmd/vendor/golang.org/x/arch/arm/armasm"}},
 	"ascii85": {
-		{path: "encoding/ascii85", dir: "/go/src/encoding/ascii85"},
-	},
-	"filepath": {
-		{path: "path/filepath", dir: "/go/src/path/filepath"},
-	},
-	"x86": {
-		{path: "cmd/compile/internal/x86", dir: "/go/src/cmd/compile/internal/x86"},
-		{path: "cmd/internal/obj/x86", dir: "/go/src/cmd/internal/obj/x86"},
-		{path: "cmd/internal/unvendor/golang.org/x/arch/x86", dir: "/go/src/cmd/internal/unvendor/golang.org/x/arch/x86"},
-		{path: "cmd/link/internal/x86", dir: "/go/src/cmd/link/internal/x86"},
-	},
-	"crc64": {
-		{path: "hash/crc64", dir: "/go/src/hash/crc64"},
-	},
-	"jpeg": {
-		{path: "image/jpeg", dir: "/go/src/image/jpeg"},
-	},
-	"msan": {
-		{path: "runtime/msan", dir: "/go/src/runtime/msan"},
-	},
-	"iotest": {
-		{path: "testing/iotest", dir: "/go/src/testing/iotest"},
-	},
-	"unicode": {
-		{path: "unicode", dir: "/go/src/unicode"},
-	},
-	"base32": {
-		{path: "encoding/base32", dir: "/go/src/encoding/base32"},
-	},
-	"cmd": {
-		{path: "cmd", dir: "/go/src/cmd"},
-	},
-	"big": {
-		{path: "cmd/compile/internal/big", dir: "/go/src/cmd/compile/internal/big"},
-		{path: "math/big", dir: "/go/src/math/big"},
-	},
-	"plugin": {
-		{path: "cmd/pprof/internal/plugin", dir: "/go/src/cmd/pprof/internal/plugin"},
-	},
-	"format": {
-		{path: "go/format", dir: "/go/src/go/format"},
-	},
-	"scanner": {
-		{path: "go/scanner", dir: "/go/src/go/scanner"},
-		{path: "text/scanner", dir: "/go/src/text/scanner"},
-	},
-	"gif": {
-		{path: "image/gif", dir: "/go/src/image/gif"},
-	},
-	"windows": {
-		{path: "internal/syscall/windows", dir: "/go/src/internal/syscall/windows"},
-	},
-	"archive": {
-		{path: "archive", dir: "/go/src/archive"},
-	},
-	"vendor": {
-		{path: "vendor", dir: "/go/src/vendor"},
-	},
-	"user": {
-		{path: "os/user", dir: "/go/src/os/user"},
-	},
-	"link": {
-		{path: "cmd/link", dir: "/go/src/cmd/link"},
-	},
-	"report": {
-		{path: "cmd/pprof/internal/report", dir: "/go/src/cmd/pprof/internal/report"},
-	},
-	"vet": {
-		{path: "cmd/vet", dir: "/go/src/cmd/vet"},
-	},
-	"hex": {
-		{path: "encoding/hex", dir: "/go/src/encoding/hex"},
-	},
-	"xml": {
-		{path: "encoding/xml", dir: "/go/src/encoding/xml"},
-	},
-	"net": {
-		{path: "internal/golang.org/x/net", dir: "/go/src/internal/golang.org/x/net"},
-		{path: "net", dir: "/go/src/net"},
-	},
-	"httptest": {
-		{path: "net/http/httptest", dir: "/go/src/net/http/httptest"},
-	},
-	"addr2line": {
-		{path: "cmd/addr2line", dir: "/go/src/cmd/addr2line"},
-	},
-	"zlib": {
-		{path: "compress/zlib", dir: "/go/src/compress/zlib"},
-	},
-	"errors": {
-		{path: "errors", dir: "/go/src/errors"},
-	},
-	"suffixarray": {
-		{path: "index/suffixarray", dir: "/go/src/index/suffixarray"},
-	},
-	"mime": {
-		{path: "mime", dir: "/go/src/mime"},
-	},
-	"api": {
-		{path: "cmd/api", dir: "/go/src/cmd/api"},
-	},
-	"lex": {
-		{path: "cmd/asm/internal/lex", dir: "/go/src/cmd/asm/internal/lex"},
-	},
-	"whitelist": {
-		{path: "cmd/vet/internal/whitelist", dir: "/go/src/cmd/vet/internal/whitelist"},
-	},
-	"crypto": {
-		{path: "crypto", dir: "/go/src/crypto"},
-	},
-	"subtle": {
-		{path: "crypto/subtle", dir: "/go/src/crypto/subtle"},
-	},
-	"flag": {
-		{path: "flag", dir: "/go/src/flag"},
-	},
-	"gccgoimporter": {
-		{path: "go/internal/gccgoimporter", dir: "/go/src/go/internal/gccgoimporter"},
-	},
-	"index": {
-		{path: "index", dir: "/go/src/index"},
-	},
-	"tar": {
-		{path: "archive/tar", dir: "/go/src/archive/tar"},
-	},
-	"regexp": {
-		{path: "regexp", dir: "/go/src/regexp"},
-	},
-	"signal": {
-		{path: "os/signal", dir: "/go/src/os/signal"},
-	},
-	"x86asm": {
-		{path: "cmd/internal/unvendor/golang.org/x/arch/x86/x86asm", dir: "/go/src/cmd/internal/unvendor/golang.org/x/arch/x86/x86asm"},
-	},
-	"commands": {
-		{path: "cmd/pprof/internal/commands", dir: "/go/src/cmd/pprof/internal/commands"},
-	},
-	"tempfile": {
-		{path: "cmd/pprof/internal/tempfile", dir: "/go/src/cmd/pprof/internal/tempfile"},
-	},
-	"cipher": {
-		{path: "crypto/cipher", dir: "/go/src/crypto/cipher"},
-	},
-	"ecdsa": {
-		{path: "crypto/ecdsa", dir: "/go/src/crypto/ecdsa"},
-	},
+		{path: "encoding/ascii85", dir: "/go/src/encoding/ascii85"}},
 	"asm": {
 		{path: "cmd/asm", dir: "/go/src/cmd/asm"},
-		{path: "cmd/asm/internal/asm", dir: "/go/src/cmd/asm/internal/asm"},
-	},
-	"build": {
-		{path: "go/build", dir: "/go/src/go/build"},
-	},
-	"color": {
-		{path: "image/color", dir: "/go/src/image/color"},
-	},
-	"math": {
-		{path: "math", dir: "/go/src/math"},
-	},
-	"textproto": {
-		{path: "net/textproto", dir: "/go/src/net/textproto"},
-	},
-	"sys": {
-		{path: "runtime/internal/sys", dir: "/go/src/runtime/internal/sys"},
-	},
-	"tls": {
-		{path: "crypto/tls", dir: "/go/src/crypto/tls"},
-	},
-	"go": {
-		{path: "cmd/go", dir: "/go/src/cmd/go"},
-		{path: "go", dir: "/go/src/go"},
-	},
-	"symbolizer": {
-		{path: "cmd/pprof/internal/symbolizer", dir: "/go/src/cmd/pprof/internal/symbolizer"},
-	},
-	"rand": {
-		{path: "crypto/rand", dir: "/go/src/crypto/rand"},
-		{path: "math/rand", dir: "/go/src/math/rand"},
-	},
-	"elf": {
-		{path: "debug/elf", dir: "/go/src/debug/elf"},
-	},
-	"encoding": {
-		{path: "encoding", dir: "/go/src/encoding"},
-	},
-	"template": {
-		{path: "html/template", dir: "/go/src/html/template"},
-		{path: "text/template", dir: "/go/src/text/template"},
-	},
-	"unix": {
-		{path: "internal/syscall/unix", dir: "/go/src/internal/syscall/unix"},
-	},
-	"zip": {
-		{path: "archive/zip", dir: "/go/src/archive/zip"},
-	},
-	"syntax": {
-		{path: "regexp/syntax", dir: "/go/src/regexp/syntax"},
-	},
-	"armasm": {
-		{path: "cmd/internal/unvendor/golang.org/x/arch/arm/armasm", dir: "/go/src/cmd/internal/unvendor/golang.org/x/arch/arm/armasm"},
-	},
-	"binary": {
-		{path: "encoding/binary", dir: "/go/src/encoding/binary"},
-	},
-	"ioutil": {
-		{path: "io/ioutil", dir: "/go/src/io/ioutil"},
-	},
-	"exec": {
-		{path: "os/exec", dir: "/go/src/os/exec"},
-	},
-	"bufio": {
-		{path: "bufio", dir: "/go/src/bufio"},
-	},
-	"arch": {
-		{path: "cmd/asm/internal/arch", dir: "/go/src/cmd/asm/internal/arch"},
-		{path: "cmd/internal/unvendor/golang.org/x/arch", dir: "/go/src/cmd/internal/unvendor/golang.org/x/arch"},
-	},
-	"bzip2": {
-		{path: "compress/bzip2", dir: "/go/src/compress/bzip2"},
-	},
-	"elliptic": {
-		{path: "crypto/elliptic", dir: "/go/src/crypto/elliptic"},
-	},
-	"rsa": {
-		{path: "crypto/rsa", dir: "/go/src/crypto/rsa"},
-	},
-	"tabwriter": {
-		{path: "text/tabwriter", dir: "/go/src/text/tabwriter"},
-	},
-	"bytes": {
-		{path: "bytes", dir: "/go/src/bytes"},
-	},
-	"fix": {
-		{path: "cmd/fix", dir: "/go/src/cmd/fix"},
-	},
-	"profile": {
-		{path: "cmd/pprof/internal/profile", dir: "/go/src/cmd/pprof/internal/profile"},
-	},
-	"container": {
-		{path: "container", dir: "/go/src/container"},
-	},
-	"heap": {
-		{path: "container/heap", dir: "/go/src/container/heap"},
-	},
+		{path: "cmd/asm/internal/asm", dir: "/go/src/cmd/asm/internal/asm"}},
 	"asn1": {
-		{path: "encoding/asn1", dir: "/go/src/encoding/asn1"},
-	},
-	"parser": {
-		{path: "go/parser", dir: "/go/src/go/parser"},
-	},
-	"io": {
-		{path: "io", dir: "/go/src/io"},
-	},
+		{path: "encoding/asn1", dir: "/go/src/encoding/asn1"}},
+	"ast": {
+		{path: "go/ast", dir: "/go/src/go/ast"}},
+	"atomic": {
+		{path: "runtime/internal/atomic", dir: "/go/src/runtime/internal/atomic"},
+		{path: "sync/atomic", dir: "/go/src/sync/atomic"}},
+	"base32": {
+		{path: "encoding/base32", dir: "/go/src/encoding/base32"}},
+	"base64": {
+		{path: "encoding/base64", dir: "/go/src/encoding/base64"}},
+	"big": {
+		{path: "cmd/compile/internal/big", dir: "/go/src/cmd/compile/internal/big"},
+		{path: "math/big", dir: "/go/src/math/big"}},
+	"binary": {
+		{path: "encoding/binary", dir: "/go/src/encoding/binary"}},
+	"bio": {
+		{path: "cmd/internal/bio", dir: "/go/src/cmd/internal/bio"}},
+	"bufio": {
+		{path: "bufio", dir: "/go/src/bufio"}},
+	"build": {
+		{path: "go/build", dir: "/go/src/go/build"}},
+	"builtin": {
+		{path: "builtin", dir: "/go/src/builtin"},
+		{path: "cmd/compile/internal/gc/builtin", dir: "/go/src/cmd/compile/internal/gc/builtin"}},
+	"bytes": {
+		{path: "bytes", dir: "/go/src/bytes"}},
+	"bzip2": {
+		{path: "compress/bzip2", dir: "/go/src/compress/bzip2"}},
+	"cfg": {
+		{path: "cmd/vet/internal/cfg", dir: "/go/src/cmd/vet/internal/cfg"}},
+	"cgi": {
+		{path: "net/http/cgi", dir: "/go/src/net/http/cgi"}},
+	"cgo": {
+		{path: "cmd/cgo", dir: "/go/src/cmd/cgo"},
+		{path: "runtime/cgo", dir: "/go/src/runtime/cgo"}},
+	"cipher": {
+		{path: "crypto/cipher", dir: "/go/src/crypto/cipher"}},
+	"cmd": {
+		{path: "cmd", dir: "/go/src/cmd"}},
+	"cmplx": {
+		{path: "math/cmplx", dir: "/go/src/math/cmplx"}},
+	"color": {
+		{path: "image/color", dir: "/go/src/image/color"}},
+	"commands": {
+		{path: "cmd/internal/pprof/commands", dir: "/go/src/cmd/internal/pprof/commands"}},
+	"compile": {
+		{path: "cmd/compile", dir: "/go/src/cmd/compile"}},
+	"compress": {
+		{path: "compress", dir: "/go/src/compress"}},
+	"constant": {
+		{path: "go/constant", dir: "/go/src/go/constant"}},
+	"container": {
+		{path: "container", dir: "/go/src/container"}},
+	"context": {
+		{path: "context", dir: "/go/src/context"}},
+	"cookiejar": {
+		{path: "net/http/cookiejar", dir: "/go/src/net/http/cookiejar"}},
+	"cover": {
+		{path: "cmd/cover", dir: "/go/src/cmd/cover"}},
+	"crc32": {
+		{path: "hash/crc32", dir: "/go/src/hash/crc32"}},
+	"crc64": {
+		{path: "hash/crc64", dir: "/go/src/hash/crc64"}},
+	"crypto": {
+		{path: "crypto", dir: "/go/src/crypto"}},
+	"csv": {
+		{path: "encoding/csv", dir: "/go/src/encoding/csv"}},
+	"database": {
+		{path: "database", dir: "/go/src/database"}},
+	"debug": {
+		{path: "debug", dir: "/go/src/debug"},
+		{path: "runtime/debug", dir: "/go/src/runtime/debug"}},
+	"des": {
+		{path: "crypto/des", dir: "/go/src/crypto/des"}},
+	"dist": {
+		{path: "cmd/dist", dir: "/go/src/cmd/dist"}},
 	"doc": {
 		{path: "cmd/doc", dir: "/go/src/cmd/doc"},
-		{path: "go/doc", dir: "/go/src/go/doc"},
-	},
-	"sort": {
-		{path: "sort", dir: "/go/src/sort"},
-	},
-	"cmplx": {
-		{path: "math/cmplx", dir: "/go/src/math/cmplx"},
-	},
-	"adler32": {
-		{path: "hash/adler32", dir: "/go/src/hash/adler32"},
-	},
-	"utf8": {
-		{path: "unicode/utf8", dir: "/go/src/unicode/utf8"},
-	},
-	"x509": {
-		{path: "crypto/x509", dir: "/go/src/crypto/x509"},
-	},
-	"aes": {
-		{path: "crypto/aes", dir: "/go/src/crypto/aes"},
-	},
+		{path: "go/doc", dir: "/go/src/go/doc"}},
+	"draw": {
+		{path: "image/draw", dir: "/go/src/image/draw"}},
+	"driver": {
+		{path: "cmd/internal/pprof/driver", dir: "/go/src/cmd/internal/pprof/driver"},
+		{path: "database/sql/driver", dir: "/go/src/database/sql/driver"}},
+	"dsa": {
+		{path: "crypto/dsa", dir: "/go/src/crypto/dsa"}},
 	"dwarf": {
-		{path: "debug/dwarf", dir: "/go/src/debug/dwarf"},
-	},
-	"pe": {
-		{path: "debug/pe", dir: "/go/src/debug/pe"},
-	},
-	"hpack": {
-		{path: "internal/golang.org/x/net/http2/hpack", dir: "/go/src/internal/golang.org/x/net/http2/hpack"},
-	},
+		{path: "debug/dwarf", dir: "/go/src/debug/dwarf"}},
+	"ecdsa": {
+		{path: "crypto/ecdsa", dir: "/go/src/crypto/ecdsa"}},
+	"elf": {
+		{path: "debug/elf", dir: "/go/src/debug/elf"}},
+	"elliptic": {
+		{path: "crypto/elliptic", dir: "/go/src/crypto/elliptic"}},
+	"encoding": {
+		{path: "encoding", dir: "/go/src/encoding"}},
+	"errors": {
+		{path: "errors", dir: "/go/src/errors"}},
+	"exec": {
+		{path: "os/exec", dir: "/go/src/os/exec"}},
+	"expvar": {
+		{path: "expvar", dir: "/go/src/expvar"}},
 	"fcgi": {
-		{path: "net/http/fcgi", dir: "/go/src/net/http/fcgi"},
-	},
-	"unsafe": {
-		{path: "unsafe", dir: "/go/src/unsafe"},
-	},
+		{path: "net/http/fcgi", dir: "/go/src/net/http/fcgi"}},
+	"fetch": {
+		{path: "cmd/internal/pprof/fetch", dir: "/go/src/cmd/internal/pprof/fetch"}},
+	"filepath": {
+		{path: "path/filepath", dir: "/go/src/path/filepath"}},
+	"fix": {
+		{path: "cmd/fix", dir: "/go/src/cmd/fix"}},
+	"flag": {
+		{path: "flag", dir: "/go/src/flag"}},
+	"flags": {
+		{path: "cmd/asm/internal/flags", dir: "/go/src/cmd/asm/internal/flags"}},
+	"flate": {
+		{path: "compress/flate", dir: "/go/src/compress/flate"}},
+	"fmt": {
+		{path: "fmt", dir: "/go/src/fmt"}},
+	"fnv": {
+		{path: "hash/fnv", dir: "/go/src/hash/fnv"}},
+	"format": {
+		{path: "go/format", dir: "/go/src/go/format"}},
+	"gc": {
+		{path: "cmd/compile/internal/gc", dir: "/go/src/cmd/compile/internal/gc"}},
+	"gccgoimporter": {
+		{path: "go/internal/gccgoimporter", dir: "/go/src/go/internal/gccgoimporter"}},
+	"gcimporter": {
+		{path: "go/internal/gcimporter", dir: "/go/src/go/internal/gcimporter"}},
+	"gcprog": {
+		{path: "cmd/internal/gcprog", dir: "/go/src/cmd/internal/gcprog"}},
+	"gen": {
+		{path: "cmd/compile/internal/ssa/gen", dir: "/go/src/cmd/compile/internal/ssa/gen"}},
+	"gif": {
+		{path: "image/gif", dir: "/go/src/image/gif"}},
+	"go": {
+		{path: "cmd/go", dir: "/go/src/cmd/go"},
+		{path: "go", dir: "/go/src/go"}},
+	"gob": {
+		{path: "encoding/gob", dir: "/go/src/encoding/gob"}},
+	"gofmt": {
+		{path: "cmd/gofmt", dir: "/go/src/cmd/gofmt"}},
+	"golang.org": {
+		{path: "cmd/vendor/golang.org", dir: "/go/src/cmd/vendor/golang.org"}},
+	"golang_org": {
+		{path: "vendor/golang_org", dir: "/go/src/vendor/golang_org"}},
+	"goobj": {
+		{path: "cmd/internal/goobj", dir: "/go/src/cmd/internal/goobj"}},
+	"gosym": {
+		{path: "debug/gosym", dir: "/go/src/debug/gosym"}},
+	"gzip": {
+		{path: "compress/gzip", dir: "/go/src/compress/gzip"}},
+	"hash": {
+		{path: "hash", dir: "/go/src/hash"}},
+	"heap": {
+		{path: "container/heap", dir: "/go/src/container/heap"}},
+	"hex": {
+		{path: "encoding/hex", dir: "/go/src/encoding/hex"}},
+	"hmac": {
+		{path: "crypto/hmac", dir: "/go/src/crypto/hmac"}},
+	"hpack": {
+		{path: "vendor/golang_org/x/net/http2/hpack", dir: "/go/src/vendor/golang_org/x/net/http2/hpack"}},
+	"html": {
+		{path: "html", dir: "/go/src/html"}},
+	"http": {
+		{path: "net/http", dir: "/go/src/net/http"}},
+	"http2": {
+		{path: "vendor/golang_org/x/net/http2", dir: "/go/src/vendor/golang_org/x/net/http2"}},
+	"httplex": {
+		{path: "vendor/golang_org/x/net/lex/httplex", dir: "/go/src/vendor/golang_org/x/net/lex/httplex"}},
+	"httptest": {
+		{path: "net/http/httptest", dir: "/go/src/net/http/httptest"}},
+	"httptrace": {
+		{path: "net/http/httptrace", dir: "/go/src/net/http/httptrace"}},
+	"httputil": {
+		{path: "net/http/httputil", dir: "/go/src/net/http/httputil"}},
+	"image": {
+		{path: "image", dir: "/go/src/image"}},
+	"imageutil": {
+		{path: "image/internal/imageutil", dir: "/go/src/image/internal/imageutil"}},
+	"importer": {
+		{path: "go/importer", dir: "/go/src/go/importer"}},
+	"index": {
+		{path: "index", dir: "/go/src/index"}},
 	"internal": {
 		{path: "cmd/asm/internal", dir: "/go/src/cmd/asm/internal"},
 		{path: "cmd/compile/internal", dir: "/go/src/cmd/compile/internal"},
 		{path: "cmd/internal", dir: "/go/src/cmd/internal"},
 		{path: "cmd/link/internal", dir: "/go/src/cmd/link/internal"},
-		{path: "cmd/pprof/internal", dir: "/go/src/cmd/pprof/internal"},
 		{path: "cmd/vet/internal", dir: "/go/src/cmd/vet/internal"},
 		{path: "go/internal", dir: "/go/src/go/internal"},
 		{path: "image/internal", dir: "/go/src/image/internal"},
 		{path: "internal", dir: "/go/src/internal"},
 		{path: "net/http/internal", dir: "/go/src/net/http/internal"},
 		{path: "net/internal", dir: "/go/src/net/internal"},
-		{path: "runtime/internal", dir: "/go/src/runtime/internal"},
-	},
-	"imageutil": {
-		{path: "image/internal/imageutil", dir: "/go/src/image/internal/imageutil"},
-	},
-	"url": {
-		{path: "net/url", dir: "/go/src/net/url"},
-	},
-	"golang.org": {
-		{path: "cmd/internal/unvendor/golang.org", dir: "/go/src/cmd/internal/unvendor/golang.org"},
-		{path: "internal/golang.org", dir: "/go/src/internal/golang.org"},
-	},
+		{path: "runtime/internal", dir: "/go/src/runtime/internal"}},
+	"io": {
+		{path: "io", dir: "/go/src/io"}},
+	"iotest": {
+		{path: "testing/iotest", dir: "/go/src/testing/iotest"}},
+	"ioutil": {
+		{path: "io/ioutil", dir: "/go/src/io/ioutil"}},
+	"jpeg": {
+		{path: "image/jpeg", dir: "/go/src/image/jpeg"}},
+	"json": {
+		{path: "encoding/json", dir: "/go/src/encoding/json"}},
+	"jsonrpc": {
+		{path: "net/rpc/jsonrpc", dir: "/go/src/net/rpc/jsonrpc"}},
+	"ld": {
+		{path: "cmd/link/internal/ld", dir: "/go/src/cmd/link/internal/ld"}},
+	"lex": {
+		{path: "cmd/asm/internal/lex", dir: "/go/src/cmd/asm/internal/lex"},
+		{path: "vendor/golang_org/x/net/lex", dir: "/go/src/vendor/golang_org/x/net/lex"}},
+	"link": {
+		{path: "cmd/link", dir: "/go/src/cmd/link"}},
+	"list": {
+		{path: "container/list", dir: "/go/src/container/list"}},
+	"log": {
+		{path: "log", dir: "/go/src/log"}},
+	"lzw": {
+		{path: "compress/lzw", dir: "/go/src/compress/lzw"}},
+	"macho": {
+		{path: "debug/macho", dir: "/go/src/debug/macho"}},
+	"mail": {
+		{path: "net/mail", dir: "/go/src/net/mail"}},
+	"math": {
+		{path: "math", dir: "/go/src/math"}},
+	"md5": {
+		{path: "crypto/md5", dir: "/go/src/crypto/md5"}},
+	"mime": {
+		{path: "mime", dir: "/go/src/mime"}},
+	"mips": {
+		{path: "cmd/internal/obj/mips", dir: "/go/src/cmd/internal/obj/mips"}},
+	"mips64": {
+		{path: "cmd/compile/internal/mips64", dir: "/go/src/cmd/compile/internal/mips64"},
+		{path: "cmd/link/internal/mips64", dir: "/go/src/cmd/link/internal/mips64"}},
+	"msan": {
+		{path: "runtime/msan", dir: "/go/src/runtime/msan"}},
+	"multipart": {
+		{path: "mime/multipart", dir: "/go/src/mime/multipart"}},
+	"net": {
+		{path: "net", dir: "/go/src/net"},
+		{path: "vendor/golang_org/x/net", dir: "/go/src/vendor/golang_org/x/net"}},
+	"nettrace": {
+		{path: "internal/nettrace", dir: "/go/src/internal/nettrace"}},
+	"nm": {
+		{path: "cmd/nm", dir: "/go/src/cmd/nm"}},
+	"obj": {
+		{path: "cmd/internal/obj", dir: "/go/src/cmd/internal/obj"}},
+	"objdump": {
+		{path: "cmd/objdump", dir: "/go/src/cmd/objdump"}},
+	"objfile": {
+		{path: "cmd/internal/objfile", dir: "/go/src/cmd/internal/objfile"}},
+	"os": {
+		{path: "os", dir: "/go/src/os"}},
+	"pack": {
+		{path: "cmd/pack", dir: "/go/src/cmd/pack"}},
+	"palette": {
+		{path: "image/color/palette", dir: "/go/src/image/color/palette"}},
+	"parse": {
+		{path: "text/template/parse", dir: "/go/src/text/template/parse"}},
+	"parser": {
+		{path: "go/parser", dir: "/go/src/go/parser"}},
+	"path": {
+		{path: "path", dir: "/go/src/path"}},
+	"pe": {
+		{path: "debug/pe", dir: "/go/src/debug/pe"}},
+	"pem": {
+		{path: "encoding/pem", dir: "/go/src/encoding/pem"}},
+	"pkix": {
+		{path: "crypto/x509/pkix", dir: "/go/src/crypto/x509/pkix"}},
+	"plan9obj": {
+		{path: "debug/plan9obj", dir: "/go/src/debug/plan9obj"}},
+	"plugin": {
+		{path: "cmd/internal/pprof/plugin", dir: "/go/src/cmd/internal/pprof/plugin"}},
+	"png": {
+		{path: "image/png", dir: "/go/src/image/png"}},
+	"ppc64": {
+		{path: "cmd/compile/internal/ppc64", dir: "/go/src/cmd/compile/internal/ppc64"},
+		{path: "cmd/internal/obj/ppc64", dir: "/go/src/cmd/internal/obj/ppc64"},
+		{path: "cmd/link/internal/ppc64", dir: "/go/src/cmd/link/internal/ppc64"}},
+	"pprof": {
+		{path: "cmd/internal/pprof", dir: "/go/src/cmd/internal/pprof"},
+		{path: "cmd/pprof", dir: "/go/src/cmd/pprof"},
+		{path: "net/http/pprof", dir: "/go/src/net/http/pprof"},
+		{path: "runtime/pprof", dir: "/go/src/runtime/pprof"}},
+	"printer": {
+		{path: "go/printer", dir: "/go/src/go/printer"}},
+	"profile": {
+		{path: "cmd/internal/pprof/profile", dir: "/go/src/cmd/internal/pprof/profile"}},
+	"quick": {
+		{path: "testing/quick", dir: "/go/src/testing/quick"}},
+	"quotedprintable": {
+		{path: "mime/quotedprintable", dir: "/go/src/mime/quotedprintable"}},
+	"race": {
+		{path: "internal/race", dir: "/go/src/internal/race"},
+		{path: "runtime/race", dir: "/go/src/runtime/race"}},
+	"rand": {
+		{path: "crypto/rand", dir: "/go/src/crypto/rand"},
+		{path: "math/rand", dir: "/go/src/math/rand"}},
+	"rc4": {
+		{path: "crypto/rc4", dir: "/go/src/crypto/rc4"}},
+	"reflect": {
+		{path: "reflect", dir: "/go/src/reflect"}},
+	"regexp": {
+		{path: "regexp", dir: "/go/src/regexp"}},
+	"registry": {
+		{path: "internal/syscall/windows/registry", dir: "/go/src/internal/syscall/windows/registry"}},
+	"report": {
+		{path: "cmd/internal/pprof/report", dir: "/go/src/cmd/internal/pprof/report"}},
+	"ring": {
+		{path: "container/ring", dir: "/go/src/container/ring"}},
+	"route": {
+		{path: "vendor/golang_org/x/net/route", dir: "/go/src/vendor/golang_org/x/net/route"}},
+	"rpc": {
+		{path: "net/rpc", dir: "/go/src/net/rpc"}},
+	"rsa": {
+		{path: "crypto/rsa", dir: "/go/src/crypto/rsa"}},
+	"runtime": {
+		{path: "runtime", dir: "/go/src/runtime"}},
+	"s390x": {
+		{path: "cmd/compile/internal/s390x", dir: "/go/src/cmd/compile/internal/s390x"},
+		{path: "cmd/internal/obj/s390x", dir: "/go/src/cmd/internal/obj/s390x"},
+		{path: "cmd/link/internal/s390x", dir: "/go/src/cmd/link/internal/s390x"}},
+	"scanner": {
+		{path: "go/scanner", dir: "/go/src/go/scanner"},
+		{path: "text/scanner", dir: "/go/src/text/scanner"}},
+	"sha1": {
+		{path: "crypto/sha1", dir: "/go/src/crypto/sha1"}},
+	"sha256": {
+		{path: "crypto/sha256", dir: "/go/src/crypto/sha256"}},
+	"sha512": {
+		{path: "crypto/sha512", dir: "/go/src/crypto/sha512"}},
+	"signal": {
+		{path: "os/signal", dir: "/go/src/os/signal"}},
+	"singleflight": {
+		{path: "internal/singleflight", dir: "/go/src/internal/singleflight"}},
+	"smtp": {
+		{path: "net/smtp", dir: "/go/src/net/smtp"}},
+	"socktest": {
+		{path: "net/internal/socktest", dir: "/go/src/net/internal/socktest"}},
+	"sort": {
+		{path: "sort", dir: "/go/src/sort"}},
+	"sql": {
+		{path: "database/sql", dir: "/go/src/database/sql"}},
+	"ssa": {
+		{path: "cmd/compile/internal/ssa", dir: "/go/src/cmd/compile/internal/ssa"}},
+	"strconv": {
+		{path: "strconv", dir: "/go/src/strconv"}},
+	"strings": {
+		{path: "strings", dir: "/go/src/strings"}},
+	"subtle": {
+		{path: "crypto/subtle", dir: "/go/src/crypto/subtle"}},
+	"suffixarray": {
+		{path: "index/suffixarray", dir: "/go/src/index/suffixarray"}},
+	"svg": {
+		{path: "cmd/internal/pprof/svg", dir: "/go/src/cmd/internal/pprof/svg"}},
+	"symbolizer": {
+		{path: "cmd/internal/pprof/symbolizer", dir: "/go/src/cmd/internal/pprof/symbolizer"}},
+	"symbolz": {
+		{path: "cmd/internal/pprof/symbolz", dir: "/go/src/cmd/internal/pprof/symbolz"}},
+	"sync": {
+		{path: "sync", dir: "/go/src/sync"}},
+	"syntax": {
+		{path: "regexp/syntax", dir: "/go/src/regexp/syntax"}},
+	"sys": {
+		{path: "cmd/internal/sys", dir: "/go/src/cmd/internal/sys"},
+		{path: "runtime/internal/sys", dir: "/go/src/runtime/internal/sys"}},
+	"syscall": {
+		{path: "internal/syscall", dir: "/go/src/internal/syscall"},
+		{path: "syscall", dir: "/go/src/syscall"}},
+	"sysdll": {
+		{path: "internal/syscall/windows/sysdll", dir: "/go/src/internal/syscall/windows/sysdll"}},
+	"syslog": {
+		{path: "log/syslog", dir: "/go/src/log/syslog"}},
+	"tabwriter": {
+		{path: "text/tabwriter", dir: "/go/src/text/tabwriter"}},
+	"tar": {
+		{path: "archive/tar", dir: "/go/src/archive/tar"}},
+	"tempfile": {
+		{path: "cmd/internal/pprof/tempfile", dir: "/go/src/cmd/internal/pprof/tempfile"}},
+	"template": {
+		{path: "html/template", dir: "/go/src/html/template"},
+		{path: "text/template", dir: "/go/src/text/template"}},
+	"test": {
+		{path: "cmd/compile/internal/test", dir: "/go/src/cmd/compile/internal/test"}},
+	"testenv": {
+		{path: "internal/testenv", dir: "/go/src/internal/testenv"}},
+	"testing": {
+		{path: "testing", dir: "/go/src/testing"}},
+	"text": {
+		{path: "text", dir: "/go/src/text"}},
+	"textproto": {
+		{path: "net/textproto", dir: "/go/src/net/textproto"}},
+	"time": {
+		{path: "time", dir: "/go/src/time"}},
+	"tls": {
+		{path: "crypto/tls", dir: "/go/src/crypto/tls"}},
+	"token": {
+		{path: "go/token", dir: "/go/src/go/token"}},
 	"trace": {
 		{path: "cmd/trace", dir: "/go/src/cmd/trace"},
 		{path: "internal/trace", dir: "/go/src/internal/trace"},
-		{path: "runtime/trace", dir: "/go/src/runtime/trace"},
-	},
-	"json": {
-		{path: "encoding/json", dir: "/go/src/encoding/json"},
-	},
-	"fnv": {
-		{path: "hash/fnv", dir: "/go/src/hash/fnv"},
-	},
-	"testenv": {
-		{path: "internal/testenv", dir: "/go/src/internal/testenv"},
-	},
-	"httputil": {
-		{path: "net/http/httputil", dir: "/go/src/net/http/httputil"},
-	},
-	"rpc": {
-		{path: "net/rpc", dir: "/go/src/net/rpc"},
-	},
-	"gc": {
-		{path: "cmd/compile/internal/gc", dir: "/go/src/cmd/compile/internal/gc"},
-	},
-	"sha512": {
-		{path: "crypto/sha512", dir: "/go/src/crypto/sha512"},
-	},
-	"quotedprintable": {
-		{path: "mime/quotedprintable", dir: "/go/src/mime/quotedprintable"},
-	},
-	"os": {
-		{path: "os", dir: "/go/src/os"},
-	},
-	"compress": {
-		{path: "compress", dir: "/go/src/compress"},
-	},
-	"time": {
-		{path: "time", dir: "/go/src/time"},
-	},
+		{path: "runtime/trace", dir: "/go/src/runtime/trace"}},
+	"types": {
+		{path: "go/types", dir: "/go/src/go/types"}},
+	"unicode": {
+		{path: "unicode", dir: "/go/src/unicode"}},
+	"unix": {
+		{path: "internal/syscall/unix", dir: "/go/src/internal/syscall/unix"}},
+	"unsafe": {
+		{path: "unsafe", dir: "/go/src/unsafe"}},
+	"url": {
+		{path: "net/url", dir: "/go/src/net/url"}},
+	"user": {
+		{path: "os/user", dir: "/go/src/os/user"}},
 	"utf16": {
-		{path: "unicode/utf16", dir: "/go/src/unicode/utf16"},
-	},
-	"strings": {
-		{path: "strings", dir: "/go/src/strings"},
-	},
-	"sha1": {
-		{path: "crypto/sha1", dir: "/go/src/crypto/sha1"},
-	},
-	"hash": {
-		{path: "hash", dir: "/go/src/hash"},
-	},
-	"crc32": {
-		{path: "hash/crc32", dir: "/go/src/hash/crc32"},
-	},
-	"race": {
-		{path: "internal/race", dir: "/go/src/internal/race"},
-		{path: "runtime/race", dir: "/go/src/runtime/race"},
-	},
-	"multipart": {
-		{path: "mime/multipart", dir: "/go/src/mime/multipart"},
-	},
-	"flags": {
-		{path: "cmd/asm/internal/flags", dir: "/go/src/cmd/asm/internal/flags"},
-	},
-	"cover": {
-		{path: "cmd/cover", dir: "/go/src/cmd/cover"},
-	},
-	"obj": {
-		{path: "cmd/internal/obj", dir: "/go/src/cmd/internal/obj"},
-	},
-	"socktest": {
-		{path: "net/internal/socktest", dir: "/go/src/net/internal/socktest"},
-	},
-	"parse": {
-		{path: "text/template/parse", dir: "/go/src/text/template/parse"},
-	},
-	"mips64": {
-		{path: "cmd/compile/internal/mips64", dir: "/go/src/cmd/compile/internal/mips64"},
-		{path: "cmd/link/internal/mips64", dir: "/go/src/cmd/link/internal/mips64"},
-	},
+		{path: "unicode/utf16", dir: "/go/src/unicode/utf16"}},
+	"utf8": {
+		{path: "unicode/utf8", dir: "/go/src/unicode/utf8"}},
+	"vendor": {
+		{path: "cmd/vendor", dir: "/go/src/cmd/vendor"},
+		{path: "vendor", dir: "/go/src/vendor"}},
+	"vet": {
+		{path: "cmd/vet", dir: "/go/src/cmd/vet"}},
+	"whitelist": {
+		{path: "cmd/vet/internal/whitelist", dir: "/go/src/cmd/vet/internal/whitelist"}},
+	"windows": {
+		{path: "internal/syscall/windows", dir: "/go/src/internal/syscall/windows"}},
+	"x": {
+		{path: "cmd/vendor/golang.org/x", dir: "/go/src/cmd/vendor/golang.org/x"},
+		{path: "vendor/golang_org/x", dir: "/go/src/vendor/golang_org/x"}},
+	"x509": {
+		{path: "crypto/x509", dir: "/go/src/crypto/x509"}},
+	"x86": {
+		{path: "cmd/compile/internal/x86", dir: "/go/src/cmd/compile/internal/x86"},
+		{path: "cmd/internal/obj/x86", dir: "/go/src/cmd/internal/obj/x86"},
+		{path: "cmd/link/internal/x86", dir: "/go/src/cmd/link/internal/x86"},
+		{path: "cmd/vendor/golang.org/x/arch/x86", dir: "/go/src/cmd/vendor/golang.org/x/arch/x86"}},
+	"x86asm": {
+		{path: "cmd/vendor/golang.org/x/arch/x86/x86asm", dir: "/go/src/cmd/vendor/golang.org/x/arch/x86/x86asm"}},
+	"xml": {
+		{path: "encoding/xml", dir: "/go/src/encoding/xml"}},
+	"yacc": {
+		{path: "cmd/yacc", dir: "/go/src/cmd/yacc"}},
+	"zip": {
+		{path: "archive/zip", dir: "/go/src/archive/zip"}},
+	"zlib": {
+		{path: "compress/zlib", dir: "/go/src/compress/zlib"}},
 }
