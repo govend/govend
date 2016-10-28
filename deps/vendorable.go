@@ -81,11 +81,14 @@ func checkGopath() error {
 	sep := string(filepath.Separator)
 	cwd = cwd + sep
 
-	// check $GOPATH/src
-	gosrc := filepath.Join(gopath, "src") + sep
-	if !strings.HasPrefix(cwd, gosrc) {
-		return errors.New("you cannot vendor packages outside of your $GOPATH/src")
+	// for each filepath in $GOPATH, check path/src
+	paths := filepath.SplitList(gopath)
+	for _, path := range paths {
+		gosrc := filepath.Join(path, "src") + sep
+		if strings.HasPrefix(cwd, gosrc) {
+			return nil
+		}
 	}
 
-	return nil
+	return errors.New("you cannot vendor packages outside of your $GOPATH/src")
 }
