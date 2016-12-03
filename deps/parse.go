@@ -21,6 +21,9 @@ const (
 	// PruneOption removes vendored packages that are not needed.
 	PruneOption
 
+	// AllBuildTagsOption does not prune based on build tag if PruneOption is set.
+	AllBuildTagsOption
+
 	// IgnoreOption ignores the source import paths.
 	IgnoreOption
 
@@ -39,7 +42,7 @@ const (
 )
 
 // ParseOptions converts cli flag inputs to VendOptions.
-func ParseOptions(update, lock, hold, prune, ignore, verbose, tree, results, strict bool) []VendOptions {
+func ParseOptions(update, lock, hold, prune, alltags, ignore, verbose, tree, results, strict bool) []VendOptions {
 	options := []VendOptions{}
 	if update {
 		options = append(options, UpdateOption)
@@ -52,6 +55,9 @@ func ParseOptions(update, lock, hold, prune, ignore, verbose, tree, results, str
 	}
 	if prune {
 		options = append(options, PruneOption)
+	}
+	if alltags {
+		options = append(options, AllBuildTagsOption)
 	}
 	if ignore {
 		options = append(options, IgnoreOption)
@@ -71,7 +77,7 @@ func ParseOptions(update, lock, hold, prune, ignore, verbose, tree, results, str
 	return options
 }
 
-func parseVendOptions(options []VendOptions) (update, lock, hold, prune, ignore, verbose, tree, results, strict bool) {
+func parseVendOptions(options []VendOptions) (update, lock, hold, prune, alltags, ignore, verbose, tree, results, strict bool) {
 	for _, option := range options {
 		switch option {
 		case UpdateOption:
@@ -82,6 +88,8 @@ func parseVendOptions(options []VendOptions) (update, lock, hold, prune, ignore,
 			hold = true
 		case PruneOption:
 			prune = true
+		case AllBuildTagsOption:
+			alltags = true
 		case IgnoreOption:
 			ignore = true
 		case VerboseOption:
@@ -94,5 +102,5 @@ func parseVendOptions(options []VendOptions) (update, lock, hold, prune, ignore,
 			strict = true
 		}
 	}
-	return update, lock, hold, prune, ignore, verbose, tree, results, strict
+	return update, lock, hold, prune, alltags, ignore, verbose, tree, results, strict
 }
