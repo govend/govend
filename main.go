@@ -25,12 +25,14 @@ var (
 	lock          bool
 	hold          bool
 	prune         bool
+	alltags       bool
 	ignore        bool
 	scan          bool
 	skipTestFiles bool
 	skipFilters   bool
 	format        string
 	strict        bool
+	tags          []string
 )
 
 // cli flag usage descriptions
@@ -64,6 +66,9 @@ const (
 	pruneDesc = `The --prune flag removes vendored packages that are not needed
 	by leveraging the dependency tree after vendoring has completed.
 	`
+	alltagsDesc = `The --all-tags flag scans all files, regardless of build
+	tags, for imports.
+	`
 	ignoreDesc = `The --ignore flag ignores any packages that are NOT found in the
 	manifest file.
 	`
@@ -78,6 +83,10 @@ const (
 	`
 	strictDesc = `The --strict flag returns non-zero status code when a package
 	path and/or revision is invalid.
+	`
+	buildtagsDesc = `The --build-tags flag scans files with these build tags
+	for imports. It takes a comma-separated list. These should be the tags that
+	will actually be used during compilation.
 	`
 )
 
@@ -101,9 +110,20 @@ var govend = &cobra.Command{
 			}
 
 			// parse flag options relevant to the scan command
-			sOpts := imports.ParseOptions(skipTestFiles, skipFilters)
+			scanOpts := []imports.ScanOption{}
+			if skipTestFiles {
+				scanOpts = append(scanOpts, imports.SkipTestFiles)
+			}
+			if skipFilters {
+				scanOpts = append(scanOpts, imports.SkipFilters)
+			}
+			if alltags {
+				scanOpts = append(scanOpts, imports.AllBuildTags)
+			} else {
+				scanOpts = append(scanOpts, imports.BuildTags(tags...))
+			}
 
-			pkgs, err := imports.Scan(path, sOpts...)
+			pkgs, err := imports.Scan(path, scanOpts...)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -128,10 +148,10 @@ var govend = &cobra.Command{
 			}
 
 			// parse flag options relevant to the vend command
-			vOpts := deps.ParseOptions(update, lock, hold, prune, ignore, verbose, tree, results, strict)
+			vOpts := deps.ParseOptions(update, lock, hold, prune, alltags, ignore, verbose, tree, results, strict)
 
 			// vendor according to the options provided
-			if err := deps.Vend(args, format, vOpts...); err != nil {
+			if err := deps.Vend(args, format, tags, vOpts...); err != nil {
 				log.Fatal(err)
 			}
 		}
@@ -148,10 +168,12 @@ func main() {
 	govend.Flags().BoolVarP(&lock, "lock", "l", false, lockDesc)
 	govend.Flags().BoolVar(&hold, "hold", false, holdDesc)
 	govend.Flags().BoolVar(&prune, "prune", false, pruneDesc)
+	govend.Flags().BoolVar(&alltags, "all-tags", false, alltagsDesc)
 	govend.Flags().BoolVarP(&ignore, "ignore", "i", false, ignoreDesc)
 	govend.Flags().BoolVarP(&scan, "scan", "s", false, scanDesc)
 	govend.Flags().BoolVar(&skipFilters, "skipFilters", false, skipFiltersDesc)
 	govend.Flags().BoolVar(&skipTestFiles, "skipTestFiles", false, skipTestFilesDesc)
 	govend.Flags().BoolVar(&strict, "strict", false, strictDesc)
+	govend.Flags().StringSliceVar(&tags, "build-tags", []string{}, buildtagsDesc)
 	govend.Execute()
 }

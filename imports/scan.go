@@ -5,115 +5,86 @@
 package imports
 
 import (
+	"go/build"
 	"os"
 	"sort"
-	"strings"
 
 	"github.com/govend/govend/imports/filters"
-	"github.com/kr/fs"
 )
 
-// ScanOptions represents available scan options.
-type ScanOptions int
+type ScanOption func(*scanOptions)
 
-const (
-	// SinglePackage only scans a single package
-	SinglePackage ScanOptions = iota
+var (
+	// AllBuildTags includes files of every build tag.
+	AllBuildTags ScanOption
 
-	// SkipTestFiles does not scan files that end in "_test.go".
-	SkipTestFiles
+	// BuildTags sets extra build tags to be included when considering which
+	// package imports will be needed. It defaults to go/build's default
+	// Context tags, which is to say only OS/Arch related tags.
+	BuildTags func(...string) ScanOption
 
 	// SkipFilters returns the raw unfiltered list of scanned packages.
-	SkipFilters
+	SkipFilters ScanOption
+
+	// SkipTestFiles does not scan files that end in "_test.go".
+	SkipTestFiles ScanOption
 )
 
+type scanOptions struct {
+	allTags       bool
+	buildTags     []string
+	skipFilters   bool
+	skipTestFiles bool
+}
+
+func init() {
+	AllBuildTags = func(opts *scanOptions) { opts.allTags = true }
+	BuildTags = func(tags ...string) ScanOption {
+		return func(opts *scanOptions) {
+			opts.buildTags = append(opts.buildTags, tags...)
+		}
+	}
+	SkipFilters = func(opts *scanOptions) { opts.skipFilters = true }
+	SkipTestFiles = func(opts *scanOptions) { opts.skipTestFiles = true }
+}
+
 // Scan takes a directory and scans it for import dependencies.
-func Scan(path string, options ...ScanOptions) ([]string, error) {
+func Scan(path string, options ...ScanOption) ([]string, error) {
 
 	// if the path is a Godeps path, filter it out
 	path = filters.Godeps([]string{path})[0]
 
 	// parse scan options
-	var singlePackage, skipTestFiles, skipFilters bool
-	for _, option := range options {
-		switch option {
-		case SinglePackage:
-			singlePackage = true
-		case SkipTestFiles:
-			skipTestFiles = true
-		case SkipFilters:
-			skipFilters = true
-		}
+	var opts scanOptions
+	for _, opt := range options {
+		opt(&opts)
 	}
 
-	// get directory info
-	dinfo, err := os.Stat(path)
+	// init build context for scanning imports
+	ctx := build.Default
+	if len(opts.buildTags) > 0 {
+		ctx.BuildTags = append(ctx.BuildTags, opts.buildTags...)
+	}
+	if opts.allTags {
+		ctx.UseAllFiles = true
+	}
+
+	// Find imports
+	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
-
-	// if we are in a directory step to it!
-	w := fs.Walk(path)
-	if dinfo.IsDir() {
-		w.Step()
+	p, err := ctx.Import(path, cwd, build.IgnoreVendor)
+	if err != nil {
+		return nil, err
 	}
-
-	// we will parse a list of packages
-	pkgs := []string{}
-	for w.Step() {
-
-		// skip all files and directories that start with '.' or '_'
-		finfo := w.Stat()
-
-		// check for any walker errors
-		if w.Err() != nil {
-			return nil, w.Err()
-		}
-
-		firstchar := []rune(finfo.Name())[0]
-		if firstchar == '_' || firstchar == '.' {
-			if finfo.IsDir() {
-				w.SkipDir()
-				continue
-			} else {
-				continue
-			}
-		}
-
-		// skip directories named "vendor"
-		if finfo.IsDir() {
-			if finfo.Name() == "vendor" || finfo.Name() == "Godeps" {
-				w.SkipDir()
-				continue
-			}
-			if singlePackage {
-				w.SkipDir()
-				continue
-			}
-		}
-
-		// if testfiles is false then skip all go tests deps
-		if skipTestFiles && strings.HasSuffix(finfo.Name(), "_test.go") {
-			continue
-		}
-
-		// only parse .go files
-		fpath := w.Path()
-		if strings.HasSuffix(fpath, ".go") {
-			p, err := Parse(w.Path())
-			if err != nil {
-
-				// if the error is because of a bad file, skip the file
-				if strings.Contains(err.Error(), eofError) {
-					continue
-				}
-			}
-			pkgs = append(pkgs, p...)
-		}
+	pkgs := p.Imports
+	if !opts.skipTestFiles {
+		pkgs = append(pkgs, p.TestImports...)
 	}
 
 	// filter packages
-	if !skipFilters {
+	if !opts.skipFilters {
 		pkgs = filters.Exceptions(pkgs)
 		pkgs = filters.Standard(pkgs)
 		pkgs = filters.Local(pkgs)

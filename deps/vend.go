@@ -19,10 +19,10 @@ import (
 
 // Vend is the main function govend uses to vendor external packages.
 // Vend also invokes the Hold and Prune methods.
-func Vend(pkgs []string, format string, options ...VendOptions) error {
+func Vend(pkgs []string, format string, tags []string, options ...VendOptions) error {
 
 	// parse VendOptions into usable boolean values
-	update, lock, hold, prune, ignore, verbose, tree, results, strict := parseVendOptions(options)
+	update, lock, hold, prune, alltags, ignore, verbose, tree, results, strict := parseVendOptions(options)
 
 	// load or create an empty manifest file
 	m, err := manifest.Load(format)
@@ -44,7 +44,16 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 	// if no packages were provided, we can only assume the current relative
 	// directory contains Go source code, therefore so we should scan it
 	if len(pkgs) == 0 && !ignore {
-		pkgs, err = imports.Scan(".")
+		scanOpts := []imports.ScanOption{}
+		if prune {
+			scanOpts = append(scanOpts, imports.SkipTestFiles)
+		}
+		if alltags {
+			scanOpts = append(scanOpts, imports.AllBuildTags)
+		} else {
+			scanOpts = append(scanOpts, imports.BuildTags(tags...))
+		}
+		pkgs, err = imports.Scan(".", scanOpts...)
 		if err != nil {
 			return err
 		}
@@ -184,14 +193,16 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 		// it relies on so that they can be vendored in the next iterations
 		//
 		// but... first we need to determine which scan options provided
-		scanOpts := []imports.ScanOptions{}
-		if !hold {
-			scanOpts = append(scanOpts, imports.SinglePackage)
-			if prune {
-				scanOpts = append(scanOpts, imports.SkipTestFiles)
-			}
+		scanOpts := []imports.ScanOption{}
+		if prune {
+			scanOpts = append(scanOpts, imports.SkipTestFiles)
 		}
-		vdeps, err := imports.Scan(filepath.Join("vendor", pkg.path), scanOpts...)
+		if alltags {
+			scanOpts = append(scanOpts, imports.AllBuildTags)
+		} else {
+			scanOpts = append(scanOpts, imports.BuildTags(tags...))
+		}
+		vdeps, err := imports.Scan(pkg.path, scanOpts...)
 		if err != nil {
 			badPing = true
 			reportBadPing(pkg.path, err)
