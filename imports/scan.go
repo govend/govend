@@ -5,12 +5,11 @@
 package imports
 
 import (
+	"go/build"
 	"os"
 	"sort"
-	"strings"
 
 	"github.com/govend/govend/imports/filters"
-	"github.com/kr/fs"
 )
 
 // ScanOptions represents available scan options.
@@ -46,70 +45,23 @@ func Scan(path string, options ...ScanOptions) ([]string, error) {
 		}
 	}
 
-	// get directory info
-	dinfo, err := os.Stat(path)
+	ctx := build.Default
+	mode := build.IgnoreVendor
+	if singlePackage {
+		mode = build.FindOnly
+	}
+
+	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
-
-	// if we are in a directory step to it!
-	w := fs.Walk(path)
-	if dinfo.IsDir() {
-		w.Step()
+	p, err := ctx.Import(path, cwd, mode)
+	if err != nil {
+		return nil, err
 	}
-
-	// we will parse a list of packages
-	pkgs := []string{}
-	for w.Step() {
-
-		// skip all files and directories that start with '.' or '_'
-		finfo := w.Stat()
-
-		// check for any walker errors
-		if w.Err() != nil {
-			return nil, w.Err()
-		}
-
-		firstchar := []rune(finfo.Name())[0]
-		if firstchar == '_' || firstchar == '.' {
-			if finfo.IsDir() {
-				w.SkipDir()
-				continue
-			} else {
-				continue
-			}
-		}
-
-		// skip directories named "vendor"
-		if finfo.IsDir() {
-			if finfo.Name() == "vendor" || finfo.Name() == "Godeps" {
-				w.SkipDir()
-				continue
-			}
-			if singlePackage {
-				w.SkipDir()
-				continue
-			}
-		}
-
-		// if testfiles is false then skip all go tests deps
-		if skipTestFiles && strings.HasSuffix(finfo.Name(), "_test.go") {
-			continue
-		}
-
-		// only parse .go files
-		fpath := w.Path()
-		if strings.HasSuffix(fpath, ".go") {
-			p, err := Parse(w.Path())
-			if err != nil {
-
-				// if the error is because of a bad file, skip the file
-				if strings.Contains(err.Error(), eofError) {
-					continue
-				}
-			}
-			pkgs = append(pkgs, p...)
-		}
+	pkgs := p.Imports
+	if !skipTestFiles {
+		pkgs = append(pkgs, p.TestImports...)
 	}
 
 	// filter packages

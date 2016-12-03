@@ -191,7 +191,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 				scanOpts = append(scanOpts, imports.SkipTestFiles)
 			}
 		}
-		vdeps, err := imports.Scan(filepath.Join("vendor", pkg.path), scanOpts...)
+		vdeps, err := imports.Scan(pkg.path, scanOpts...)
 		if err != nil {
 			badPing = true
 			reportBadPing(pkg.path, err)
