@@ -136,7 +136,7 @@ func Vend(pkgs []string, format string, options ...VendOptions) error {
 		}
 
 		// check if the import package path exists inside the vendor directory
-		if _, err := os.Stat(filepath.Join("vendor", pkg.path)); os.IsNotExist(err) {
+		if _, err := os.Stat(filepath.Join("vendor", pkg.path)); os.IsNotExist(err) && !prune {
 
 			// we know the package import path does not exist inside of the vendor
 			// directory, but we don't know if the import path is representative of
